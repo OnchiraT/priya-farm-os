@@ -1,0 +1,336 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>หลังบ้าน ปรียาฟาร์ม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/os.css">
+<style>
+.shell{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+nav.side{background:#11241a;color:#d7e6dc;padding:16px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:100vh;overflow:auto}
+nav.side .brand{font:700 17px var(--f-display);color:#fff;padding:4px 10px 14px}nav.side .brand small{display:block;color:#8fb09c;font:500 12px var(--f-body)}
+nav.side a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:#d7e6dc;text-decoration:none;font-weight:500}
+nav.side a:hover{background:#1b3527}nav.side a[aria-current]{background:#24513b;color:#fff}
+nav.side .grp{font-size:11px;color:#7d9c89;padding:14px 10px 4px;letter-spacing:.02em}
+nav.side .badge{margin-left:auto;background:#e3a21a;color:#2a1b00;border-radius:999px;padding:0 7px;font-size:11px;font-weight:700}
+nav.side .foot{margin-top:auto;padding:10px;font-size:12px;color:#8fb09c}
+main{padding:22px 24px 60px;max-width:1180px;width:100%}
+.ph{display:flex;align-items:flex-end;gap:12px;margin-bottom:16px;flex-wrap:wrap}.ph p{margin:4px 0 0;color:var(--muted)}
+.topbar{display:none}
+@media (max-width:860px){.shell{grid-template-columns:1fr}nav.side{position:fixed;inset:0 30% 0 0;z-index:50;transform:translateX(-105%);transition:transform .2s;height:100%}
+ body.nav-open nav.side{transform:none}.topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#11241a;color:#fff;position:sticky;top:0;z-index:40}
+ .topbar button{background:none;border:0;color:#fff;font-size:22px}main{padding:16px}}
+/* inbox */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;cursor:pointer;font:500 13px var(--f-body)}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.ilist{display:grid;gap:8px}.irow{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.irow:hover{border-color:var(--accent)}.irow img{width:64px;height:64px;object-fit:cover;border-radius:6px;background:var(--surface-2)}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
+@media (max-width:1000px){.detail{grid-template-columns:1fr}}
+.imgbox{position:sticky;top:12px;background:#222;border-radius:12px;overflow:auto;max-height:86vh}.imgbox img{display:block;width:100%;cursor:zoom-in}.imgbox.zoom img{width:220%;cursor:zoom-out}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.fld{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}.fld.ok{border-left:4px solid var(--ok)}.fld.warn{border-left:4px solid #e3a21a;background:#fffaf0}.fld.crit{border-left:4px solid var(--crit);background:#fff6f5}
+.fld label{font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between;gap:4px}.fld input{border:0;padding:2px 0;font-weight:600;font-size:15px;background:transparent}
+.fld .why{font-size:11px;color:var(--muted);margin-top:2px}
+.checks li{margin:3px 0}.ev{font-size:12.5px;color:var(--muted);border-left:2px solid var(--line);padding-left:10px;margin-left:4px}.ev div{margin:6px 0}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:28px;text-align:center;background:#fff;cursor:pointer}.drop.on{border-color:var(--accent);background:var(--accent-soft)}
+.feat{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr auto;gap:8px;align-items:end}
+@media (max-width:900px){.feat{grid-template-columns:1fr 1fr}}
+.cmp td{font-size:13px}.cmp td.diff{background:var(--warn-soft)}
+pre.ocr{white-space:pre-wrap;max-height:360px;overflow:auto;background:var(--surface-2);border-radius:8px;padding:8px;font-size:12px}
+</style></head><body>
+<div class="topbar"><button id="hamb" aria-label="เมนู">☰</button><b>หลังบ้าน ปรียาฟาร์ม</b></div>
+<div class="shell">
+<nav class="side" id="side">
+  <div class="brand" id="brand">ปรียาฟาร์ม OS<small>หลังบ้าน</small></div>
+  <a href="/farm/">← กลับไปแดชบอร์ดฟาร์ม</a>
+  <div class="grp">เอกสารเข้า</div>
+  <a href="#inbox" data-r="inbox">📥 กล่องเอกสาร <span class="badge" id="nPend" hidden></span></a>
+  <a href="#upload" data-r="upload">📷 ส่งรูปเอกสารเอง</a>
+  <div class="grp admin">ตั้งค่า</div>
+  <a href="#accounts" data-r="accounts" class="admin">👥 บัญชีผู้ใช้</a>
+  <a href="#line" data-r="line" class="admin">💬 LINE OA</a>
+  <a href="#ai" data-r="ai" class="admin">✨ ตั้งค่า AI</a>
+  <a href="#keys" data-r="keys" class="admin">🔑 API keys</a>
+  <a href="#lab" data-r="lab" class="admin">🧪 ทดสอบ OCR เทียบเจ้า</a>
+  <a href="#data" data-r="data" class="admin">🗂️ ข้อมูลในระบบ</a>
+  <div class="foot"><span id="who"></span><br><a href="#" id="logout" style="color:#bfe0cb">ออกจากระบบ</a></div>
+</nav>
+<main id="main"><div class="empty"><span class="spin"></span></div></main>
+</div>
+<script type="module">
+import { $, $$, esc, api, toast, shrink, confCls, thTime } from '/os.js';
+let ME; try { ME = (await api('GET', 'me')).user; } catch { }
+if (!ME) location.replace('/?next=' + encodeURIComponent('/app' + location.hash));
+const ADMIN = ME.role === 'owner' || ME.role === 'exec', STAFF = ADMIN || ME.role === 'office';
+if (!STAFF) { document.body.innerHTML = '<div class="empty">บัญชีนี้ไม่มีสิทธิ์เข้าหลังบ้าน <a href="/farm/">กลับแดชบอร์ด</a></div>'; throw 0; }
+$$('.admin').forEach(e => e.hidden = !ADMIN);
+$('#who').textContent = `${ME.name} · ${ME.roleLabel}`;
+$('#logout').onclick = async e => { e.preventDefault(); await api('POST', 'logout'); location.replace('/'); };
+$('#hamb').onclick = () => document.body.classList.toggle('nav-open');
+const M = $('#main');
+const STATUS = { new: ['รับแล้ว', ''], reading: ['กำลังอ่าน', 'info'], scored: ['อ่านแล้ว', 'info'], asking: ['กำลังถามในกลุ่ม', 'info'], review: ['รอผู้บริหารตรวจ', 'warn'], error: ['อ่านไม่สำเร็จ', 'crit'], auto: ['บันทึกอัตโนมัติ', 'ok'], confirmed: ['คนยืนยันแล้วบันทึก', 'ok'], approved: ['ผู้บริหารอนุมัติ', 'ok'], rejected: ['ไม่บันทึก', ''], ignored: ['ไม่ใช่เอกสาร', ''], retake: ['ขอรูปใหม่', ''] };
+const st = s => { const [l, c] = STATUS[s] || [s, '']; return `<span class="pill ${c}">${l}</span>`; };
+const confPill = c => c == null ? '' : `<span class="pill ${confCls(c)}">มั่นใจ ${Math.round(c)}%</span>`;
+let DOCT = {};
+async function badge() { try { const r = await api('GET', 'intake?status=pending'); const n = (r.counts.review || 0) + (r.counts.error || 0); $('#nPend').hidden = !n; $('#nPend').textContent = n; DOCT = r.docTypes; } catch { } }
+
+const R = {};
+async function route() {
+  document.body.classList.remove('nav-open');
+  const [r, arg] = (location.hash.slice(1) || 'inbox').split('/');
+  $$('nav.side a[data-r]').forEach(a => a.toggleAttribute('aria-current', a.dataset.r === r));
+  M.innerHTML = '<div class="empty"><span class="spin"></span></div>';
+  try { await (R[r] || R.inbox)(arg); } catch (e) { M.innerHTML = `<div class="card"><b>เปิดหน้านี้ไม่ได้</b><p class="muted">${esc(e.message)}</p></div>`; }
+}
+addEventListener('hashchange', route);
+
+/* ---------------- inbox ---------------- */
+let inboxFilter = 'pending';
+R.inbox = async id => {
+  if (id) return detail(id);
+  const r = await api('GET', 'intake' + (inboxFilter === 'all' ? '' : '?status=' + inboxFilter)); DOCT = r.docTypes;
+  const c = r.counts, pend = (c.review || 0) + (c.error || 0) + (c.asking || 0);
+  const F = [['pending', `ต้องดู (${pend})`], ['asking', `กำลังถามในกลุ่ม (${c.asking || 0})`], ['auto', `บันทึกอัตโนมัติ (${c.auto || 0})`], ['confirmed', `คนยืนยัน (${c.confirmed || 0})`], ['approved', `อนุมัติแล้ว (${c.approved || 0})`], ['all', 'ทั้งหมด']];
+  M.innerHTML = `<div class="ph"><div><h1>กล่องเอกสาร</h1><p>รูปเอกสารที่ส่งเข้ามาทาง LINE หรืออัปโหลดเอง AI อ่านแล้วให้คะแนนความมั่นใจ ถ้ามั่นใจพอจะบันทึกเอง ถ้าไม่แน่ใจจะถามคนในกลุ่มก่อน แล้วค่อยส่งมาที่นี่</p></div><span class="sp"></span><a class="btn" href="#upload">📷 ส่งรูปเอง</a></div>
+  <div class="chips">${F.map(([k, l]) => `<button class="chip" data-f="${k}" aria-pressed="${k === inboxFilter}">${l}</button>`).join('')}</div>
+  <div class="ilist">${r.items.map(it => `<button class="irow" data-id="${it.id}"><img loading="lazy" src="/api/files/${it.file_id}" alt="">
+    <div><b>${esc(DOCT[it.doc_type] || (it.doc_type === 'unknown' ? 'ไม่ใช่เอกสาร' : 'ยังไม่รู้ประเภท'))}</b>${it.head ? ` <span class="muted">${[it.head.house && 'เล้า ' + it.head.house, it.head.date, it.head.plate && 'ทะเบียน ' + it.head.plate].filter(Boolean).map(esc).join(' · ')}</span>` : ''}
+    <br><small>${it.source === 'line' ? '💬 LINE' : '📷 อัปโหลด'} · ${esc(it.sender_name || '')} · ${thTime(it.created_at)}</small>${it.error ? `<br><small style="color:var(--crit)">${esc(it.error.slice(0, 140))}</small>` : ''}</div>
+    <div style="text-align:right">${st(it.status)}<br>${confPill(it.confidence)}</div></button>`).join('') || '<div class="empty card">ไม่มีรายการ</div>'}</div>`;
+  $$('.chip', M).forEach(b => b.onclick = () => { inboxFilter = b.dataset.f; R.inbox(); });
+  $$('.irow', M).forEach(b => b.onclick = () => location.hash = 'inbox/' + b.dataset.id);
+};
+async function detail(id) {
+  const { item: it, events, docTypes } = await api('GET', 'intake/' + id); DOCT = docTypes;
+  const d = it.fields || {}; const conf = d.scoreConf || {}; const why = d.why || {}; const LBL = window.__LBL || {};
+  const fieldBox = (k, v, key = k) => { const c = conf[key]; return `<div class="fld ${confCls(c)}"><label><span>${esc(LBL[k] || k)}</span>${c != null ? `<b>${Math.round(c)}%</b>` : ''}</label><input data-k="${esc(key)}" value="${esc(v ?? '')}">${why[key] ? `<div class="why">${esc(why[key].join(' · '))}</div>` : ''}</div>`; };
+  const rowsKeys = [...new Set((d.rows || []).flatMap(r => Object.keys(r)))];
+  const done = ['auto', 'confirmed', 'approved'].includes(it.status);
+  M.innerHTML = `<div class="ph"><a class="btn ghost sm" href="#inbox">← กล่องเอกสาร</a><h1>${esc(docTypes[it.doc_type] || 'เอกสาร')}</h1>${st(it.status)}${confPill(it.confidence)}<span class="sp"></span>
+    <small>${it.source === 'line' ? '💬 LINE' : '📷 อัปโหลด'} · ${esc(it.sender_name || '')} · ${thTime(it.created_at)}</small></div>
+  <div class="detail"><div class="imgbox" id="ib"><img src="/api/files/${it.file_id}" alt="รูปเอกสาร"></div>
+  <div class="grid">
+    ${it.error ? `<div class="note warn">${esc(it.error)}</div>` : ''}
+    <div class="card grid"><div class="row"><h3>ข้อมูลที่อ่านได้</h3><span class="sp"></span><label class="f" style="flex-direction:row;align-items:center">ประเภท <select id="dtype" style="width:auto">${Object.entries(docTypes).map(([k, l]) => `<option value="${k}" ${k === it.doc_type ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label></div>
+      <small>สีเขียว = มั่นใจ ≥ 90% · เหลือง = 70–89% · แดง = ต่ำกว่า 70% หรือคำนวณไม่ลงตัว แก้ตัวเลขในช่องได้เลย แล้วกดอนุมัติ</small>
+      <div class="fgrid" id="flds">${Object.entries(d.fields || {}).map(([k, v]) => fieldBox(k, v)).join('') || '<div class="muted">ยังไม่มีข้อมูล</div>'}</div>
+      ${rowsKeys.length ? `<div class="tbl"><table id="rows"><thead><tr><th>#</th>${rowsKeys.map(k => `<th>${esc(LBL[k] || k)}</th>`).join('')}</tr></thead><tbody>${d.rows.map((r, i) => `<tr><td>${i + 1}</td>${rowsKeys.map(k => { const c = conf[`rows.${i}.${k}`]; return `<td class="${c != null && c < 90 ? 'diff' : ''}"><input data-r="${i}" data-k="${esc(k)}" value="${esc(r[k] ?? '')}" style="min-width:70px"></td>`; }).join('')}</tr>`).join('')}</tbody></table></div>` : ''}
+      ${(d.weights || []).length ? `<label class="f">น้ำหนักลังไข่ (กก.)<input id="wts" value="${esc(d.weights.join(' '))}"></label>` : ''}
+      ${d.note ? `<div class="note">หมายเหตุจาก AI: ${esc(d.note)}</div>` : ''}
+      <div class="row">${ADMIN ? `<button class="btn" id="bApprove">${done ? 'บันทึกทับด้วยค่าที่แก้' : '✓ อนุมัติและบันทึกเข้าระบบ'}</button><button class="btn ghost" id="bRe">อ่านใหม่ด้วย AI</button>${done ? '<button class="btn ghost danger" id="bUndo">ยกเลิกการบันทึก</button>' : '<button class="btn ghost danger" id="bRej">ไม่บันทึก</button>'}` : '<small>เฉพาะเจ้าของฟาร์ม/ผู้บริหารที่อนุมัติได้</small>'}</div><div class="status" id="sAct"></div>
+    </div>
+    ${(it.checks || []).length ? `<div class="card"><h3>ตรวจตัวเลข</h3><ul class="checks">${it.checks.map(c => `<li>${c.ok ? '✅' : '⚠️'} ${esc(c.msg)}</li>`).join('')}</ul></div>` : ''}
+    ${it.committed?.paths?.length ? `<div class="card"><h3>บันทึกไว้ที่</h3><small class="mono">${it.committed.paths.map(esc).join('<br>')}</small>${it.committed.cross ? `<h3 style="margin-top:10px">เทียบใบชั่งกับใบหน้าฟาร์ม</h3><div class="tbl"><table><tr><th>ทะเบียน</th><th>ใบหน้าฟาร์ม (ตัว)</th><th>ใบชั่ง (ตัว)</th><th>สุทธิ (กก.)</th><th></th></tr>${it.committed.cross.map(x => `<tr><td>${esc(x.plate)}</td><td>${x.gateBirds ?? '–'}</td><td>${x.slipBirds ?? '–'}</td><td>${x.slipNetKg ?? '–'}</td><td>${x.match ? '✅' : '⚠️ ไม่ตรง'}</td></tr>`).join('')}</table></div>` : ''}</div>` : ''}
+    ${it.ocr_text ? `<details class="card"><summary>ข้อความที่ OCR อ่านได้</summary><pre class="ocr">${esc(it.ocr_text)}</pre></details>` : ''}
+    <div class="card"><h3>ประวัติ</h3><div class="ev">${events.map(e => `<div><b>${thTime(e.at)}</b> ${esc(e.actor)} · ${esc(EVT[e.action] || e.action)} ${e.detail && Object.keys(e.detail).length ? `<span class="mono">${esc(JSON.stringify(e.detail).slice(0, 160))}</span>` : ''}</div>`).join('')}</div></div>
+  </div></div>`;
+  $('#ib').onclick = () => $('#ib').classList.toggle('zoom');
+  const collect = () => {
+    const fields = {}; $$('#flds input').forEach(i => { if (i.value.trim() !== '') fields[i.dataset.k] = i.value.trim(); });
+    const rows = []; $$('#rows input').forEach(i => { (rows[+i.dataset.r] = rows[+i.dataset.r] || {})[i.dataset.k] = i.value.trim(); });
+    const weights = $('#wts') ? $('#wts').value.split(/[\s,]+/).map(Number).filter(n => n > 0) : d.weights;
+    return { fields, rows, weights, doc_type: $('#dtype').value };
+  };
+  const act = async (fn, msg) => { $('#sAct').className = 'status'; $('#sAct').innerHTML = '<span class="spin"></span> กำลังทำ…'; try { await fn(); toast(msg); await badge(); detail(id); } catch (e) { $('#sAct').className = 'status err'; $('#sAct').textContent = e.message; } };
+  if (!ADMIN) return;
+  $('#bApprove').onclick = () => act(() => api('POST', `intake/${id}/approve`, { data: collect() }), 'บันทึกเข้าระบบแล้ว');
+  $('#bRe').onclick = () => act(() => api('POST', `intake/${id}/reprocess`, { doc_type: $('#dtype').value }), 'อ่านใหม่แล้ว');
+  $('#bRej') && ($('#bRej').onclick = () => act(() => api('POST', `intake/${id}/reject`, {}), 'ทำเครื่องหมายว่าไม่บันทึก'));
+  $('#bUndo') && ($('#bUndo').onclick = () => confirmAsk('ลบข้อมูลที่รายการนี้บันทึกไว้ออกจากระบบ?') && act(() => api('POST', `intake/${id}/undo`, {}), 'ยกเลิกการบันทึกแล้ว'));
+}
+const confirmAsk = m => window.confirm(m);
+const EVT = { received: 'รับรูป', classified: 'แยกประเภท', ocr: 'OCR อ่านข้อความ', read: 'AI อ่านค่า', asked: 'ถามในกลุ่ม LINE', answered: 'ตอบคำถาม', auto: 'บันทึกอัตโนมัติ', confirmed: 'บันทึกหลังคนยืนยัน', to_review: 'ส่งให้ผู้บริหารตรวจ', approved: 'อนุมัติ', rejected: 'ไม่บันทึก', undone: 'ยกเลิกการบันทึก', reprocess: 'สั่งอ่านใหม่', error: 'ผิดพลาด', retake: 'ขอรูปใหม่', line_failed: 'ส่ง LINE ไม่สำเร็จ', ocr_failed: 'OCR ไม่สำเร็จ', verify_failed: 'อ่านรอบ 2 ไม่สำเร็จ' };
+
+/* ---------------- upload ---------------- */
+R.upload = async () => {
+  M.innerHTML = `<div class="ph"><div><h1>ส่งรูปเอกสารเอง</h1><p>ใช้ตอนที่ไม่ได้ส่งผ่าน LINE เช่น สแกนย้อนหลัง เลือกหลายรูปพร้อมกันได้ ระบบจะอ่านทีละใบ</p></div></div>
+  <div class="card grid"><label class="f" style="max-width:360px">ประเภทเอกสาร<select id="ut"><option value="">ให้ AI ดูเองว่าเป็นใบอะไร</option>${Object.entries(DOCT).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('')}</select></label>
+  <label class="drop" id="drop"><input type="file" id="uf" accept="image/*" multiple hidden><b>แตะเพื่อเลือกรูป</b> หรือลากรูปมาวางตรงนี้<br><small>รูปจะถูกย่อให้เล็กลงก่อนส่ง ตัวหนังสือยังชัดเหมือนเดิม</small></label>
+  <div class="ilist" id="ures"></div></div>`;
+  const run = async files => {
+    for (const f of files) {
+      const row = document.createElement('div'); row.className = 'irow'; $('#ures').prepend(row);
+      const img = await shrink(f); row.innerHTML = `<img src="${img.preview}"><div><b>${esc(f.name)}</b><br><small><span class="spin"></span> กำลังอ่าน… ปกติ 10–60 วินาที</small></div><div></div>`;
+      try { const r = await api('POST', 'intake/upload', { image: { mime: img.mime, b64: img.b64 }, doc_type: $('#ut').value || undefined });
+        row.innerHTML = `<img src="${img.preview}"><div><b>${esc(f.name)}</b><br><small>${r.status === 'auto' ? 'บันทึกเข้าระบบแล้ว' : r.status === 'review' ? 'รอตรวจ กดเพื่อดู/แก้' : esc(r.error || '')}</small></div><div>${st(r.status)}<br>${confPill(r.confidence)}</div>`;
+        row.style.cursor = 'pointer'; row.onclick = () => location.hash = 'inbox/' + r.id;
+      } catch (e) { row.querySelector('small').textContent = e.message; row.querySelector('small').style.color = 'var(--crit)'; }
+    }
+    badge();
+  };
+  $('#uf').onchange = e => run([...e.target.files]);
+  const dz = $('#drop'); dz.ondragover = e => { e.preventDefault(); dz.classList.add('on'); }; dz.ondragleave = () => dz.classList.remove('on');
+  dz.ondrop = e => { e.preventDefault(); dz.classList.remove('on'); run([...e.dataTransfer.files].filter(f => f.type.startsWith('image/'))); };
+};
+
+/* ---------------- accounts ---------------- */
+R.accounts = async () => {
+  const { users, roles, buyers } = await api('GET', 'users');
+  const G = { farm: 'ทีมฟาร์ม (เห็นทุกอย่าง)', work: 'คนงาน (ไม่เห็นตัวเลขเงิน)', lhong: 'ล้ง (เห็นเฉพาะของตัวเอง)', cust: 'ลูกค้า (เห็นเฉพาะของตัวเอง)' };
+  const roleOpts = sel => Object.entries(G).map(([g, gl]) => `<optgroup label="${gl}">${Object.entries(roles).filter(([, r]) => r.group === g).map(([k, r]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${r.label}</option>`).join('')}</optgroup>`).join('');
+  const bOpts = sel => `<option value="">— เลือก —</option>` + buyers.map(b => `<option value="${esc(b.doc_id)}" ${b.doc_id === sel ? 'selected' : ''}>${esc(b.name)}${b.kind === 'retail' ? ' (ลูกค้าปลีก)' : ''}</option>`).join('');
+  const houses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  M.innerHTML = `<div class="ph"><div><h1>บัญชีผู้ใช้</h1><p>สร้างบัญชีให้ทีมฟาร์ม คนงาน ล้ง และลูกค้า แต่ละบทบาทเห็นข้อมูลไม่เท่ากัน คนงานจะไม่เห็นตัวเลขเงินเลย</p></div></div>
+  <div class="card grid" style="margin-bottom:14px"><h3>เพิ่มบัญชี</h3><form id="fNew" class="grid g3">
+    <label class="f">ชื่อที่แสดง<input name="display_name" required placeholder="เช่น ลุงสมศักดิ์"></label>
+    <label class="f">ชื่อผู้ใช้ (a-z 0-9)<input name="username" required autocapitalize="none" pattern="[a-z0-9._\-]{3,32}"></label>
+    <label class="f">รหัสผ่านเริ่มต้น<input name="password" required minlength="6"></label>
+    <label class="f">บทบาท<select name="role" id="nRole">${roleOpts('care')}</select></label>
+    <label class="f" id="nBuyerW" hidden>ผูกกับผู้ซื้อ<select name="buyer_id">${bOpts('')}</select></label>
+    <div class="f" id="nHouseW"><span style="font-size:12px;color:var(--muted)">ดูแลเล้า (ไม่เลือก = ทุกเล้า)</span><div class="row">${houses.map(h => `<label class="chk"><input type="checkbox" name="h" value="${h}">${h}</label>`).join('')}</div></div>
+    <div class="row" style="align-self:end"><button class="btn">+ สร้างบัญชี</button><span class="status" id="sNew"></span></div></form>
+    <small>ส่งชื่อผู้ใช้กับรหัสผ่านให้เจ้าตัว แล้วให้เข้าที่หน้าแรกของเว็บนี้ ${buyers.length ? '' : '· ยังไม่มีรายชื่อล้ง/ลูกค้า เพิ่มได้ในแดชบอร์ดฟาร์ม หน้าขายไข่'}</small></div>
+  <div class="tbl"><table><thead><tr><th>ชื่อ</th><th>ชื่อผู้ใช้</th><th>บทบาท</th><th>ผูกกับ / เล้า</th><th>เข้าล่าสุด</th><th></th></tr></thead><tbody>
+  ${users.map(u => `<tr data-id="${u.id}" style="${u.active ? '' : 'opacity:.5'}"><td><b>${esc(u.display_name)}</b>${u.active ? '' : ' <span class="pill">ปิดอยู่</span>'}</td><td class="mono">${esc(u.username)}</td>
+   <td><select class="eRole" ${u.id === ME.id ? 'disabled' : ''}>${roleOpts(u.role)}</select></td>
+   <td>${['lhong', 'customer'].includes(u.role) ? `<select class="eBuyer">${bOpts(u.buyer_id)}</select>` : roles[u.role]?.group === 'work' ? `<input class="eHouses" value="${esc((u.houses || []).join(','))}" placeholder="ทุกเล้า" style="width:110px">` : '<span class="muted">ทุกอย่าง</span>'}</td>
+   <td><small>${u.last_login ? thTime(u.last_login) : 'ยังไม่เคย'}</small></td>
+   <td class="row"><button class="btn ghost sm eSave">บันทึก</button><button class="btn ghost sm ePw">ตั้งรหัสใหม่</button>${u.id === ME.id ? '' : `<button class="btn ghost sm eAct">${u.active ? 'ปิดบัญชี' : 'เปิดบัญชี'}</button>`}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="card" style="margin-top:14px"><h3>เปลี่ยนรหัสผ่านของฉัน</h3><form id="fPw" class="row" style="margin-top:8px"><input name="old" type="password" placeholder="รหัสเดิม" style="max-width:200px"><input name="password" type="password" placeholder="รหัสใหม่" minlength="6" style="max-width:200px"><button class="btn ghost">เปลี่ยน</button></form></div>`;
+  const sync = () => { const r = $('#nRole').value, g = roles[r].group; $('#nBuyerW').hidden = !(g === 'lhong' || g === 'cust'); $('#nHouseW').hidden = g !== 'work'; };
+  $('#nRole').onchange = sync; sync();
+  $('#fNew').onsubmit = async e => { e.preventDefault(); const fd = new FormData(e.target); const b = Object.fromEntries(fd); b.houses = fd.getAll('h').map(Number); delete b.h;
+    try { await api('POST', 'users', b); toast('สร้างบัญชีแล้ว'); R.accounts(); } catch (er) { $('#sNew').className = 'status err'; $('#sNew').textContent = er.message; } };
+  $$('tr[data-id]').forEach(tr => { const id = tr.dataset.id;
+    tr.querySelector('.eSave').onclick = async () => { const b = { role: tr.querySelector('.eRole').value }; const by = tr.querySelector('.eBuyer'); if (by) b.buyer_id = by.value; const hs = tr.querySelector('.eHouses'); if (hs) b.houses = hs.value.split(/[ ,]+/).filter(Boolean).map(Number);
+      try { await api('PATCH', 'users/' + id, b); toast('บันทึกแล้ว'); R.accounts(); } catch (e) { toast(e.message); } };
+    tr.querySelector('.ePw').onclick = async () => { const p = prompt('รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)'); if (!p) return; try { await api('PATCH', 'users/' + id, { password: p }); toast('ตั้งรหัสใหม่แล้ว ส่งให้เจ้าตัวได้เลย'); } catch (e) { toast(e.message); } };
+    const a = tr.querySelector('.eAct'); if (a) a.onclick = async () => { try { await api('PATCH', 'users/' + id, { active: a.textContent === 'เปิดบัญชี' }); R.accounts(); } catch (e) { toast(e.message); } };
+  });
+  $('#fPw').onsubmit = async e => { e.preventDefault(); try { await api('POST', 'me/password', Object.fromEntries(new FormData(e.target))); toast('เปลี่ยนรหัสผ่านแล้ว'); e.target.reset(); } catch (er) { toast(er.message); } };
+};
+
+/* ---------------- LINE ---------------- */
+R.line = async () => {
+  const c = await api('GET', 'settings/line');
+  const chatRow = ch => `<tr><td><b>${esc(ch.name || '(ไม่ทราบชื่อ)')}</b><br><small class="mono">${esc(ch.chat_id)}</small></td><td>${ch.kind === 'group' ? 'กลุ่ม' : ch.kind === 'room' ? 'ห้องแชท' : 'คุยส่วนตัว'}</td><td><small>${thTime(ch.last_seen)}</small></td>
+    <td><label class="chk"><input type="checkbox" class="cIn" value="${esc(ch.chat_id)}" ${c.intakeChats.includes(ch.chat_id) ? 'checked' : ''}>รับเอกสาร</label></td>
+    <td><label class="chk"><input type="checkbox" class="cNo" value="${esc(ch.chat_id)}" ${c.notifyChats.includes(ch.chat_id) ? 'checked' : ''}>ส่งสรุป/แจ้งเตือน</label> <button class="btn ghost sm cTest" data-to="${esc(ch.chat_id)}">ทดสอบส่ง</button></td></tr>`;
+  M.innerHTML = `<div class="ph"><div><h1>LINE OA · พนักงานรับเอกสาร</h1><p>ต่อ LINE Official Account ของฟาร์มเข้ากับระบบ คนหน้างานส่งรูปใบงานในกลุ่ม LINE เหมือนเดิม ระบบจะอ่านแล้วบันทึกให้</p></div></div>
+  <div class="grid" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:start">
+  <div class="grid">
+   <div class="card grid"><h3>1. ใส่รหัสจาก LINE Developers</h3>
+    <form id="fLine" class="grid">
+     <label class="f">Channel secret ${c.hasSecret ? `<span class="pill ok">บันทึกแล้ว ••••${esc(c.secretLast4)}</span>` : '<span class="pill warn">ยังไม่ใส่</span>'}<input name="channelSecret" placeholder="${c.hasSecret ? 'เว้นว่างไว้ถ้าไม่เปลี่ยน' : 'วางรหัสตรงนี้'}" autocomplete="off"></label>
+     <label class="f">Channel access token (long-lived) ${c.hasToken ? `<span class="pill ok">บันทึกแล้ว ••••${esc(c.tokenLast4)}</span>` : '<span class="pill warn">ยังไม่ใส่</span>'}<textarea name="accessToken" rows="2" placeholder="${c.hasToken ? 'เว้นว่างไว้ถ้าไม่เปลี่ยน' : 'วางรหัสตรงนี้'}" autocomplete="off"></textarea></label>
+     <small>รหัสถูกเข้ารหัสก่อนเก็บ และจะไม่แสดงกลับมาอีก</small>
+     <h3 style="margin-top:6px">กติกาการรับเอกสาร</h3>
+     <label class="chk"><input type="checkbox" name="enabled" ${c.enabled ? 'checked' : ''}>เปิดใช้งานพนักงานรับเอกสาร</label>
+     <label class="f">ความมั่นใจขั้นต่ำที่ให้บันทึกเองได้เลย: <b id="thv">${c.threshold}%</b><input type="range" name="threshold" min="70" max="100" step="1" value="${c.threshold}" oninput="thv.textContent=this.value+'%'"></label>
+     <small>ต่ำกว่านี้ บอทจะถามกลับในกลุ่มเฉพาะช่องที่ไม่แน่ใจ (มีปุ่มให้กด) ถ้าตัวเลขบวกลบไม่ลงตัว จะถามเสมอแม้มั่นใจสูง</small>
+     <div class="grid g2"><label class="f">ถามได้สูงสุดกี่ช่องต่อใบ<input type="number" name="maxQuestions" min="1" max="6" value="${c.maxQuestions}"></label>
+     <label class="f">ไม่มีคนตอบภายในกี่ชั่วโมง ให้ส่งผู้บริหาร<input type="number" name="askTimeoutHours" min="1" max="48" value="${c.askTimeoutHours}"></label></div>
+     <label class="chk"><input type="checkbox" name="replyOnSuccess" ${c.replyOnSuccess ? 'checked' : ''}>บันทึกสำเร็จแล้วตอบในกลุ่มสั้นๆ ว่า "✅ บันทึกแล้ว"</label>
+     <div class="row"><button class="btn">บันทึก</button><button type="button" class="btn ghost" id="bTest">ทดสอบการเชื่อมต่อ</button><span class="status" id="sLine"></span></div>
+    </form></div>
+   <div class="card grid"><h3>3. เลือกกลุ่ม</h3><small>กลุ่มจะขึ้นที่นี่หลังจากเชิญบอทเข้ากลุ่มแล้วมีคนพิมพ์หรือส่งรูป 1 ครั้ง · ถ้าไม่ติ๊ก "รับเอกสาร" เลยสักกลุ่ม ระบบจะรับจากทุกกลุ่ม</small>
+    <div class="tbl"><table><tbody>${c.chats.map(chatRow).join('') || '<tr><td class="empty">ยังไม่มีกลุ่ม</td></tr>'}</tbody></table></div>
+    ${c.chats.length ? '<div class="row"><button class="btn" id="bChats">บันทึกการเลือกกลุ่ม</button></div>' : ''}</div>
+  </div>
+  <div class="card grid"><h3>2. วางที่อยู่นี้ใน LINE</h3>
+    <div class="copy"><input readonly value="${esc(c.webhookUrl)}" id="wh"><button class="btn ghost sm" id="bCopy">คัดลอก</button></div>
+    <ol class="steps"><li>เข้า <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers</a> เลือก Provider ของฟาร์ม แล้วเลือก Channel (Messaging API)</li>
+    <li>แท็บ <b>Basic settings</b> คัดลอก <b>Channel secret</b> มาใส่ช่องซ้าย</li>
+    <li>แท็บ <b>Messaging API</b> เลื่อนลงล่างสุด กด Issue ที่ <b>Channel access token</b> คัดลอกมาใส่ แล้วกดบันทึก</li>
+    <li>ยังอยู่หน้า Messaging API ช่อง <b>Webhook URL</b> วางที่อยู่ด้านบน กด Verify แล้วเปิด <b>Use webhook</b></li>
+    <li>ใน LINE Official Account Manager ตั้งค่า: เปิด <b>อนุญาตให้บอทเข้าร่วมกลุ่ม</b> และปิด <b>ข้อความตอบกลับอัตโนมัติ</b></li>
+    <li>เชิญบัญชี LINE OA เข้ากลุ่มงานเดิมของฟาร์ม แล้วลองส่งรูปใบงาน 1 รูป</li></ol>
+    <div class="note">ถ้าเปลี่ยน LINE OA ใหม่ ใส่ secret/token ชุดใหม่ทับได้เลย ที่อยู่ webhook ไม่ต้องเปลี่ยน</div>
+    <div class="note warn">ข้อความตอบกลับทันทีหลังรับรูปไม่เสียโควตา แต่ข้อความสรุปตอนเย็นและการแจ้งเตือนภายหลังนับเป็นข้อความ push ของ LINE OA</div>
+  </div></div>`;
+  $('#bCopy').onclick = () => { navigator.clipboard?.writeText($('#wh').value); toast('คัดลอกแล้ว'); };
+  $('#fLine').onsubmit = async e => { e.preventDefault(); const f = e.target; const b = { channelSecret: f.channelSecret.value.trim(), accessToken: f.accessToken.value.trim(), enabled: f.enabled.checked, threshold: +f.threshold.value, maxQuestions: +f.maxQuestions.value, askTimeoutHours: +f.askTimeoutHours.value, replyOnSuccess: f.replyOnSuccess.checked };
+    try { await api('POST', 'settings/line', b); toast('บันทึกแล้ว'); R.line(); } catch (er) { $('#sLine').className = 'status err'; $('#sLine').textContent = er.message; } };
+  $('#bTest').onclick = async () => { $('#sLine').className = 'status'; $('#sLine').innerHTML = '<span class="spin"></span>'; try { const r = await api('POST', 'settings/line/test'); $('#sLine').className = 'status okc'; $('#sLine').textContent = `เชื่อมต่อได้ · บอทชื่อ ${r.bot.name} (${r.bot.basicId})`; } catch (e) { $('#sLine').className = 'status err'; $('#sLine').textContent = e.message; } };
+  $('#bChats') && ($('#bChats').onclick = async () => { try { await api('POST', 'settings/line', { intakeChats: $$('.cIn:checked').map(i => i.value), notifyChats: $$('.cNo:checked').map(i => i.value) }); toast('บันทึกการเลือกกลุ่มแล้ว'); } catch (e) { toast(e.message); } });
+  $$('.cTest').forEach(b => b.onclick = async () => { try { await api('POST', 'settings/line/push-test', { to: b.dataset.to }); toast('ส่งข้อความทดสอบแล้ว'); } catch (e) { toast(e.message); } });
+};
+
+/* ---------------- AI ---------------- */
+R.ai = async () => {
+  const { providers, features, config, keys, usage } = await api('GET', 'settings/ai');
+  const pOpts = (sel, f) => `<option value="">${f.optional ? '— ไม่ใช้ —' : '— เลือก —'}</option>` + Object.entries(providers).filter(([, p]) => !(p.ocrOnly && !f.ocr)).map(([k, p]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${esc(p.label)}</option>`).join('');
+  const kOpts = sel => `<option value="">— เลือก key —</option>` + keys.map(k => `<option value="${k.id}" ${k.id === sel ? 'selected' : ''}>${esc(k.name)} ••••${esc(k.last4)}</option>`).join('');
+  M.innerHTML = `<div class="ph"><div><h1>ตั้งค่า AI</h1><p>เลือกได้ว่าแต่ละงานใช้ AI ค่ายไหน โมเดลไหน และใช้ API key ตัวไหน เปลี่ยนเมื่อไหร่ก็ได้ ไม่ต้องแก้โค้ด</p></div><span class="sp"></span><a class="btn ghost" href="#keys">🔑 จัดการ API keys</a></div>
+  ${keys.length ? '' : '<div class="note warn" style="margin-bottom:12px">ยังไม่มี API key ไปเพิ่มที่หน้า API keys ก่อน แล้วกลับมาเลือกที่นี่</div>'}
+  <div class="grid">${Object.entries(features).map(([f, F]) => { const c = config[f] || {}; return `<div class="card grid" data-f="${f}">
+   <div><h3>${esc(F.label)}</h3><small>${esc(F.hint)}</small></div>
+   <div class="feat"><label class="f">ผู้ให้บริการ<select class="aP">${pOpts(c.provider, F)}</select></label>
+    <label class="f">โมเดล<input class="aM" list="ml-${f}" value="${esc(c.model || '')}"><datalist id="ml-${f}"></datalist></label>
+    <label class="f">API key<select class="aK">${kOpts(c.keyId)}</select></label>
+    <label class="f aBw">Base URL ของเซิร์ฟเวอร์<input class="aB" value="${esc(c.baseUrl || '')}" placeholder="https://…/v1"></label>
+    <button class="btn ghost sm aT">ทดสอบ</button></div><div class="status aS"></div></div>`; }).join('')}</div>
+  <div class="row" style="margin:14px 0"><button class="btn" id="bSaveAI">บันทึกการตั้งค่า AI</button><span class="status" id="sAI"></span></div>
+  <div class="card grid"><h3>แนะนำสำหรับใบงานลายมือภาษาไทย</h3>
+   <ul class="steps" style="list-style:disc"><li><b>เริ่มแบบง่ายที่สุด:</b> ขั้น "แปลงเป็นข้อมูล" ใช้ Claude Sonnet หรือ Gemini Pro อ่านรูปตรงๆ และขั้น "อ่านซ้ำรอบ 2" ใช้อีกค่าย (เช่น GPT หรือ Gemini) ปิด OCR ไว้ก่อน</li>
+   <li><b>อยากแม่นขึ้นกับตัวเลขลายมือ:</b> เปิดขั้น OCR เป็น <b>Typhoon OCR</b> (ทำมาเพื่อภาษาไทย มี API ให้ใช้เลย) หรือ <b>Datalab Chandra</b> (ทำคะแนนดีกับลายมือและตาราง) ข้อความที่ได้จะส่งต่อให้ขั้นแปลงข้อมูลช่วยอ่าน</li>
+   <li><b>dots.mocr</b> คะแนนสูงสุดในตารางทดสอบที่ส่งมา แต่ยังไม่มีบริการเรียกผ่าน API ต้องเช่าเครื่อง GPU รันเอง (vLLM) แล้วเลือก "เซิร์ฟเวอร์ของเราเอง" ใส่ Base URL</li>
+   <li>ก่อนตัดสินใจ ใช้หน้า <a href="#lab">ทดสอบ OCR เทียบเจ้า</a> ลองกับใบจริงของฟาร์มสัก 10–20 ใบ แล้วดูว่าเจ้าไหนอ่านถูกมากที่สุด</li></ul></div>
+  ${usage.length ? `<div class="card" style="margin-top:12px"><h3>การใช้งาน 30 วันล่าสุด</h3><div class="tbl"><table><tr><th>งาน</th><th>ผู้ให้บริการ</th><th>โมเดล</th><th>ครั้ง</th><th>ล้มเหลว</th><th>เวลาเฉลี่ย</th></tr>${usage.map(u => `<tr><td>${esc(features[u.feature]?.label || u.feature)}</td><td>${esc(providers[u.provider]?.label || u.provider)}</td><td>${esc(u.model)}</td><td>${u.n}</td><td>${u.fails}</td><td>${(u.ms / 1000).toFixed(1)} วิ</td></tr>`).join('')}</table></div></div>` : ''}`;
+  const cards = $$('[data-f]', M);
+  const sync = card => { const p = providers[card.querySelector('.aP').value]; card.querySelector('.aBw').hidden = !(p && p.needsBase); card.querySelector(`datalist`).innerHTML = (p?.models || []).map(m => `<option value="${esc(m)}">`).join('');
+    if (p && !card.querySelector('.aM').value) card.querySelector('.aM').value = p.models[0] || ''; };
+  const read = card => ({ provider: card.querySelector('.aP').value, model: card.querySelector('.aM').value.trim(), keyId: card.querySelector('.aK').value, baseUrl: card.querySelector('.aB').value.trim() });
+  cards.forEach(card => { sync(card); card.querySelector('.aP').onchange = () => { card.querySelector('.aM').value = ''; sync(card); };
+    card.querySelector('.aT').onclick = async () => { const s = card.querySelector('.aS'); s.className = 'status aS'; s.innerHTML = '<span class="spin"></span> กำลังเรียก…';
+      try { const r = await api('POST', 'settings/ai/test', { feature: card.dataset.f, config: read(card) }); s.className = 'status aS okc'; s.textContent = r.note || `ใช้ได้ (${(r.ms / 1000).toFixed(1)} วิ) ตอบว่า: ${r.reply}`; } catch (e) { s.className = 'status aS err'; s.textContent = e.message; } }; });
+  $('#bSaveAI').onclick = async () => { const features = {}; cards.forEach(c => features[c.dataset.f] = read(c)); try { await api('POST', 'settings/ai', { features }); toast('บันทึกการตั้งค่า AI แล้ว'); } catch (e) { $('#sAI').className = 'status err'; $('#sAI').textContent = e.message; } };
+};
+
+/* ---------------- keys ---------------- */
+R.keys = async () => {
+  const { keys } = await api('GET', 'keys'); const { providers } = await api('GET', 'settings/ai');
+  M.innerHTML = `<div class="ph"><div><h1>API keys</h1><p>เก็บ key ของแต่ละค่ายไว้ที่เดียว ระบบเข้ารหัสก่อนเก็บและไม่แสดงกลับมาอีก เห็นแค่ 4 ตัวท้าย</p></div></div>
+  <div class="card grid" style="margin-bottom:14px"><form id="fKey" class="grid g3"><label class="f">ตั้งชื่อให้จำง่าย<input name="name" required placeholder="เช่น Claude ของฟาร์ม"></label>
+   <label class="f">ค่าย<select name="provider">${Object.entries(providers).map(([k, p]) => `<option value="${k}">${esc(p.label)}</option>`).join('')}</select></label>
+   <label class="f">API key<input name="value" required autocomplete="off" type="password"></label><div class="row" style="align-self:end"><button class="btn">+ เพิ่ม key</button></div></form>
+   <small>หา key ได้ที่: Anthropic → console.anthropic.com · OpenAI → platform.openai.com · Gemini → aistudio.google.com · Typhoon → playground.opentyphoon.ai · Datalab → datalab.to</small></div>
+  <div class="tbl"><table><tr><th>ชื่อ</th><th>ค่าย</th><th>key</th><th>เพิ่มเมื่อ</th><th></th></tr>${keys.map(k => `<tr><td><b>${esc(k.name)}</b></td><td>${esc(providers[k.provider]?.label || k.provider || '')}</td><td class="mono">••••${esc(k.last4)}</td><td><small>${thTime(k.created_at)}</small></td><td><button class="btn ghost sm danger" data-del="${k.id}">ลบ</button></td></tr>`).join('') || '<tr><td colspan="5" class="empty">ยังไม่มี key</td></tr>'}</table></div>`;
+  $('#fKey').onsubmit = async e => { e.preventDefault(); try { await api('POST', 'keys', Object.fromEntries(new FormData(e.target))); toast('เพิ่ม key แล้ว อย่าลืมไปเลือกใช้ในหน้าตั้งค่า AI'); R.keys(); } catch (er) { toast(er.message); } };
+  $$('[data-del]').forEach(b => b.onclick = async () => { if (!confirmAsk('ลบ key นี้? งานที่ใช้ key นี้อยู่จะหยุดทำงานจนกว่าจะเลือก key ใหม่')) return; await api('DELETE', 'keys/' + b.dataset.del); R.keys(); });
+};
+
+/* ---------------- OCR lab ---------------- */
+R.lab = async () => {
+  const { providers, keys } = await api('GET', 'settings/ai');
+  const combos = []; for (const [pk, p] of Object.entries(providers)) for (const m of p.models) combos.push({ provider: pk, model: m, label: `${p.label.split(' (')[0]} · ${m}`, ocrOnly: !!p.ocrOnly, needsBase: !!p.needsBase });
+  M.innerHTML = `<div class="ph"><div><h1>ทดสอบ OCR เทียบเจ้า</h1><p>ส่งรูปใบจริงหนึ่งใบเข้าไปหลายเจ้าพร้อมกัน แล้วดูผลเทียบกันช่องต่อช่อง ช่องที่แต่ละเจ้าอ่านไม่ตรงกันจะเป็นสีเหลือง</p></div></div>
+  <div class="card grid"><div class="grid g2"><label class="f">ประเภทเอกสาร<select id="lt">${Object.entries(DOCT).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('')}</select></label>
+   <label class="f">รูป<input type="file" id="lf" accept="image/*"></label></div>
+   <div class="tbl"><table id="lc"><tr><th>ใช้</th><th>เจ้า · โมเดล</th><th>API key</th><th>Base URL (เฉพาะเครื่องตัวเอง)</th></tr>${combos.map((c, i) => `<tr><td><input type="checkbox" data-i="${i}" style="width:auto"></td><td>${esc(c.label)}${c.ocrOnly ? ' <span class="pill">OCR ล้วน ได้เป็นข้อความ</span>' : ''}</td>
+    <td><select data-k="${i}"><option value="">—</option>${keys.map(k => `<option value="${k.id}" ${k.provider === c.provider ? 'selected' : ''}>${esc(k.name)}</option>`).join('')}</select></td><td>${c.needsBase ? `<input data-b="${i}" placeholder="https://…/v1">` : ''}</td></tr>`).join('')}</table></div>
+   <div class="row"><button class="btn" id="bRun">เริ่มเทียบ (สูงสุด 6 เจ้า)</button><span class="status" id="sLab"></span></div></div>
+  <div id="lres" style="margin-top:14px"></div>`;
+  $('#bRun').onclick = async () => {
+    const f = $('#lf').files[0]; if (!f) return toast('เลือกรูปก่อน');
+    const configs = $$('#lc input[type=checkbox]:checked').map(x => { const i = +x.dataset.i; const c = combos[i]; return { provider: c.provider, model: c.model, keyId: $(`[data-k="${i}"]`).value, baseUrl: $(`[data-b="${i}"]`)?.value || '', label: c.label }; });
+    if (!configs.length) return toast('เลือกอย่างน้อย 1 เจ้า');
+    $('#sLab').innerHTML = '<span class="spin"></span> กำลังส่งให้ทุกเจ้าอ่านพร้อมกัน… อาจใช้ถึง 1 นาที';
+    const img = await shrink(f);
+    try {
+      const { results } = await api('POST', 'lab/compare', { image: { mime: img.mime, b64: img.b64 }, doc_type: $('#lt').value, configs });
+      $('#sLab').textContent = ''; const LBL = window.__LBL || {};
+      const flat = d => { const o = {}; Object.entries(d?.fields || {}).forEach(([k, v]) => o[k] = v); (d?.rows || []).forEach((r, i) => Object.entries(r).forEach(([k, v]) => o[`แถว ${i + 1} ${LBL[k] || k}`] = v)); return o; };
+      const F = results.map(r => flat(r.data)); const keysAll = [...new Set(F.flatMap(o => Object.keys(o)))];
+      const norm = v => String(v ?? '').replace(/[,\s]/g, '');
+      $('#lres').innerHTML = `<div class="grid" style="grid-template-columns:minmax(0,320px) 1fr;align-items:start"><img src="${img.preview}" style="width:100%;border-radius:10px">
+       <div class="grid">${keysAll.length ? `<div class="tbl"><table class="cmp"><tr><th>ช่อง</th>${results.map(r => `<th>${esc(r.cfg.label || r.cfg.model)}<br><small>${(r.ms / 1000).toFixed(1)} วิ${r.error ? ' · ❌' : ''}</small></th>`).join('')}</tr>
+        ${keysAll.map(k => { const vals = F.map(o => o[k]); const uniq = new Set(vals.filter(v => v != null).map(norm)); return `<tr><td>${esc(LBL[k] || k)}</td>${vals.map(v => `<td class="${uniq.size > 1 ? 'diff' : ''}">${esc(v ?? '–')}</td>`).join('')}</tr>`; }).join('')}</table></div>` : ''}
+        ${results.filter(r => r.text || r.error).map(r => `<div class="card"><b>${esc(r.cfg.label || r.cfg.model)}</b> <small>${(r.ms / 1000).toFixed(1)} วิ</small>${r.error ? `<div class="status err">${esc(r.error)}</div>` : `<pre class="ocr">${esc(r.text)}</pre>`}</div>`).join('')}</div></div>`;
+    } catch (e) { $('#sLab').className = 'status err'; $('#sLab').textContent = e.message; }
+  };
+};
+
+/* ---------------- data ---------------- */
+R.data = async () => {
+  const s = await api('GET', 'admin/stats'); const demo = s.collections.reduce((a, c) => a + c.demo, 0);
+  M.innerHTML = `<div class="ph"><div><h1>ข้อมูลในระบบ</h1><p>จำนวนข้อมูลแต่ละหมวด ข้อมูลตัวอย่าง (ชื่อลงท้าย "(ตัวอย่าง)") ใส่ไว้ให้ลองใช้ ลบออกได้ทีเดียวก่อนเริ่มใช้จริง</p></div></div>
+  <div class="row" style="margin-bottom:12px"><button class="btn ghost" id="bSeed">ใส่ข้อมูลตัวอย่าง</button><button class="btn ghost danger" id="bClear" ${demo ? '' : 'disabled'}>ลบข้อมูลตัวอย่างทั้งหมด (${demo})</button><button class="btn ghost" id="bSweep">ส่งคำถามค้างให้ผู้บริหารตอนนี้</button></div>
+  <div class="tbl"><table><tr><th>หมวด</th><th>ทั้งหมด</th><th>ตัวอย่าง</th></tr>${s.collections.map(c => `<tr><td class="mono">${esc(c.collection)}</td><td>${c.n}</td><td>${c.demo || ''}</td></tr>`).join('')}</table></div>`;
+  $('#bSeed').onclick = async () => { const r = await api('POST', 'admin/seed'); toast(`เพิ่ม ${r.added} รายการ`); R.data(); };
+  $('#bClear').onclick = async () => { if (!confirmAsk(`ลบข้อมูลตัวอย่าง ${demo} รายการ? ข้อมูลจริงไม่ถูกลบ`)) return; const r = await api('POST', 'admin/clear-demo'); toast(`ลบ ${r.removed} รายการ`); R.data(); };
+  $('#bSweep').onclick = async () => { const r = await api('POST', 'cron/sweep'); toast(`ส่งให้ผู้บริหาร ${r.escalated} รายการ`); };
+};
+
+try { window.__LBL = (await api('GET', 'labels')).labels; } catch { window.__LBL = {}; }
+await badge(); route();
+</script></body></html>

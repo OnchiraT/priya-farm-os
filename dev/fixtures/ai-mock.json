@@ -1,0 +1,9 @@
+{"classify":{"__byPrompt":1,"default":{"type":"daily_slip","conf":97}},
+ "ocr":"เล้า 1 วันที่ 3/11/69 ...",
+ "extract":{"__byPrompt":1,
+   "ใบบันทึกประจำวัน":{"fields":{"house":"1","date":"2026-11-03","age":"34.0","e_big_m":"51","e_big_e":"11","e_big_t":"62","e_mid_t":"6.4","e_sum_t":"68.4","f_in":"3200","f_prev":"7654","f_total":"10854","f_used":"2700","f_left":"8154","w_today":"542000","w_yest":"533897","w_used":"8103","birds":"21830","h_dead":"3"},"conf":{"house":99,"date":96,"e_sum_t":93,"f_used":95,"h_dead":72},"weights":[21.1,21.2]},
+   "ใบชั่งน้ำหนัก":{"fields":{"date":"02/11/69","plate":"2686","w_in":"8120","w_out":"9540","net":"1420","birds":"700","house":"4"},"conf":{"plate":96,"net":95,"birds":88}},
+   "default":{"fields":{}}},
+ "verify":{"__byPrompt":1,"ใบบันทึกประจำวัน":{"fields":{"house":"1","date":"2026-11-03","e_sum_t":"68.4","f_used":"2700","h_dead":"8"}},"default":{"fields":{}}},
+ "form_read":{"fields":{"house":"2"}},
+ "translate":{"a":"b"}}

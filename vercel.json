@@ -1,0 +1,24 @@
+{
+ "framework": null,
+ "buildCommand": "",
+ "outputDirectory": "public",
+ "rewrites": [
+  {
+   "source": "/api/:path*",
+   "destination": "/api/router?__p=:path*"
+  }
+ ],
+ "functions": {
+  "api/router.js": {
+   "maxDuration": 60,
+   "includeFiles": "public/farm/demo.json"
+  }
+ },
+ "crons": [
+  {
+   "path": "/api/cron/daily",
+   "schedule": "0 11 * * *"
+  }
+ ],
+ "cleanUrls": true
+}
