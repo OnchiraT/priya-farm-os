@@ -1133,6 +1133,43 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
 .xo-scroll-hint{display:none;font-family:var(--f-display);font-size:var(--xl);font-weight:600;color:var(--muted)}
 .xo-mapwrap{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)!important}
 @media (max-width:1000px){.xo-mapwrap{grid-template-columns:minmax(0,1fr)!important}}
+
+/* ============ one type size on every page (same as the overview): labels, notes and numbers alike ============ */
+:root{--xl:clamp(22px,2.2vw,32px)}
+.view{font-size:var(--xl);line-height:1.3}
+.view :is(h1,h2,h3,h4,h5,p,span,b,strong,em,small,label,a,button,td,th,li,dt,dd,div,input,select,textarea,summary,caption,legend,output,time){font-size:var(--xl)!important;line-height:1.3}
+.view :is(h1,h2,h3,h4,caption,summary,legend){font-weight:800;letter-spacing:0}
+.view :is(small,.muted,.meta,.hint,.hf-hint,.hd-sub,.th-ex){font-weight:600}
+.view :is(input,select,textarea){min-height:52px;padding:8px 12px}
+.view :is(button,.btn){min-height:52px}
+.view svg :is(text,tspan){font-size:inherit}
+.view canvas{max-width:100%}
+/* the farm-wide "today" tiles repeated the zone numbers and mixed layers with pullets */
+#foTodayH,#foToday{display:none!important}
+.xo-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:12px}
+#vFOverview .henbox{border:2px solid var(--zline,var(--line));border-radius:18px;background:#fff;margin:0}
+@media (max-width:640px){:root{--xl:20px}.view :is(input,select,textarea,button,.btn){min-height:48px}}
+
+/* card grids widened for the larger type */
+.view .hboard{grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.view .silos{grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr))}
+.view .bigin{grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr))}
+.view .gd-facts{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+.view :is(.facts,.facts.f3){grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr))}
+.view .slip-head{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
+.view .vrow{grid-template-columns:minmax(110px,auto) minmax(0,1fr) auto}
+.view .tl{grid-template-columns:minmax(120px,auto) minmax(0,1fr) auto}
+@media (max-width:1100px){.view .ck-r{grid-template-columns:1fr 1fr}.view .ck-r.ck-hd{display:none}}
+.view .mplan{grid-template-columns:minmax(0,1fr)}
+.view .mplan .mp-arrow{flex-direction:row}
+/* section headings that belong to one side of the farm carry that side's colour, like the zone bands on the overview */
+.view h2.zone-lay,.view h2.zone-pul{display:flex;align-items:center;gap:12px;padding:10px 18px;border-radius:16px;margin-top:22px}
+.view h2.zone-lay{background:#e3a21a;color:#2a1b00}.view h2.zone-pul{background:#c2362b;color:#fff}
+#vFPullet>.hello h2{display:inline-block;background:#c2362b;color:#fff;padding:8px 18px;border-radius:16px}
+.view .hello h2{font-weight:800}
+
+.view :is(.pgrid,.plgrid,.hgrid,.scards,.wcards,.todo){grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr))!important}
+.view .bwchart{min-height:220px}
 </style>
 
 <div class="wrap">
@@ -1217,8 +1254,8 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
     <div class="todaygrid" id="foToday"></div>
     <h2 class="sec">วันนี้ต้องทำ</h2>
     <section class="todo" id="foTodo"></section>
-    <h2 class="sec">ไก่ทุกเล้า (<span class="rng-all"></span>)</h2>
-    <div class="hgrid" id="foHouses"></div>
+    <div id="foHousesSec"><h2 class="sec">ไก่ทุกเล้า (<span class="rng-all"></span>)</h2>
+    <div class="hgrid" id="foHouses"></div></div>
     <h2 class="sec">ขายไข่วันนี้ ให้ล้งและลูกค้าปลีก</h2>
     <div class="scards" id="foSales"></div>
     <details class="more"><summary>ดูกราฟละเอียด</summary>
@@ -1256,10 +1293,10 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
   <div id="vFHouses" class="view" hidden>
     <div class="hello"><h2>เล้าทั้งหมด</h2><p>แตะเล้าเพื่อดูรายละเอียด ปลดไก่ ติ๊กงานพักเล้า หรือรับไก่ชุดใหม่</p></div>
     <div class="kpis" id="hbSum" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
-    <h2 class="sec">ไก่ใหญ่ (ไก่ยืนกรง) เล้า <span class="rng-lay"></span></h2>
+    <h2 class="sec zone-lay">ไก่ใหญ่ (ไก่ยืนกรง) เล้า <span class="rng-lay"></span></h2>
     <p class="hf-hint" style="margin:-6px 0 0">แถบสีคืออายุไก่เทียบกับวันปลดที่ 85 สัปดาห์</p>
     <div class="hboard" id="hbLayers"></div>
-    <h2 class="sec">ไก่เล็ก เล้า <span class="rng-pul"></span></h2>
+    <h2 class="sec zone-pul">ไก่เล็ก เล้า <span class="rng-pul"></span></h2>
     <p class="hf-hint" style="margin:-6px 0 0">แถบสีคืออายุไก่เทียบกับวันย้ายไปไก่ยืนกรงที่ 16 สัปดาห์</p>
     <div class="hboard" id="hbPullets"></div>
     <h2 class="sec">แผนย้ายไก่เล็กไปไก่ใหญ่</h2>
@@ -2598,7 +2635,7 @@ function renderOverview(){
   const T=today(),HC=HOUSE_COL();
   const latest=records.map(r=>r.date).sort().pop();
   $('foMeta').textContent=latest?`ข้อมูลจากใบบันทึกล่าสุด วันที่ ${thDate(latest)}`:'ยังไม่มีใบบันทึก เริ่มจากถ่ายรูปใบบันทึกของวันนี้';
-  const tasks=[];const cards=[];
+  const tasks=[];const cards=[];const pcards=[];
   LAYERS.filter(n=>hdoc(n).status==='active').forEach(h=>{
     const rs=records.filter(r=>r.house===h).sort((a,b)=>a.date<b.date?-1:1);const cur=rs[rs.length-1];
     if(!cur||cur.date<T)tasks.push({s:'warn',icon:'camera',title:`ส่งใบบันทึกวันนี้ของเล้า ${h}`,why:cur?`ใบล่าสุดของเล้านี้คือวันที่ ${thDate(cur.date)}`:'เล้านี้ยังไม่มีใบบันทึกเลย',go:'record',arg:String(h),btn:'ถ่ายรูปใบบันทึก',btnIcon:'camera'});
@@ -2623,8 +2660,8 @@ function renderOverview(){
   });
   PULLETS.filter(n=>hdoc(n).status==='active').forEach(h=>{const rs=records.filter(r=>r.house===h).sort((a,b)=>a.date<b.date?-1:1);const cur=rs[rs.length-1];
     if(!cur||cur.date<T)tasks.push({s:'warn',icon:'camera',title:`ส่งใบบันทึกวันนี้ของเล้า ${h} (ไก่เล็ก)`,why:cur?`ใบล่าสุดของเล้านี้คือวันที่ ${thDate(cur.date)}`:'เล้านี้ยังไม่มีใบบันทึกเลย',go:'record',arg:String(h),btn:'ถ่ายรูปใบบันทึก',btnIcon:'camera'});
-    cards.push(pulletCardHTML(h,cur,rs));});
-  ALLH.filter(n=>hdoc(n).status!=='active').forEach(h=>cards.push(restCardHTML(h)));
+    pcards.push(pulletCardHTML(h,cur,rs));});
+  ALLH.filter(n=>hdoc(n).status!=='active').forEach(h=>(PULLETS.includes(h)?pcards:cards).push(restCardHTML(h)));
   // money & stock tasks
   const bal=balances();
   buyers.forEach(b=>{const o=bal[b.id].owe;const wk=(tx[b.id]||[]).filter(t=>t.type==='sale'&&t.date>=addDays(T,-6)).reduce((x,t)=>x+(t.total||0),0)/7;const dOwe=wk?o/wk:null;if(o>AL.oweBaht&&(dOwe==null||dOwe>AL.oweDays)&&!isDone('owe-'+b.id))tasks.push({s:dOwe>AL.oweCritDays?'crit':'warn',id:'owe-'+b.id,icon:'money',title:`ทวงเงิน ${cleanName(b.name)}`,why:`ค้างจ่ายฟาร์ม ${baht(o)} บาท${dOwe?` เท่ากับค่าไข่ราว ${n0(dOwe)} วัน`:''}`,go:'farmpay',arg:b.id,btn:'บันทึกรับเงิน',btnIcon:'money'});});
@@ -2633,7 +2670,7 @@ function renderOverview(){
   healthTasks().forEach(t=>tasks.push(t));houseTasks().forEach(t=>tasks.push(t));feedTasks().forEach(t=>tasks.push(t));stockTasks().forEach(t=>tasks.push(t));
   const order={crit:0,warn:1,ok:2};tasks.sort((a,b)=>order[a.s]-order[b.s]);
   $('foTodo').innerHTML=tasks.length?tasks.map(taskHTML).join(''):taskHTML({s:'ok',icon:'check',title:'วันนี้เรียบร้อยดี',why:'ส่งใบบันทึกครบทุกเล้า และไม่มีเรื่องผิดปกติ'});
-  $('foHouses').innerHTML=cards.join('');
+  if($('foHousesLay')){$('foHousesLay').innerHTML=cards.join('');$('foHousesPul').innerHTML=pcards.join('');$('foHousesSec').hidden=true;}else $('foHouses').innerHTML=cards.concat(pcards).join('');
   // today's sales as cards
   const sc=buyers.slice().sort((a,b)=>bal[b.id].owe-bal[a.id].owe).map(b=>{const s=(tx[b.id]||[]).filter(t=>t.type==='sale'&&t.date===T);
     const tr=s.reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0);const amt=s.reduce((a,t)=>a+(t.total||0),0);const o=bal[b.id].owe;
@@ -4087,7 +4124,7 @@ function bwStd(breed,ageD){const T=BW_STD[breed];if(!T||ageD==null)return null;c
 const weighsOf=n=>health.filter(e=>e.type==='weight'&&e.house===n).sort((a,b)=>a.date<b.date?-1:1);
 function bwCmp(n,w){const h=hdoc(n);if(!h.hatch)return null;const s=bwStd(h.breed,days(h.hatch,w.date));if(!s)return null;return Object.assign({pct:(w.avg/s.mid-1)*100},s);}
 function bwChart(n){const h=hdoc(n);const W=weighsOf(n);if(!W.length)return '';const T=BW_STD[h.breed];
-  const pts=W.map(w=>({x:days(h.hatch,w.date)/7,y:w.avg}));const xmax=Math.max(MOVE_WEEK+1,...pts.map(p=>p.x));const ymax=Math.max(1500,...pts.map(p=>p.y))*1.05;
+  const pts=W.map(w=>{const ws=(w.weights||[]).map(Number).filter(x=>x>0);return {x:days(h.hatch,w.date)/7,y:w.avg??(ws.length?ws.reduce((a,b)=>a+b,0)/ws.length:null)};}).filter(p=>p.y!=null&&isFinite(p.x));if(!pts.length)return '';const xmax=Math.max(MOVE_WEEK+1,...pts.map(p=>p.x));const ymax=Math.max(1500,...pts.map(p=>p.y))*1.05;
   const X=x=>44+(x/xmax)*248,Y=y=>110-(y/ymax)*100;
   let band='';if(T){const up=T.map((r,i)=>`${X(i+1).toFixed(1)},${Y(r[1]).toFixed(1)}`),dn=T.map((r,i)=>`${X(i+1).toFixed(1)},${Y(r[0]).toFixed(1)}`).reverse();band=`<polygon points="${up.concat(dn).join(' ')}" class="bw-band"/>`;}
   const line=pts.map((p,i)=>`${i?'L':'M'}${X(p.x).toFixed(1)} ${Y(p.y).toFixed(1)}`).join(' ');

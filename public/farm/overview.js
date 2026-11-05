@@ -292,7 +292,10 @@
     }).join('');
 
     const houses = chartable();
-    el.innerHTML = `<div class="xo-top"><h2>ภาพรวมฟาร์ม</h2><p>ข้อมูลวันที่ ${shortD(D)} มีใบบันทึก ${cur.n} เล้า</p></div>
+    // keep things the dashboard renders into the zones (daily chart, house cards) across re-renders
+    const henBox = document.querySelector('#vFOverview .henbox'); if (henBox && el.contains(henBox)) el.after(henBox);
+    const keep = { lay: (document.getElementById('foHousesLay') || {}).innerHTML || '', pul: (document.getElementById('foHousesPul') || {}).innerHTML || '' };
+    el.innerHTML = `<div class="xo-top"><h2>ภาพรวมฟาร์ม</h2><p>ข้อมูลวันที่ ${shortD(D)} มีใบบันทึก ${cur.n} เล้า ไก่ทั้งฟาร์ม ${n0(henLeft + pulLeft)} ตัว</p></div>
       <section class="xo-side s-lay" aria-label="ไก่ไข่">
         ${band('b-lay', HEN, 'ไก่ไข่', layNow.map(x => x.h), henLeft)}
         <div class="xo-body">
@@ -304,6 +307,8 @@
           <p class="xo-note" id="xoChartNote"></p></section>
         <section class="xo-panel"><h3>สรุป Hen-day และ Hen-house เทียบมาตรฐานสายพันธุ์</h3>${sumTiles}
           <div class="xtabs">${tab('Hen-day (ไก่ที่มีชีวิต)', 'hd', 'sHd', [cur.hd, stdHd])}${tab('Hen-house (ไก่ตั้งต้น)', 'hh', 'sHh', [cur.hh, stdHh])}</div>${ewTab}</section>
+        <div id="xoDaily"></div>
+        <section class="xo-panel"><h3>ไก่ไข่รายเล้า</h3><div class="hgrid xo-cards" id="foHousesLay"></div></section>
         </div>
       </section>
       <section class="xo-side s-pul" aria-label="ไก่เล็ก">
@@ -311,11 +316,14 @@
         <div class="xo-body">
         ${pulTilesTop.length ? `<div class="xgrid">${pulTilesTop.join('')}</div>` : '<div class="xo-empty">ยังไม่มีไก่เล็กในฟาร์ม</div>'}
         <div class="xo-puls">${pulTiles}</div>${pulletWeighHTML()}
+        <section class="xo-panel"><h3>ไก่เล็กรายเล้า</h3><div class="hgrid xo-cards" id="foHousesPul"></div></section>
         </div>
       </section>
       <section class="xo-mapwrap"><div class="xo-panel"><h2>ผังฟาร์ม</h2><p class="xo-note">กดที่เล้าเพื่อดูรายละเอียด</p><div id="xoMap"></div>
         <div class="xo-leg"><span><i style="background:#2f8a5b"></i>ตามมาตรฐาน</span><span><i style="background:#e3a21a"></i>ต่ำกว่าเล็กน้อย</span><span><i style="background:#c2362b"></i>ต่ำกว่ามาก</span><span><i style="background:#9aa6a0"></i>ยังไม่ส่งใบวันนี้</span><span><i style="background:#7b4fb0"></i>ปลดไก่</span></div></div>
         <div class="xo-panel" id="xoDetail"></div></section>`;
+    if (henBox) { henBox.classList.add('xo-panel'); document.getElementById('xoDaily').replaceWith(henBox); }
+    document.getElementById('foHousesLay').innerHTML = keep.lay; document.getElementById('foHousesPul').innerHTML = keep.pul;
     paintMap(D); drawChart();
     // phones: open the sideways-scrolling weight chart on the average, not on the empty left edge
     el.querySelectorAll('.xo-scroll').forEach(b => { const m = b.querySelector('.mline'), sv = b.querySelector('svg'); if (!m || !sv || b.scrollWidth <= b.clientWidth) return; const vb = sv.viewBox.baseVal; b.scrollLeft = (+m.getAttribute('x1') - vb.x) / vb.width * b.scrollWidth - b.clientWidth / 2; });

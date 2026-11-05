@@ -42,6 +42,16 @@ main{padding:22px 24px 60px;max-width:1180px;width:100%}
 @media (max-width:900px){.feat{grid-template-columns:1fr 1fr}}
 .cmp td{font-size:13px}.cmp td.diff{background:var(--warn-soft)}
 pre.ocr{white-space:pre-wrap;max-height:360px;overflow:auto;background:var(--surface-2);border-radius:8px;padding:8px;font-size:12px}
+
+/* same reading size as the farm dashboard: one large size for labels, notes and numbers */
+:root{--xl:clamp(20px,1.7vw,26px)}
+#main :is(h1,h2,h3,h4,p,span,b,strong,em,small,label,a,button,td,th,li,div,input,select,textarea,summary,pre,code){font-size:var(--xl)!important;line-height:1.35}
+#main :is(h1,h2,h3,h4,summary){font-weight:800}
+#main :is(input,select,textarea,button,.btn){min-height:48px}
+#main textarea.mono,#main pre{font-size:calc(var(--xl)*.8)!important}
+.side a,.side .grp,.side .brand,.topbar b{font-size:18px}
+#main .feat{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+@media (max-width:640px){:root{--xl:19px}}
 </style></head><body>
 <div class="topbar"><button id="hamb" aria-label="เมนู">☰</button><b>หลังบ้าน <span class="fname"></span></b></div>
 <div class="shell">
