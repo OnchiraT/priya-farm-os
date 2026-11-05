@@ -1171,6 +1171,22 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
 
 .view :is(.pgrid,.plgrid,.hgrid,.scards,.wcards,.todo){grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr))!important}
 .view .bwchart{min-height:220px}
+
+/* fill the screen on every device: no fixed page width, side margins scale with the screen */
+.wrap{max-width:none!important;width:100%}
+body{padding-left:max(clamp(12px,2vw,40px),env(safe-area-inset-left,0px))!important;padding-right:max(clamp(12px,2vw,40px),env(safe-area-inset-right,0px))!important}
+/* the farm map keeps its proportions and fits inside one screen height on wide monitors */
+.xo-map{max-height:calc(100vh - 160px);width:100%}
+@media (min-width:1700px){.xo-mapwrap{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)!important}}
+
+/* header and menus grow with the screen too (phones keep the compact bottom bar) */
+@media (min-width:721px){
+  .appbar .ab-left b{font-size:clamp(20px,1.6vw,30px)!important}
+  .appbar .ab-right,.appbar .ab-right select,.appbar .ab-right .btn{font-size:clamp(15px,1.1vw,20px)!important}
+  .tabs-main a,#subNav a,#subNav button{font-size:clamp(16px,1.2vw,22px)!important}
+  .tabs-main a svg,#subNav svg{width:1.2em;height:1.2em}
+}
+@media (max-width:720px){.appbar{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"left" "right" "nav"!important}.appbar .ab-right{justify-content:flex-start;flex-wrap:wrap}.appbar .ab-left b{overflow:hidden;text-overflow:ellipsis;min-width:0}.appbar .ab-right .btn span,.appbar .ab-right .btn{font-size:14px}}
 </style>
 
 <div class="wrap">
