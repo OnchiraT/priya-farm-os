@@ -24,7 +24,14 @@ main{padding:22px 24px 60px;max-width:1180px;width:100%}
 .irow:hover{border-color:var(--accent)}.irow img{width:64px;height:64px;object-fit:cover;border-radius:6px;background:var(--surface-2)}
 .detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
 @media (max-width:1000px){.detail{grid-template-columns:1fr}}
-.imgbox{position:sticky;top:12px;background:#222;border-radius:12px;overflow:auto;max-height:86vh}.imgbox img{display:block;width:100%;cursor:zoom-in}.imgbox.zoom img{width:220%;cursor:zoom-out}
+.imgbox{position:sticky;top:12px;background:#1d2420;border-radius:12px;overflow:hidden;height:min(82vh,780px);touch-action:none;user-select:none;cursor:zoom-in}
+.imgbox.zoomed{cursor:grab}.imgbox.drag{cursor:grabbing}
+.imgbox .zt{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}.imgbox img{display:block;max-width:none;pointer-events:none}
+.zctl{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.zctl button{width:36px;height:36px;border-radius:9px;border:1px solid rgba(255,255,255,.25);background:rgba(20,30,24,.78);color:#fff;font:600 17px var(--f-body);cursor:pointer;display:grid;place-items:center}
+.zctl button:hover{background:rgba(30,106,74,.9)}.zctl .pct{font:600 11px var(--f-body);color:#d7e6dc;text-align:center}
+.zhint{position:absolute;left:10px;bottom:10px;right:56px;font-size:12px;color:#d7e6dc;background:rgba(20,30,24,.7);padding:4px 9px;border-radius:7px;width:max-content;max-width:calc(100% - 66px);pointer-events:none}
+@media (max-width:1000px){.imgbox{position:relative;top:0;height:62vh}}
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .fld{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}.fld.ok{border-left:4px solid var(--ok)}.fld.warn{border-left:4px solid #e3a21a;background:#fffaf0}.fld.crit{border-left:4px solid var(--crit);background:#fff6f5}
 .fld label{font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between;gap:4px}.fld input{border:0;padding:2px 0;font-weight:600;font-size:15px;background:transparent}
@@ -106,7 +113,9 @@ async function detail(id) {
   const done = ['auto', 'confirmed', 'approved'].includes(it.status);
   M.innerHTML = `<div class="ph"><a class="btn ghost sm" href="#inbox">← กล่องเอกสาร</a><h1>${esc(docTypes[it.doc_type] || 'เอกสาร')}</h1>${st(it.status)}${confPill(it.confidence)}<span class="sp"></span>
     <small>${it.source === 'line' ? '💬 LINE' : '📷 อัปโหลด'} · ${esc(it.sender_name || '')} · ${thTime(it.created_at)}</small></div>
-  <div class="detail"><div class="imgbox" id="ib"><img src="/api/files/${it.file_id}" alt="รูปเอกสาร"></div>
+  <div class="detail"><div class="imgbox" id="ib"><div class="zt" id="zt"><img id="zimg" src="/api/files/${it.file_id}" alt="รูปเอกสาร"></div>
+    <div class="zctl"><button type="button" data-z="in" title="ซูมเข้า">+</button><button type="button" data-z="out" title="ซูมออก">−</button><button type="button" data-z="rot" title="หมุนรูป 90°">⟳</button><button type="button" data-z="fit" title="ดูทั้งใบ">⤢</button><span class="pct" id="zpct">100%</span></div>
+    <div class="zhint">คลิกจุดที่อยากดูเพื่อซูม · ลากเพื่อเลื่อน</div></div>
   <div class="grid">
     ${it.error ? `<div class="note warn">${esc(it.error)}</div>` : ''}
     <div class="card grid"><div class="row"><h3>ข้อมูลที่อ่านได้</h3><span class="sp"></span><label class="f" style="flex-direction:row;align-items:center">ประเภท <select id="dtype" style="width:auto">${Object.entries(docTypes).map(([k, l]) => `<option value="${k}" ${k === it.doc_type ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label></div>
@@ -122,7 +131,7 @@ async function detail(id) {
     ${it.ocr_text ? `<details class="card"><summary>ข้อความที่ OCR อ่านได้</summary><pre class="ocr">${esc(it.ocr_text)}</pre></details>` : ''}
     <div class="card"><h3>ประวัติ</h3><div class="ev">${events.map(e => `<div><b>${thTime(e.at)}</b> ${esc(e.actor)} · ${esc(EVT[e.action] || e.action)} ${e.detail && Object.keys(e.detail).length ? `<span class="mono">${esc(JSON.stringify(e.detail).slice(0, 160))}</span>` : ''}</div>`).join('')}</div></div>
   </div></div>`;
-  $('#ib').onclick = () => $('#ib').classList.toggle('zoom');
+  zoomer($('#ib'), $('#zt'), $('#zimg'), $('#zpct'));
   const collect = () => {
     const fields = {}; $$('#flds input').forEach(i => { if (i.value.trim() !== '') fields[i.dataset.k] = i.value.trim(); });
     const rows = []; $$('#rows input').forEach(i => { (rows[+i.dataset.r] = rows[+i.dataset.r] || {})[i.dataset.k] = i.value.trim(); });
@@ -137,6 +146,37 @@ async function detail(id) {
   $('#bUndo') && ($('#bUndo').onclick = () => confirmAsk('ลบข้อมูลที่รายการนี้บันทึกไว้ออกจากระบบ?') && act(() => api('POST', `intake/${id}/undo`, {}), 'ยกเลิกการบันทึกแล้ว'));
 }
 const confirmAsk = m => window.confirm(m);
+// photo viewer: click a spot to zoom into it, drag to pan, wheel / pinch to zoom, rotate for sideways photos
+function zoomer(box, layer, img, pct) {
+  let s = 1, tx = 0, ty = 0, rot = 0, base = 1, nw = 0, nh = 0;
+  const pts = new Map(); let moved = false, start = null, pinch = null;
+  const dims = () => (rot % 180 ? [nh, nw] : [nw, nh]);
+  function apply() {
+    const [w, h] = dims(), W = box.clientWidth, H = box.clientHeight, sw = w * base * s, sh = h * base * s;
+    tx = sw <= W ? (W - sw) / 2 : Math.min(0, Math.max(W - sw, tx));
+    ty = sh <= H ? (H - sh) / 2 : Math.min(0, Math.max(H - sh, ty));
+    const r = rot % 360, off = r === 90 ? `translate(${nh * base}px,0)` : r === 180 ? `translate(${nw * base}px,${nh * base}px)` : r === 270 ? `translate(0,${nw * base}px)` : '';
+    layer.style.transform = `translate(${tx}px,${ty}px) scale(${s}) ${off} rotate(${r}deg)`;
+    pct.textContent = Math.round(s * 100) + '%'; box.classList.toggle('zoomed', s > 1.01); const hint = box.querySelector('.zhint'); if (hint) hint.hidden = s > 1.01;
+  }
+  function fit() { if (!nw) return; const [w, h] = dims(); base = Math.min(box.clientWidth / w, box.clientHeight / h); img.style.width = nw * base + 'px'; img.style.height = nh * base + 'px'; s = 1; tx = ty = 0; apply(); }
+  function zoomAt(x, y, k) { const ns = Math.min(8, Math.max(1, s * k)); tx = x - (x - tx) * ns / s; ty = y - (y - ty) * ns / s; s = ns; apply(); }
+  const local = e => { const r = box.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  img.complete && img.naturalWidth ? (nw = img.naturalWidth, nh = img.naturalHeight, fit()) : img.addEventListener('load', () => { nw = img.naturalWidth; nh = img.naturalHeight; fit(); });
+  new ResizeObserver(() => { const k = s; fit(); s = k; apply(); }).observe(box);
+  box.addEventListener('wheel', e => { e.preventDefault(); const [x, y] = local(e); zoomAt(x, y, Math.exp(-e.deltaY * 0.0018)); }, { passive: false });
+  box.addEventListener('pointerdown', e => { if (e.target.closest('.zctl')) return; box.setPointerCapture(e.pointerId); pts.set(e.pointerId, local(e)); moved = false; start = local(e);
+    if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s }; } });
+  box.addEventListener('pointermove', e => { if (!pts.has(e.pointerId)) return; const p = local(e), prev = pts.get(e.pointerId); pts.set(e.pointerId, p);
+    if (pts.size === 2 && pinch) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoomAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, pinch.s * d / pinch.d / s); moved = true; return; }
+    if (Math.hypot(p[0] - start[0], p[1] - start[1]) > 4) moved = true;
+    if (moved && s > 1) { box.classList.add('drag'); tx += p[0] - prev[0]; ty += p[1] - prev[1]; apply(); } });
+  const up = e => { if (!pts.has(e.pointerId)) return; pts.delete(e.pointerId); box.classList.remove('drag'); if (pts.size < 2) pinch = null;
+    if (!moved && !pts.size && e.type === 'pointerup') { const [x, y] = local(e); s >= 7.9 ? fit() : zoomAt(x, y, s < 2.5 ? 3 / s : 1.8); } };
+  box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
+  box.querySelector('.zctl').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const W = box.clientWidth / 2, H = box.clientHeight / 2;
+    ({ in: () => zoomAt(W, H, 1.5), out: () => zoomAt(W, H, 1 / 1.5), fit, rot: () => { rot = (rot + 90) % 360; fit(); } })[b.dataset.z](); });
+}
 const EVT = { received: 'รับรูป', classified: 'แยกประเภท', ocr: 'OCR อ่านข้อความ', read: 'AI อ่านค่า', asked: 'ถามในกลุ่ม LINE', answered: 'ตอบคำถาม', auto: 'บันทึกอัตโนมัติ', confirmed: 'บันทึกหลังคนยืนยัน', to_review: 'ส่งให้ผู้บริหารตรวจ', approved: 'อนุมัติ', rejected: 'ไม่บันทึก', undone: 'ยกเลิกการบันทึก', reprocess: 'สั่งอ่านใหม่', error: 'ผิดพลาด', retake: 'ขอรูปใหม่', line_failed: 'ส่ง LINE ไม่สำเร็จ', ocr_failed: 'OCR ไม่สำเร็จ', verify_failed: 'อ่านรอบ 2 ไม่สำเร็จ' };
 
 /* ---------------- upload ---------------- */
