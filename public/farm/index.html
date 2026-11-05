@@ -2552,7 +2552,7 @@ const tok=n=>getComputedStyle(document.body).getPropertyValue(n).trim();
 const PAL=()=>['--c1','--c2','--c3','--c4','--c5'].map(tok);
 const HOUSE_COL=()=>['#1e6a4a','#e3a21a','#6a5ab8','#c0506f','#3f86b5','#7a8f2c','#b8641e','#2c4a9a','#8d5a97','#4b8c7e'];
 /* every chart uses the page's large type size */
-function chartFonts(){if(!window.Chart)return;const t=document.createElement('div');t.style.cssText='position:absolute;visibility:hidden;font-size:var(--xl)';document.body.append(t);const px=parseFloat(getComputedStyle(t).fontSize)||22;t.remove();
+function chartFonts(){if(!window.Chart||!Chart.defaults||!Chart.defaults.font)return;const t=document.createElement('div');t.style.cssText='position:absolute;visibility:hidden;font-size:var(--xl)';document.body.append(t);const px=parseFloat(getComputedStyle(t).fontSize)||22;t.remove();
   Chart.defaults.font.size=Math.round(px*.8);Chart.defaults.font.weight='600';Chart.defaults.font.family=getComputedStyle(document.body).fontFamily;Chart.defaults.color='#4c5a52';
   Chart.defaults.plugins.legend.labels.font={size:Math.round(px*.85),weight:'700'};Chart.defaults.plugins.tooltip.bodyFont={size:Math.round(px*.75)};Chart.defaults.plugins.tooltip.titleFont={size:Math.round(px*.75)};}
 function mkChart(id,cfg){const cv=$(id);if(!cv)return;chartFonts();if(!window.Chart){cv.parentElement.innerHTML='<div class="empty">โหลดกราฟไม่ได้ในตอนนี้</div>';return;}if(charts[id])charts[id].destroy();charts[id]=new Chart(cv,cfg);}
