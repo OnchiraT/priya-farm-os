@@ -8,6 +8,7 @@
     "dev": "node dev/server.js"
   },
   "dependencies": {
+    "@vercel/blob": "^2.3.0",
     "@vercel/functions": "^2.2.13",
     "postgres": "^3.4.7"
   }

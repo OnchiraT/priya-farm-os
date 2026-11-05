@@ -12,6 +12,7 @@ import crypto from 'node:crypto';
 import { DOC_TYPES, FIELD_LABELS } from '../lib/doctypes.js';
 import { saveFile, createIntake, processIntake, getIntake, approve, answer, toReview, openQuestionIn, logEvent, sweep, dailySummary, score } from '../lib/pipeline.js';
 import { lineConfig, verifySignature, getContent, say, push, botInfo, chatName, memberName, chatIdOf } from '../lib/line.js';
+import { readFile, fileExists, migrateFiles, pruneVoice, fileStats, fileStore } from '../lib/files.js';
 import fs from 'node:fs'; import path from 'node:path';
 
 let waitUntil = p => { p.catch(e => console.error(e)); };
@@ -60,7 +61,7 @@ on('POST', 'files', async req => {
   return { id, url: '/api/files/' + id };
 });
 on('GET', 'files/:id', async (req, res, p) => {
-  await requireUser(req); const f = await one('select mime, data from files where id=$1 and farm_id=$2', [p.id, FARM]);
+  await requireUser(req); const f = await readFile(p.id);
   if (!f) bad('ไม่พบไฟล์', 404);
   send(res, 200, Buffer.from(f.data), { 'content-type': f.mime || 'application/octet-stream', 'cache-control': 'private, max-age=86400' }); return undefined;
 });
@@ -84,9 +85,9 @@ on('POST', 'report/voice', async req => {
   const text = await dailyReportText(b.date);
   const cfg = await featureConfig('tts'); const t0 = Date.now();
   const id = 'tts_' + crypto.createHash('sha256').update([cfg.provider, cfg.model, cfg.voice, text].join('|')).digest('hex').slice(0, 24);
-  if (!(await one('select 1 as x from files where id=$1', [id]))) {
+  if (!(await fileExists(id))) {
     const audio = await tts(cfg, text);
-    await q('insert into files(id, farm_id, mime, size, data, created_by) values($1,$2,$3,$4,$5,$6) on conflict (id) do nothing', [id, FARM, 'audio/mpeg', audio.length, audio, 'tts']);
+    await saveFile(audio, 'audio/mpeg', 'tts', id);
     q('insert into ai_calls(farm_id, feature, provider, model, ms, ok) values($1,$2,$3,$4,$5,true)', [FARM, 'tts', cfg.provider, cfg.model || '', Date.now() - t0]).catch(() => { });
   }
   return { text, audioUrl: '/api/files/' + id };
@@ -265,9 +266,10 @@ async function handleLine(c, ev) {
 on('GET', 'cron/daily', async req => {
   const ok = process.env.CRON_SECRET ? req.headers.authorization === 'Bearer ' + process.env.CRON_SECRET : true;
   if (!ok) bad('forbidden', 403);
+  const pruned = await pruneVoice().catch(e => { console.error(e); return 0; });
   const escalated = await sweep(); const c = await lineConfig(); const text = await dailySummary(); const sent = [];
   for (const to of c.notifyChats || []) { try { await push(c, to, text); sent.push(to); } catch (e) { console.error(e); } }
-  return { ok: true, escalated, sent: sent.length };
+  return { ok: true, escalated, sent: sent.length, pruned };
 });
 on('POST', 'cron/sweep', async req => { await requireUser(req, 'admin'); return { escalated: await sweep() }; });
 
@@ -290,6 +292,13 @@ on('GET', 'admin/stats', async req => {
   const pending = (await one(`select count(*)::int n from intake where farm_id=$1 and status in ('review','error')`, [FARM]))?.n || 0;
   return { collections: c, pending };
 });
+// where photos and voice files live, and how full the database is
+on('GET', 'admin/storage', async req => {
+  await requireUser(req, 'admin');
+  const db = await one('select pg_database_size(current_database())::bigint as b');
+  return { store: await fileStore(), files: await fileStats(), dbBytes: Number(db.b) };
+});
+on('POST', 'admin/storage/migrate', async req => { await requireUser(req, 'admin'); return migrateFiles(25); });
 
 export default async function handler(req, res) {
   const url = new URL(req.url, 'http://x');

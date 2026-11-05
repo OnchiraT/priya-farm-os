@@ -377,7 +377,15 @@ R.data = async () => {
   const s = await api('GET', 'admin/stats'); const demo = s.collections.reduce((a, c) => a + c.demo, 0);
   M.innerHTML = `<div class="ph"><div><h1>ข้อมูลในระบบ</h1><p>จำนวนข้อมูลแต่ละหมวด ข้อมูลตัวอย่าง (ชื่อลงท้าย "(ตัวอย่าง)") ใส่ไว้ให้ลองใช้ ลบออกได้ทีเดียวก่อนเริ่มใช้จริง</p></div></div>
   <div class="row" style="margin-bottom:12px"><button class="btn ghost" id="bSeed">ใส่ข้อมูลตัวอย่าง</button><button class="btn ghost danger" id="bClear" ${demo ? '' : 'disabled'}>ลบข้อมูลตัวอย่างทั้งหมด (${demo})</button><button class="btn ghost" id="bSweep">ส่งคำถามค้างให้ผู้บริหารตอนนี้</button></div>
-  <div class="tbl"><table><tr><th>หมวด</th><th>ทั้งหมด</th><th>ตัวอย่าง</th></tr>${s.collections.map(c => `<tr><td class="mono">${esc(c.collection)}</td><td>${c.n}</td><td>${c.demo || ''}</td></tr>`).join('')}</table></div>`;
+  <div class="tbl"><table><tr><th>หมวด</th><th>ทั้งหมด</th><th>ตัวอย่าง</th></tr>${s.collections.map(c => `<tr><td class="mono">${esc(c.collection)}</td><td>${c.n}</td><td>${c.demo || ''}</td></tr>`).join('')}</table></div><div id="stor" class="card" style="margin-top:14px"><span class="spin"></span></div>`;
+  const MB = b => (Number(b) / 1048576).toLocaleString('th-TH', { maximumFractionDigits: 1 }) + ' MB';
+  const paint = async () => { const g = await api('GET', 'admin/storage'); const f = g.files;
+    $('#stor').innerHTML = `<h2 style="margin-top:0">ที่เก็บรูปและไฟล์เสียง</h2>
+      <p>ฐานข้อมูลใช้ไปทั้งหมด <b>${MB(g.dbBytes)}</b> · ไฟล์ทั้งหมด ${f.n.toLocaleString('th-TH')} ไฟล์ (${MB(f.bytes)})</p>
+      <p>ตอนนี้เก็บไฟล์ไว้ที่: <b>${g.store === 'blob' ? 'ที่เก็บไฟล์แยก (Vercel Blob) ✅' : 'ในฐานข้อมูล ⚠️'}</b>${f.in_db ? ` · ยังค้างในฐานข้อมูล ${f.in_db} ไฟล์ (${MB(f.db_bytes)})` : ''}</p>
+      ${g.store === 'blob' ? (f.in_db ? '<button class="btn" id="bMig">ย้ายไฟล์ที่ค้างออกจากฐานข้อมูล</button> <span class="status" id="sMig"></span>' : '') : '<p class="status">ยังไม่ได้ต่อที่เก็บไฟล์ ไปที่ Vercel → โปรเจกต์นี้ → Storage → Create → Blob → เลือก Private แล้วกด Connect กับโปรเจกต์ จากนั้น Redeploy หนึ่งครั้ง</p>'}`;
+    const b = $('#bMig'); if (b) b.onclick = async () => { b.disabled = true; let r; do { r = await api('POST', 'admin/storage/migrate'); $('#sMig').textContent = `ย้ายแล้ว เหลือ ${r.left} ไฟล์`; } while (r.moved && r.left); toast('ย้ายไฟล์เสร็จ'); paint(); }; };
+  paint().catch(e => { $('#stor').textContent = e.message; });
   $('#bSeed').onclick = async () => { const r = await api('POST', 'admin/seed'); toast(`เพิ่ม ${r.added} รายการ`); R.data(); };
   $('#bClear').onclick = async () => { if (!confirmAsk(`ลบข้อมูลตัวอย่าง ${demo} รายการ? ข้อมูลจริงไม่ถูกลบ`)) return; const r = await api('POST', 'admin/clear-demo'); toast(`ลบ ${r.removed} รายการ`); R.data(); };
   $('#bSweep').onclick = async () => { const r = await api('POST', 'cron/sweep'); toast(`ส่งให้ผู้บริหาร ${r.escalated} รายการ`); };
