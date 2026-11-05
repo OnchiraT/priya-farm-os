@@ -1147,6 +1147,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
 /* the farm-wide "today" tiles repeated the zone numbers and mixed layers with pullets */
 #foTodayH,#foToday{display:none!important}
 .xo-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:12px}
+#vFOverview .henbox .cbox{height:clamp(360px,50vh,520px)}
 #vFOverview .henbox{border:2px solid var(--zline,var(--line));border-radius:18px;background:#fff;margin:0}
 @media (max-width:640px){:root{--xl:20px}.view :is(input,select,textarea,button,.btn){min-height:48px}}
 
@@ -2550,7 +2551,11 @@ const charts={};
 const tok=n=>getComputedStyle(document.body).getPropertyValue(n).trim();
 const PAL=()=>['--c1','--c2','--c3','--c4','--c5'].map(tok);
 const HOUSE_COL=()=>['#1e6a4a','#e3a21a','#6a5ab8','#c0506f','#3f86b5','#7a8f2c','#b8641e','#2c4a9a','#8d5a97','#4b8c7e'];
-function mkChart(id,cfg){const cv=$(id);if(!cv)return;if(!window.Chart){cv.parentElement.innerHTML='<div class="empty">โหลดกราฟไม่ได้ในตอนนี้</div>';return;}if(charts[id])charts[id].destroy();charts[id]=new Chart(cv,cfg);}
+/* every chart uses the page's large type size */
+function chartFonts(){if(!window.Chart)return;const t=document.createElement('div');t.style.cssText='position:absolute;visibility:hidden;font-size:var(--xl)';document.body.append(t);const px=parseFloat(getComputedStyle(t).fontSize)||22;t.remove();
+  Chart.defaults.font.size=Math.round(px*.8);Chart.defaults.font.weight='600';Chart.defaults.font.family=getComputedStyle(document.body).fontFamily;Chart.defaults.color='#4c5a52';
+  Chart.defaults.plugins.legend.labels.font={size:Math.round(px*.85),weight:'700'};Chart.defaults.plugins.tooltip.bodyFont={size:Math.round(px*.75)};Chart.defaults.plugins.tooltip.titleFont={size:Math.round(px*.75)};}
+function mkChart(id,cfg){const cv=$(id);if(!cv)return;chartFonts();if(!window.Chart){cv.parentElement.innerHTML='<div class="empty">โหลดกราฟไม่ได้ในตอนนี้</div>';return;}if(charts[id])charts[id].destroy();charts[id]=new Chart(cv,cfg);}
 function opts(o){
   const ink=tok('--muted'),grid=tok('--line'),font={family:"'IBM Plex Sans Thai',system-ui,sans-serif",size:11};
   const base={responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
