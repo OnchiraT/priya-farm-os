@@ -2363,7 +2363,7 @@ $('histFilter').addEventListener('click',e=>{const b=e.target.closest('[data-h]'
 
 renderCalc();renderHist();
 if(db){
-  db.collection('records').orderBy('date','desc').limit(300).onSnapshot(s=>{
+  db.collection('records').orderBy('date','desc').onSnapshot(s=>{
     records=s.docs.map(d=>Object.assign({id:d.id},d.data()));fillHoused();checkExisting();renderHist();
   },()=>{$('histTbl').innerHTML='<tbody><tr><td class="empty" style="font-family:var(--f-body)">โหลดประวัติไม่ได้ในตอนนี้ ลองเปิดหน้านี้ใหม่</td></tr></tbody>';});
 }
@@ -4323,7 +4323,7 @@ async function tFlush(){if(tBusy||!tQueue.size||LANG==='th')return;
   tBusy=false;if(!tQueue.size)tStatus('');}
 async function tLoad(L){if(I18N[L]&&I18N[L].__loaded)return;const map=I18N[L]||(I18N[L]={});
   try{Object.assign(map,JSON.parse(localStorage.getItem('coop-i18n-'+L)||'{}'));}catch(e){}
-  if(db){try{const s=await db.collection('i18n').where('lang','==',L).limit(500).get();s.docs.forEach(d=>{const x=d.data();(x.s||[]).forEach((k,i)=>{if(x.t&&typeof x.t[i]==='string')map[k]=x.t[i];});});}catch(e){}}
+  if(db){try{const s=await db.collection('i18n').where('lang','==',L).get();s.docs.forEach(d=>{const x=d.data();(x.s||[]).forEach((k,i)=>{if(x.t&&typeof x.t[i]==='string')map[k]=x.t[i];});});}catch(e){}}
   Object.defineProperty(map,'__loaded',{value:true,enumerable:false});}
 async function setLang(L){tRestore();tQueue.clear();LANG=L;try{localStorage.setItem('coop-lang',L);}catch(e){}
   document.documentElement.lang=L;document.querySelectorAll('.langsel select').forEach(s=>{s.value=L;});
@@ -4714,29 +4714,29 @@ if(db){
     $('priceMeta').textContent=prices.updatedAt?'ตั้งเมื่อ '+new Date(prices.updatedAt).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'ยังไม่ได้ตั้งราคา';refresh();},()=>{});
   db.doc('public/stock').onSnapshot(d=>{pubStock=d.exists?d.data():null;refresh();},()=>{});
   if(role==='farm'){
-    db.collection('records').orderBy('date','asc').limit(1000).onSnapshot(s=>{records=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('costs').limit(2000).onSnapshot(s=>{costs=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('mprices').limit(2000).onSnapshot(s=>{mprices=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('feedpo').limit(1000).onSnapshot(s=>{feedPOs=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('feeddel').limit(2000).onSnapshot(s=>{feedDels=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('stockitems').limit(500).onSnapshot(s=>{stockItems=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('stockmov').limit(3000).onSnapshot(s=>{stockMoves=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('dungsales').limit(1000).onSnapshot(s=>{dungSales=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('deliv').limit(2000).onSnapshot(s=>{delivs={};s.docs.forEach(d=>{delivs[d.id]=d.data();});refresh();},()=>{});
-    db.collection('hensales').limit(500).onSnapshot(s=>{henSales=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('houses').limit(50).onSnapshot(s=>{houses={};s.docs.forEach(d=>{houses[d.id]=d.data();});refresh();},()=>{});
-    db.collection('repairs').limit(500).onSnapshot(s=>{repairs=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('health').limit(1000).onSnapshot(s=>{health=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('adjust').orderBy('date','asc').limit(1000).onSnapshot(s=>{adjusts=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('ledger').limit(60).onSnapshot(s=>{
+    db.collection('records').orderBy('date','asc').onSnapshot(s=>{records=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('costs').onSnapshot(s=>{costs=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('mprices').onSnapshot(s=>{mprices=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('feedpo').onSnapshot(s=>{feedPOs=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('feeddel').onSnapshot(s=>{feedDels=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('stockitems').onSnapshot(s=>{stockItems=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('stockmov').onSnapshot(s=>{stockMoves=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('dungsales').onSnapshot(s=>{dungSales=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('deliv').onSnapshot(s=>{delivs={};s.docs.forEach(d=>{delivs[d.id]=d.data();});refresh();},()=>{});
+    db.collection('hensales').onSnapshot(s=>{henSales=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('houses').onSnapshot(s=>{houses={};s.docs.forEach(d=>{houses[d.id]=d.data();});refresh();},()=>{});
+    db.collection('repairs').onSnapshot(s=>{repairs=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('health').onSnapshot(s=>{health=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('adjust').orderBy('date','asc').onSnapshot(s=>{adjusts=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    db.collection('ledger').onSnapshot(s=>{
       buyers=s.docs.map(d=>Object.assign({id:d.id},d.data()));const ids=new Set(buyers.map(b=>b.id));
-      buyers.forEach(b=>{if(!subs[b.id])subs[b.id]=db.collection(`ledger/${b.id}/tx`).limit(1000).onSnapshot(t=>{tx[b.id]=t.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});});
+      buyers.forEach(b=>{if(!subs[b.id])subs[b.id]=db.collection(`ledger/${b.id}/tx`).onSnapshot(t=>{tx[b.id]=t.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});});
       Object.keys(subs).forEach(k=>{if(!ids.has(k)){subs[k]();delete subs[k];delete tx[k];}});refresh();},()=>{});
   }else if(role==='lhong'){
     db.doc('ledger/'+uid).onSnapshot(d=>{lDoc=d.exists?d.data():null;buyers=lDoc?[Object.assign({id:uid},lDoc)]:[];refresh();},()=>{});
-    db.collection(`ledger/${uid}/tx`).limit(1000).onSnapshot(s=>{lTx=s.docs.map(d=>Object.assign({id:d.id},d.data()));tx[uid]=lTx;refresh();},()=>{});
+    db.collection(`ledger/${uid}/tx`).onSnapshot(s=>{lTx=s.docs.map(d=>Object.assign({id:d.id},d.data()));tx[uid]=lTx;refresh();},()=>{});
     db.doc(`data/users/${uid}/ws`).onSnapshot(d=>{lWs=d.exists?d.data():null;refresh();},()=>{});
-    outCol().limit(1000).onSnapshot(s=>{lOuts=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
+    outCol().onSnapshot(s=>{lOuts=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
   }
 }else{$('sSave').disabled=true;status('sStatus','ต้องลงชื่อเข้าใช้จึงจะบันทึกได้');}
 

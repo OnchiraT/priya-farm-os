@@ -11,13 +11,18 @@
   const cp = o => o == null ? o : JSON.parse(JSON.stringify(o));
   const STORE = {}; const subs = new Set(); let since = null; let ready; let polling = false;
   const fire = () => subs.forEach(f => { try { f(); } catch (e) { console.error(e); } });
+  // first load and every poll come in pages, so a big farm never hits the size limit of one answer
   async function pull() {
     if (polling) return; polling = true;
     try {
-      const r = await api('GET', 'db/changes' + (since ? '?since=' + encodeURIComponent(since) : ''));
-      let changed = false;
-      for (const d of r.docs) { STORE[d.p] = d.d; changed = true; }
-      for (const p of r.deleted) { if (p in STORE) { delete STORE[p]; changed = true; } }
+      let changed = false, r, after = null, upto = null;
+      do {
+        const qs = new URLSearchParams(); if (since) qs.set('since', since); if (upto) qs.set('upto', upto); if (after) qs.set('after', after);
+        r = await api('GET', 'db/changes' + (qs.toString() ? '?' + qs : ''));
+        for (const d of r.docs) { STORE[d.p] = d.d; changed = true; }
+        for (const p of r.deleted || []) { if (p in STORE) { delete STORE[p]; changed = true; } }
+        after = r.after; upto = r.upto;
+      } while (r.more);
       since = r.now; if (changed) fire();
     } finally { polling = false; }
   }

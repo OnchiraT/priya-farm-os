@@ -45,11 +45,12 @@ on('POST', 'me/password', async req => {
 });
 
 // ---------- dashboard data ----------
-on('GET', 'db/changes', async (req, res, p, url) => { const u = await requireUser(req); return Object.assign(await changes(u, url.searchParams.get('since')), { me: { uid: uidFor(u) } }); });
+on('GET', 'db/changes', async (req, res, p, url) => { const u = await requireUser(req); return Object.assign(await changes(u, url.searchParams.get('since'), url.searchParams.get('upto'), url.searchParams.get('after')), { me: { uid: uidFor(u) } }); });
 on('POST', 'db/write', async req => {
   const u = await requireUser(req); const b = await readJson(req);
   const ops = Array.isArray(b.ops) ? b.ops : [b]; const out = [];
-  for (const op of ops.slice(0, 200)) out.push(await userWrite(u, op));
+  if (ops.length > 500) bad('บันทึกได้ครั้งละไม่เกิน 500 รายการ กรุณาแบ่งส่ง');
+  for (const op of ops) out.push(await userWrite(u, op));
   return { ok: true, results: out };
 });
 on('POST', 'files', async req => {
