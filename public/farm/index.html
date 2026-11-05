@@ -1187,6 +1187,17 @@ body{padding-left:max(clamp(12px,2vw,40px),env(safe-area-inset-left,0px))!import
   .tabs-main a svg,#subNav svg{width:1.2em;height:1.2em}
 }
 @media (max-width:720px){.appbar{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"left" "right" "nav"!important}.appbar .ab-right{justify-content:flex-start;flex-wrap:wrap}.appbar .ab-left b{overflow:hidden;text-overflow:ellipsis;min-width:0}.appbar .ab-right .btn span,.appbar .ab-right .btn{font-size:14px}}
+
+/* zone bands double as accordion headers */
+.xo-band{padding:0!important;display:block!important}
+.xo-tog{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:16px;padding:12px 20px;cursor:pointer;color:inherit}
+.xo-tog>div{flex:1;min-width:0}
+.xo-tog:focus-visible{outline:4px solid #17231d;outline-offset:-6px;border-radius:20px}
+.xo-chev{flex:none;width:1.4em;height:1.4em;transition:transform .2s ease}
+.xo-tog[aria-expanded=false] .xo-chev{transform:rotate(-90deg)}
+.xo-side:has(.xo-tog[aria-expanded=false]) .xo-band{position:static}
+@media (prefers-reduced-motion:reduce){.xo-chev{transition:none}}
+@media (max-width:640px){.xo-tog{flex-wrap:wrap;gap:10px;padding:10px 12px}.xo-tog>b{flex-basis:calc(100% - 2em);padding-left:66px}.xo-tog .xo-chev{order:2}}
 </style>
 
 <div class="wrap">

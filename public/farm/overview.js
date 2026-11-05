@@ -8,6 +8,7 @@
   const bind = c => ({ records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days } = c);
   const WEEKLY = {};            // weekly/h{n} docs: whole-flock history from the house's own Excel
   let chartHouse = null, sel = null, last = null; const HID = new Set();
+  const OPEN = { lay: true, pul: true }; try { Object.assign(OPEN, JSON.parse(localStorage.getItem('pf-zone-open') || '{}')); } catch (e) { }
 
   // ---------- small helpers ----------
   const num = v => { const x = parseFloat(String(v == null ? '' : v).replace(/,/g, '')); return isFinite(x) ? x : 0; };
@@ -269,7 +270,8 @@
       bw ? tile('', 'น้ำหนักตัวเฉลี่ย', n0(bw.m), 'กรัม', `<em>เล้า ${lastW.house} ชั่ง ${shortD(lastW.date)}</em>`) : '',
       bw ? tile(bw.uni >= 80 ? 't-hd' : 't-hh', 'ความสม่ำเสมอ', n1(bw.uni), '%', '<em>เป้าหมาย 80% ขึ้นไป</em>') : '',
     ] : [];
-    const band = (cls, pic, title, list, count) => `<header class="xo-band ${cls}">${pic}<div><h2>${title}</h2><p>${list.length ? 'เล้า ' + list.join(', ') : 'ยังไม่มีเล้า'}</p></div><b>${n0(count)} <small>ตัว</small></b></header>`;
+    // zone headers fold their section open/closed (remembered on this device)
+    const band = (k, cls, pic, title, list, count) => `<header class="xo-band ${cls}"><button type="button" class="xo-tog" data-zone="${k}" aria-expanded="${OPEN[k]}" aria-controls="xoBody-${k}">${pic}<div><h2>${title}</h2><p>${list.length ? 'เล้า ' + list.join(', ') : 'ยังไม่มีเล้า'}</p></div><b>${n0(count)} <small>ตัว</small></b><svg class="xo-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button></header>`;
 
     // Hen-day / Hen-house vs breed standard, one table each
     const rows = LAYERS.map(h => {
@@ -297,8 +299,8 @@
     const keep = { lay: (document.getElementById('foHousesLay') || {}).innerHTML || '', pul: (document.getElementById('foHousesPul') || {}).innerHTML || '' };
     el.innerHTML = `<div class="xo-top"><h2>ภาพรวมฟาร์ม</h2><p>ข้อมูลวันที่ ${shortD(D)} มีใบบันทึก ${cur.n} เล้า ไก่ทั้งฟาร์ม ${n0(henLeft + pulLeft)} ตัว</p></div>
       <section class="xo-side s-lay" aria-label="ไก่ไข่">
-        ${band('b-lay', HEN, 'ไก่ไข่', layNow.map(x => x.h), henLeft)}
-        <div class="xo-body">
+        ${band('lay', 'b-lay', HEN, 'ไก่ไข่', layNow.map(x => x.h), henLeft)}
+        <div class="xo-body" id="xoBody-lay" ${OPEN.lay ? '' : 'hidden'}>
         <div class="xgrid">${layTiles.join('')}</div>
         <section class="xo-panel" id="xoChart"><h3>เทียบมาตรฐานสายพันธุ์ รายสัปดาห์</h3>
           <div class="xo-seg" id="xoHouses">${houses.map(h => `<button type="button" data-h="${h}" aria-pressed="false">เล้า ${h}</button>`).join('')}</div>
@@ -312,8 +314,8 @@
         </div>
       </section>
       <section class="xo-side s-pul" aria-label="ไก่เล็ก">
-        ${band('b-pul', CHICK, 'ไก่เล็ก–ไก่สาว', pulNow.map(x => x.h), pulLeft)}
-        <div class="xo-body">
+        ${band('pul', 'b-pul', CHICK, 'ไก่เล็ก–ไก่สาว', pulNow.map(x => x.h), pulLeft)}
+        <div class="xo-body" id="xoBody-pul" ${OPEN.pul ? '' : 'hidden'}>
         ${pulTilesTop.length ? `<div class="xgrid">${pulTilesTop.join('')}</div>` : '<div class="xo-empty">ยังไม่มีไก่เล็กในฟาร์ม</div>'}
         <div class="xo-puls">${pulTiles}</div>${pulletWeighHTML()}
         <section class="xo-panel"><h3>ไก่เล็กรายเล้า</h3><div class="hgrid xo-cards" id="foHousesPul"></div></section>
@@ -332,6 +334,12 @@
   // ---------- events ----------
   document.addEventListener('click', e => {
     const b = e.target.closest('#xoHouses button'); if (b) { chartHouse = +b.dataset.h; drawChart(); return; }
+    const tg = e.target.closest('.xo-tog'); if (tg) {
+      const k = tg.dataset.zone; OPEN[k] = !OPEN[k]; tg.setAttribute('aria-expanded', String(OPEN[k])); const body = document.getElementById('xoBody-' + k); if (body) body.hidden = !OPEN[k];
+      try { localStorage.setItem('pf-zone-open', JSON.stringify(OPEN)); } catch (er) { }
+      if (OPEN[k]) { if (k === 'lay') drawChart(); (body || document).querySelectorAll('canvas').forEach(c => { const ch = window.Chart && Chart.getChart && Chart.getChart(c); if (ch) ch.resize(); }); }
+      else tg.closest('.xo-side').scrollIntoView({ block: 'nearest' });
+      return; }
     const lg = e.target.closest('#xoLeg button'); if (lg) { const i = +lg.dataset.i, c = (document.getElementById('xoCv') || {})._c; if (HID.has(i)) HID.delete(i); else HID.add(i); lg.setAttribute('aria-pressed', String(!HID.has(i))); if (c) { c.setDatasetVisibility(i, !HID.has(i)); c.update(); } return; }
     const g = e.target.closest('#xoMap .xo-hs'); if (g && last) { const v = g.dataset.h; sel = v === 'stock' ? 'stock' : +v; paintMap(last.D); if (innerWidth < 1000) document.getElementById('xoDetail').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     const c = e.target.closest('.xo-go'); if (c) { chartHouse = +c.dataset.chart; drawChart(); document.getElementById('xoChart').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
