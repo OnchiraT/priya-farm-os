@@ -971,6 +971,14 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
 .rp-price{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}.rp-price .f{max-width:150px}
 #fcKind{margin:4px 0 12px}
 .gate-signin{margin:14px 0 0;padding:14px 16px;border-radius:14px;background:#fff7e0;border:1.5px solid #e8c56a;display:grid;gap:4px;max-width:760px}.gate-signin b{font-size:17px;color:#7a5200}.gate-signin span{color:#5c4a1e}.gate-signin em{font-style:normal;font-weight:700;background:#222;color:#fff;padding:1px 8px;border-radius:6px}
+
+.vr{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:12px 14px;margin:0 0 14px}
+.vr-btn{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.14);color:inherit;border:1px solid rgba(255,255,255,.35);border-radius:12px;padding:8px 14px;cursor:pointer;font:inherit;text-align:left}
+.vr-btn:hover{background:rgba(255,255,255,.24)}.vr-btn:disabled{opacity:.7;cursor:progress}
+.vr-btn b{display:block;font-family:var(--f-display);font-size:16px}.vr-btn small{display:block;opacity:.85;font-size:12.5px}
+.vr-ic{font-size:22px;line-height:1}
+.vr audio{flex:1;min-width:220px;height:38px}
+.vr details{flex-basis:100%;font-size:13.5px}.vr summary{cursor:pointer;opacity:.9}.vr details p{white-space:pre-line;margin:6px 0 0;line-height:1.6}
 </style>
 
 <div class="wrap">
@@ -1029,6 +1037,11 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
   <div class="banner" id="previewBanner" hidden><span id="previewText"></span><button class="linkbtn" type="button" id="previewExit">กลับหน้าฟาร์ม</button></div>
 
   <div id="vFOverview" class="view" hidden>
+    <section class="vr" id="voiceReport" aria-label="รายงานเสียง">
+      <button type="button" class="vr-btn" id="vrBtn"><span class="vr-ic" aria-hidden="true">🔊</span><span><b>รายงานเสียง</b><small id="vrSub">กดฟังสรุปของวันล่าสุดทั้งฟาร์ม</small></span></button>
+      <audio id="vrAudio" controls hidden></audio>
+      <details id="vrText" hidden><summary>อ่านเป็นข้อความ</summary><p id="vrBody"></p></details>
+    </section>
     <div class="hello"><h2>สวัสดี ปรียาฟาร์ม</h2><p id="foMeta"></p></div>
     <section class="panel henbox" aria-label="Hen-day และ Hen-housed">
       <div class="hen-today">
@@ -4562,4 +4575,17 @@ else if(role==='lhong'&&remembered==='lhong')enterPortal('lhong');
 else if(role==='farm'&&remembered==='farm')enterPortal('farm');
 else renderGate();
 })();
+</script>
+
+<script>
+/* voice report: server writes the summary from the latest records, ElevenLabs reads it out */
+(function(){const b=document.getElementById('vrBtn');if(!b)return;
+  const sub=document.getElementById('vrSub'),au=document.getElementById('vrAudio'),tx=document.getElementById('vrText'),body=document.getElementById('vrBody');
+  (window.__PF_READY||Promise.resolve()).then(()=>{if(!window.__PF||window.__PF.group!=='farm')document.getElementById('voiceReport').hidden=true;}).catch(()=>{});
+  b.addEventListener('click',async()=>{b.disabled=true;sub.textContent='กำลังเตรียมเสียง… ครั้งแรกของวันใช้เวลาประมาณ 10–30 วินาที';
+    try{const r=await fetch('/api/report/voice',{method:'POST',headers:{'content-type':'application/json'},body:'{}',credentials:'same-origin'});const j=await r.json();
+      if(j.text){body.textContent=j.text;tx.hidden=false;}
+      if(!r.ok)throw new Error(j.error||'สร้างเสียงไม่สำเร็จ');
+      au.src=j.audioUrl;au.hidden=false;await au.play().catch(()=>{});sub.textContent='กำลังเล่น · กดอีกครั้งเพื่อสร้างใหม่ถ้ามีข้อมูลเพิ่ม';}
+    catch(e){sub.textContent=e.message;}finally{b.disabled=false;}});})();
 </script>

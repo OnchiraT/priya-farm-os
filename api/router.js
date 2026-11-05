@@ -6,7 +6,9 @@ import { hashPassword } from '../lib/crypto.js';
 import { ROLES, isAdmin, isStaff, uidFor } from '../lib/roles.js';
 import { changes, userWrite, putDoc, delDoc } from '../lib/store.js';
 import { getSetting, setSetting, listKeys, addKey, delKey } from '../lib/settings.js';
-import { PROVIDERS, FEATURES, featureConfig, chat, ocr, parseJson, runFeature } from '../lib/ai.js';
+import { PROVIDERS, FEATURES, featureConfig, chat, ocr, parseJson, runFeature, tts } from '../lib/ai.js';
+import { dailyReportText } from '../lib/report.js';
+import crypto from 'node:crypto';
 import { DOC_TYPES, FIELD_LABELS } from '../lib/doctypes.js';
 import { saveFile, createIntake, processIntake, getIntake, approve, answer, toReview, openQuestionIn, logEvent, sweep, dailySummary, score } from '../lib/pipeline.js';
 import { lineConfig, verifySignature, getContent, say, push, botInfo, chatName, memberName, chatIdOf } from '../lib/line.js';
@@ -75,6 +77,21 @@ on('POST', 'ai/translate', async req => {
   return { result: parseJson(t) };
 });
 
+// voice report: build today's summary text, speak it once, keep the mp3 so replaying costs nothing
+on('POST', 'report/voice', async req => {
+  await requireUser(req, 'staff'); const b = await readJson(req);
+  const text = await dailyReportText(b.date);
+  const cfg = await featureConfig('tts'); const t0 = Date.now();
+  const id = 'tts_' + crypto.createHash('sha256').update([cfg.provider, cfg.model, cfg.voice, text].join('|')).digest('hex').slice(0, 24);
+  if (!(await one('select 1 as x from files where id=$1', [id]))) {
+    const audio = await tts(cfg, text);
+    await q('insert into files(id, farm_id, mime, size, data, created_by) values($1,$2,$3,$4,$5,$6) on conflict (id) do nothing', [id, FARM, 'audio/mpeg', audio.length, audio, 'tts']);
+    q('insert into ai_calls(farm_id, feature, provider, model, ms, ok) values($1,$2,$3,$4,$5,true)', [FARM, 'tts', cfg.provider, cfg.model || '', Date.now() - t0]).catch(() => { });
+  }
+  return { text, audioUrl: '/api/files/' + id };
+});
+on('GET', 'report/text', async (req, res, p, url) => { await requireUser(req, 'staff'); return { text: await dailyReportText(url.searchParams.get('date')) }; });
+
 // ---------- accounts ----------
 on('GET', 'users', async req => {
   await requireUser(req, 'admin');
@@ -134,7 +151,7 @@ on('POST', 'settings/ai', async req => {
   for (const [f, c] of Object.entries(b.features || {})) {
     if (!FEATURES[f]) continue;
     if (c.provider && !PROVIDERS[c.provider]) bad('ไม่รู้จักผู้ให้บริการ ' + c.provider);
-    features[f] = { provider: c.provider || '', model: String(c.model || ''), keyId: c.keyId || '', baseUrl: String(c.baseUrl || '') };
+    features[f] = { provider: c.provider || '', model: String(c.model || ''), keyId: c.keyId || '', baseUrl: String(c.baseUrl || ''), voice: String(c.voice || '').trim() };
   }
   await setSetting('ai', Object.assign({}, cur, { features })); return { ok: true };
 });
@@ -142,6 +159,7 @@ on('POST', 'settings/ai/test', async req => {
   await requireUser(req, 'admin'); const b = await readJson(req); const cfg = b.config || await featureConfig(b.feature);
   const P = PROVIDERS[cfg.provider]; if (!P) bad('ยังไม่ได้เลือกผู้ให้บริการ');
   const t0 = Date.now();
+  if (P.ttsOnly) { const a = await tts(cfg, 'ทดสอบเสียงรายงานของปรียาฟาร์ม'); return { ok: true, ms: Date.now() - t0, reply: `ได้ไฟล์เสียง ${Math.round(a.length / 1024)} KB`, audio: a.toString('base64') }; }
   if (P.ocrOnly) {
     const img = b.image ? b64img(b.image) : null; if (!img) return { ok: true, note: 'ผู้ให้บริการนี้ทดสอบด้วยรูปจริงได้ที่หน้า "ทดสอบ OCR"' };
     const text = await ocr(cfg, img); return { ok: true, ms: Date.now() - t0, reply: text.slice(0, 400) };

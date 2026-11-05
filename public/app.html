@@ -288,8 +288,8 @@ R.line = async () => {
 /* ---------------- AI ---------------- */
 R.ai = async () => {
   const { providers, features, config, keys, usage } = await api('GET', 'settings/ai');
-  const pOpts = (sel, f) => `<option value="">${f.optional ? '— ไม่ใช้ —' : '— เลือก —'}</option>` + Object.entries(providers).filter(([, p]) => !(p.ocrOnly && !f.ocr)).map(([k, p]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${esc(p.label)}</option>`).join('');
-  const kOpts = sel => `<option value="">— เลือก key —</option>` + keys.map(k => `<option value="${k.id}" ${k.id === sel ? 'selected' : ''}>${esc(k.name)} ••••${esc(k.last4)}</option>`).join('');
+  const pOpts = (sel, f) => `<option value="">${f.optional ? '— ไม่ใช้ —' : '— เลือก —'}</option>` + Object.entries(providers).filter(([, p]) => f.tts ? p.ttsOnly : !p.ttsOnly && !(p.ocrOnly && !f.ocr)).map(([k, p]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${esc(p.label)}</option>`).join('');
+  const kOpts = sel => `<option value="">— เลือก key —</option>` + keys.map(k => `<option value="${k.id}" ${k.id === sel ? 'selected' : ''}>${esc(k.name)} ••••${esc(k.last4)}</option>`).join('') + `<option value="__new">+ วาง API key ใหม่…</option>`;
   M.innerHTML = `<div class="ph"><div><h1>ตั้งค่า AI</h1><p>เลือกได้ว่าแต่ละงานใช้ AI ค่ายไหน โมเดลไหน และใช้ API key ตัวไหน เปลี่ยนเมื่อไหร่ก็ได้ ไม่ต้องแก้โค้ด</p></div><span class="sp"></span><a class="btn ghost" href="#keys">🔑 จัดการ API keys</a></div>
   ${keys.length ? '' : '<div class="note warn" style="margin-bottom:12px">ยังไม่มี API key ไปเพิ่มที่หน้า API keys ก่อน แล้วกลับมาเลือกที่นี่</div>'}
   <div class="grid">${Object.entries(features).map(([f, F]) => { const c = config[f] || {}; return `<div class="card grid" data-f="${f}">
@@ -298,7 +298,11 @@ R.ai = async () => {
     <label class="f">โมเดล<input class="aM" list="ml-${f}" value="${esc(c.model || '')}"><datalist id="ml-${f}"></datalist></label>
     <label class="f">API key<select class="aK">${kOpts(c.keyId)}</select></label>
     <label class="f aBw">Base URL ของเซิร์ฟเวอร์<input class="aB" value="${esc(c.baseUrl || '')}" placeholder="https://…/v1"></label>
-    <button class="btn ghost sm aT">ทดสอบ</button></div><div class="status aS"></div></div>`; }).join('')}</div>
+    <label class="f aVw">Voice ID (เสียงที่จะใช้)<input class="aV" value="${esc(c.voice || '')}" placeholder="เช่น JBFqnCBsd6RMkjVDRZzb"></label>
+    <button class="btn ghost sm aT">ทดสอบ</button></div>
+   <div class="row aNew" hidden><input class="aNk" type="password" autocomplete="off" placeholder="วาง API key ตรงนี้" style="max-width:420px"><button class="btn sm aNs" type="button">บันทึก key</button><small>เก็บแบบเข้ารหัส และเลือกใช้ในงานนี้ให้เลย</small></div>
+   ${F.tts ? '<small>หา Voice ID ได้ที่ elevenlabs.io → Voices → เลือกเสียง → Copy voice ID · ใช้รุ่น eleven_v4 หรือ eleven_v3 เพราะสองรุ่นนี้พูดภาษาไทยได้</small>' : ''}
+   <audio class="aA" controls hidden style="width:100%"></audio><div class="status aS"></div></div>`; }).join('')}</div>
   <div class="row" style="margin:14px 0"><button class="btn" id="bSaveAI">บันทึกการตั้งค่า AI</button><span class="status" id="sAI"></span></div>
   <div class="card grid"><h3>แนะนำสำหรับใบงานลายมือภาษาไทย</h3>
    <ul class="steps" style="list-style:disc"><li><b>เริ่มแบบง่ายที่สุด:</b> ขั้น "แปลงเป็นข้อมูล" ใช้ Claude Sonnet หรือ Gemini Pro อ่านรูปตรงๆ และขั้น "อ่านซ้ำรอบ 2" ใช้อีกค่าย (เช่น GPT หรือ Gemini) ปิด OCR ไว้ก่อน</li>
@@ -307,13 +311,21 @@ R.ai = async () => {
    <li>ก่อนตัดสินใจ ใช้หน้า <a href="#lab">ทดสอบ OCR เทียบเจ้า</a> ลองกับใบจริงของฟาร์มสัก 10–20 ใบ แล้วดูว่าเจ้าไหนอ่านถูกมากที่สุด</li></ul></div>
   ${usage.length ? `<div class="card" style="margin-top:12px"><h3>การใช้งาน 30 วันล่าสุด</h3><div class="tbl"><table><tr><th>งาน</th><th>ผู้ให้บริการ</th><th>โมเดล</th><th>ครั้ง</th><th>ล้มเหลว</th><th>เวลาเฉลี่ย</th></tr>${usage.map(u => `<tr><td>${esc(features[u.feature]?.label || u.feature)}</td><td>${esc(providers[u.provider]?.label || u.provider)}</td><td>${esc(u.model)}</td><td>${u.n}</td><td>${u.fails}</td><td>${(u.ms / 1000).toFixed(1)} วิ</td></tr>`).join('')}</table></div></div>` : ''}`;
   const cards = $$('[data-f]', M);
-  const sync = card => { const p = providers[card.querySelector('.aP').value]; card.querySelector('.aBw').hidden = !(p && p.needsBase); card.querySelector(`datalist`).innerHTML = (p?.models || []).map(m => `<option value="${esc(m)}">`).join('');
+  const sync = card => { const p = providers[card.querySelector('.aP').value]; card.querySelector('.aBw').hidden = !(p && p.needsBase); card.querySelector('.aVw').hidden = !(p && p.ttsOnly); card.querySelector(`datalist`).innerHTML = (p?.models || []).map(m => `<option value="${esc(m)}">`).join('');
     if (p && !card.querySelector('.aM').value) card.querySelector('.aM').value = p.models[0] || ''; };
-  const read = card => ({ provider: card.querySelector('.aP').value, model: card.querySelector('.aM').value.trim(), keyId: card.querySelector('.aK').value, baseUrl: card.querySelector('.aB').value.trim() });
+  const read = card => ({ provider: card.querySelector('.aP').value, model: card.querySelector('.aM').value.trim(), keyId: card.querySelector('.aK').value, baseUrl: card.querySelector('.aB').value.trim(), voice: card.querySelector('.aV').value.trim() });
   cards.forEach(card => { sync(card); card.querySelector('.aP').onchange = () => { card.querySelector('.aM').value = ''; sync(card); };
     card.querySelector('.aT').onclick = async () => { const s = card.querySelector('.aS'); s.className = 'status aS'; s.innerHTML = '<span class="spin"></span> กำลังเรียก…';
-      try { const r = await api('POST', 'settings/ai/test', { feature: card.dataset.f, config: read(card) }); s.className = 'status aS okc'; s.textContent = r.note || `ใช้ได้ (${(r.ms / 1000).toFixed(1)} วิ) ตอบว่า: ${r.reply}`; } catch (e) { s.className = 'status aS err'; s.textContent = e.message; } }; });
-  $('#bSaveAI').onclick = async () => { const features = {}; cards.forEach(c => features[c.dataset.f] = read(c)); try { await api('POST', 'settings/ai', { features }); toast('บันทึกการตั้งค่า AI แล้ว'); } catch (e) { $('#sAI').className = 'status err'; $('#sAI').textContent = e.message; } };
+      try { const r = await api('POST', 'settings/ai/test', { feature: card.dataset.f, config: read(card) }); s.className = 'status aS okc'; s.textContent = r.note || `ใช้ได้ (${(r.ms / 1000).toFixed(1)} วิ) ตอบว่า: ${r.reply}`; if (r.audio) { const a = card.querySelector('.aA'); a.src = 'data:audio/mpeg;base64,' + r.audio; a.hidden = false; a.play().catch(() => { }); } } catch (e) { s.className = 'status aS err'; s.textContent = e.message; } }; });
+  cards.forEach(card => { const sel = card.querySelector('.aK'); let prev = sel.value;
+    sel.addEventListener('change', () => { const n = sel.value === '__new'; card.querySelector('.aNew').hidden = !n; if (n) { card.querySelector('.aNk').focus(); } else prev = sel.value; });
+    card.querySelector('.aNs').onclick = async () => { const v = card.querySelector('.aNk').value.trim(); const pv = card.querySelector('.aP').value; if (!v) return toast('วาง API key ก่อน');
+      try { const r = await api('POST', 'keys', { name: (providers[pv]?.label || 'API key').split(' (')[0], provider: pv || null, value: v }); const k = { id: r.id, name: (providers[pv]?.label || 'API key').split(' (')[0], last4: v.slice(-4), provider: pv }; keys.push(k);
+        $$('.aK', M).forEach(x => { const o = document.createElement('option'); o.value = k.id; o.textContent = `${k.name} ••••${k.last4}`; x.insertBefore(o, x.querySelector('option[value="__new"]')); });
+        sel.value = k.id; prev = k.id; card.querySelector('.aNk').value = ''; card.querySelector('.aNew').hidden = true;
+        const features = {}; cards.forEach(c => { const v2 = read(c); if (v2.keyId === '__new') v2.keyId = ''; features[c.dataset.f] = v2; }); await api('POST', 'settings/ai', { features });
+        toast('บันทึก key และเลือกใช้ในงานนี้แล้ว'); } catch (e) { toast(e.message); } }; });
+  $('#bSaveAI').onclick = async () => { const features = {}; cards.forEach(c => { const v2 = read(c); if (v2.keyId === '__new') v2.keyId = ''; features[c.dataset.f] = v2; }); try { await api('POST', 'settings/ai', { features }); toast('บันทึกการตั้งค่า AI แล้ว'); } catch (e) { $('#sAI').className = 'status err'; $('#sAI').textContent = e.message; } };
 };
 
 /* ---------------- keys ---------------- */
@@ -323,7 +335,7 @@ R.keys = async () => {
   <div class="card grid" style="margin-bottom:14px"><form id="fKey" class="grid g3"><label class="f">ตั้งชื่อให้จำง่าย<input name="name" required placeholder="เช่น Claude ของฟาร์ม"></label>
    <label class="f">ค่าย<select name="provider">${Object.entries(providers).map(([k, p]) => `<option value="${k}">${esc(p.label)}</option>`).join('')}</select></label>
    <label class="f">API key<input name="value" required autocomplete="off" type="password"></label><div class="row" style="align-self:end"><button class="btn">+ เพิ่ม key</button></div></form>
-   <small>หา key ได้ที่: Anthropic → console.anthropic.com · OpenAI → platform.openai.com · Gemini → aistudio.google.com · Typhoon → playground.opentyphoon.ai · Datalab → datalab.to</small></div>
+   <small>หา key ได้ที่: Anthropic → console.anthropic.com · OpenAI → platform.openai.com · Gemini → aistudio.google.com · Typhoon → playground.opentyphoon.ai · Datalab → datalab.to · ElevenLabs → elevenlabs.io/app/settings/api-keys</small></div>
   <div class="tbl"><table><tr><th>ชื่อ</th><th>ค่าย</th><th>key</th><th>เพิ่มเมื่อ</th><th></th></tr>${keys.map(k => `<tr><td><b>${esc(k.name)}</b></td><td>${esc(providers[k.provider]?.label || k.provider || '')}</td><td class="mono">••••${esc(k.last4)}</td><td><small>${thTime(k.created_at)}</small></td><td><button class="btn ghost sm danger" data-del="${k.id}">ลบ</button></td></tr>`).join('') || '<tr><td colspan="5" class="empty">ยังไม่มี key</td></tr>'}</table></div>`;
   $('#fKey').onsubmit = async e => { e.preventDefault(); try { await api('POST', 'keys', Object.fromEntries(new FormData(e.target))); toast('เพิ่ม key แล้ว อย่าลืมไปเลือกใช้ในหน้าตั้งค่า AI'); R.keys(); } catch (er) { toast(er.message); } };
   $$('[data-del]').forEach(b => b.onclick = async () => { if (!confirmAsk('ลบ key นี้? งานที่ใช้ key นี้อยู่จะหยุดทำงานจนกว่าจะเลือก key ใหม่')) return; await api('DELETE', 'keys/' + b.dataset.del); R.keys(); });
