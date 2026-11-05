@@ -4,7 +4,7 @@ import { q, one } from '../lib/db.js';
 import { FARM, currentUser, requireUser, login, sessionCookie, userCount, createUser, publicUser } from '../lib/auth.js';
 import { hashPassword } from '../lib/crypto.js';
 import { ROLES, isAdmin, isStaff, uidFor } from '../lib/roles.js';
-import { changes, userWrite, putDoc, delDoc } from '../lib/store.js';
+import { changes, userWrite, putDoc, delDoc, listColl, getDoc } from '../lib/store.js';
 import { getSetting, setSetting, listKeys, addKey, delKey } from '../lib/settings.js';
 import { PROVIDERS, FEATURES, featureConfig, chat, ocr, parseJson, runFeature, tts } from '../lib/ai.js';
 import { dailyReportText } from '../lib/report.js';
@@ -13,6 +13,7 @@ import { DOC_TYPES, FIELD_LABELS } from '../lib/doctypes.js';
 import { saveFile, createIntake, processIntake, getIntake, approve, answer, toReview, openQuestionIn, logEvent, sweep, dailySummary, score } from '../lib/pipeline.js';
 import { lineConfig, verifySignature, getContent, say, push, botInfo, chatName, memberName, chatIdOf } from '../lib/line.js';
 import { farmConfig, saveFarmConfig, FARM_DEFAULTS } from '../lib/farmconfig.js';
+import { ensureReference, cleanStandard } from '../lib/reference.js';
 import { readFile, fileExists, migrateFiles, pruneVoice, fileStats, fileStore } from '../lib/files.js';
 import fs from 'node:fs'; import path from 'node:path';
 
@@ -26,9 +27,25 @@ const b64img = i => { if (!i || !i.b64) bad('ไม่มีรูป'); const m
 
 // ---------- health / session ----------
 on('GET', 'health', async () => ({ ok: true, db: !!(await one('select 1 as x')), time: new Date().toISOString() }));
-on('GET', 'me', async req => { const u = await currentUser(req); const cfg = u ? await farmConfig() : null; return { user: u ? publicUser(u) : null, setupNeeded: (await userCount()) === 0, farm: (await one('select name from farms where id=$1', [FARM]))?.name, config: cfg, configDefaults: u ? FARM_DEFAULTS : undefined }; });
+on('GET', 'me', async req => { const u = await currentUser(req); const cfg = u ? await farmConfig() : null; if (u) await ensureReference(); return { user: u ? publicUser(u) : null, setupNeeded: (await userCount()) === 0, farm: (await one('select name from farms where id=$1', [FARM]))?.name, config: cfg, configDefaults: u ? FARM_DEFAULTS : undefined }; });
 // farm-wide values (egg packing, rest/move/depop weeks, alert thresholds, summary time, map labels)
 on('GET', 'settings/farm', async req => { await requireUser(req, 'staff'); return { config: await farmConfig(), defaults: FARM_DEFAULTS }; });
+on('GET', 'settings/houses', async req => { await requireUser(req, 'staff'); return { houses: (await listColl('houses')).filter(h => +h.no > 0) }; });
+// breed standards (one document per breed) — owner edits them as a table pasted from Excel
+on('GET', 'settings/reference', async req => { await requireUser(req, 'staff'); await ensureReference(); return { standards: (await listColl('standards')).sort((a, b) => a.breed < b.breed ? -1 : 1), reference: (await getDoc('config/reference')) || {} }; });
+on('POST', 'settings/standard', async req => {
+  const u = await requireUser(req, 'admin'); const b = await readJson(req); const d = cleanStandard(b);
+  const id = String(b.id || d.breed).toLowerCase().replace(/[^a-z0-9ก-๙]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'breed';
+  const sid = /^[A-Za-z0-9_\-.]+$/.test(id) ? id : 'std-' + crypto.createHash('sha1').update(d.breed).digest('hex').slice(0, 10);
+  await putDoc('standards/' + sid, d, u.id, 'web'); return { id: sid, rows: d.rows.length };
+});
+on('POST', 'settings/reference', async req => {
+  const u = await requireUser(req, 'admin'); const b = await readJson(req); const cur = (await getDoc('config/reference')) || {};
+  for (const k of ['vacProg', 'feedPhases', 'rearing', 'supplies']) if (b[k] !== undefined) { if (!Array.isArray(b[k])) bad(k + ' ต้องเป็นตาราง'); cur[k] = b[k]; }
+  if (b.lists && typeof b.lists === 'object') cur.lists = Object.assign({}, cur.lists, b.lists);
+  if (b.breedInfo && typeof b.breedInfo === 'object') cur.breedInfo = b.breedInfo;
+  await putDoc('config/reference', cur, u.id, 'web'); return { ok: true };
+});
 on('POST', 'settings/farm', async req => { const u = await requireUser(req, 'admin'); return { config: await saveFarmConfig(await readJson(req), u.id) }; });
 on('POST', 'setup', async (req, res) => {
   if ((await userCount()) > 0) bad('ตั้งค่าครั้งแรกไปแล้ว ให้เข้าสู่ระบบแทน', 409);
@@ -271,8 +288,14 @@ on('GET', 'cron/daily', async req => {
   const ok = process.env.CRON_SECRET ? req.headers.authorization === 'Bearer ' + process.env.CRON_SECRET : true;
   if (!ok) bad('forbidden', 403);
   const pruned = await pruneVoice().catch(e => { console.error(e); return 0; });
-  const escalated = await sweep(); const c = await lineConfig(); const text = await dailySummary(); const sent = [];
+  const escalated = await sweep(); const c = await lineConfig();
+  // the summary goes out once a day, on the first call at or after the hour set in ตั้งค่าฟาร์ม (Bangkok time)
+  const cfg = await farmConfig(); const now = new Date(Date.now() + 7 * 3600e3); const today = now.toISOString().slice(0, 10), hour = now.getUTCHours();
+  const done = await getDoc('config/summarySent');
+  if (hour < cfg.summaryHour || (done && done.date === today)) return { ok: true, escalated, pruned, sent: 0, waiting: done && done.date === today ? 'sent today' : `before ${cfg.summaryHour}:00` };
+  const text = await dailySummary(); const sent = [];
   for (const to of c.notifyChats || []) { try { await push(c, to, text); sent.push(to); } catch (e) { console.error(e); } }
+  await putDoc('config/summarySent', { date: today, at: new Date().toISOString(), chats: sent.length }, 'cron', 'cron');
   return { ok: true, escalated, sent: sent.length, pruned };
 });
 on('POST', 'cron/sweep', async req => { await requireUser(req, 'admin'); return { escalated: await sweep() }; });

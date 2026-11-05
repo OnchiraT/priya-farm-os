@@ -1146,7 +1146,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
       <div class="doors">
         <div class="door farm" id="doorFarm">
           <div class="tray" aria-hidden="true" data-eggs="30"></div>
-          <h2>ปรียาฟาร์ม</h2>
+          <h2><span class="fname"></span></h2>
           <p>คนเลี้ยงไก่ ดูไก่แต่ละเล้า ส่งใบบันทึก และดูว่าขายไข่ให้ล้งไปเท่าไหร่</p>
           <button class="btn" type="button" id="enterFarm">เข้าหน้าฟาร์ม</button>
           <span class="door-state" id="farmState"></span>
@@ -1182,7 +1182,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
   </section>
 
   <header class="appbar" id="appbar" hidden>
-    <button type="button" class="ab-left" id="abHome" title="กลับหน้าแรก"><span class="portal-badge" id="portalBadge">ฟาร์ม</span><b id="abTitle">ปรียาฟาร์ม</b></button>
+    <button type="button" class="ab-left" id="abHome" title="กลับหน้าแรก"><span class="portal-badge" id="portalBadge">ฟาร์ม</span><b id="abTitle"><span class="fname"></span></b></button>
     <nav class="tabs-main" id="mainNav" aria-label="เมนูหลัก"></nav>
     <div class="ab-right"><span id="abUser"></span><button class="btn ghost sm" type="button" id="btnSwitch">เลือกฟาร์ม / ล้ง / ช่าง</button></div>
   </header>
@@ -1196,7 +1196,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
       <audio id="vrAudio" controls hidden></audio>
       <details id="vrText" hidden><summary>อ่านเป็นข้อความ</summary><p id="vrBody"></p></details>
     </section>
-    <div class="hello"><h2>สวัสดี ปรียาฟาร์ม</h2><p id="foMeta"></p></div>
+    <div class="hello"><h2>สวัสดี <span class="fname"></span></h2><p id="foMeta"></p></div>
     <div id="execBento" class="xb"></div>
     <section class="panel henbox" aria-label="Hen-day และ Hen-housed">
       <div class="hen-today">
@@ -1771,7 +1771,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
       <div class="stockrows" id="loStock"></div>
       <div style="margin-top:14px"><a class="btn big" href="#l-stock" id="loSellBtn">บันทึกขายออก</a></div>
     </div>
-    <div class="panel"><div class="panel-h"><h2>ไข่ที่ปรียาฟาร์มมีวันนี้</h2><div class="meta" id="bvStockMeta"></div></div><div class="stockrows" id="bvStock"></div></div>
+    <div class="panel"><div class="panel-h"><h2>ไข่ที่<span class="fname"></span>มีวันนี้</h2><div class="meta" id="bvStockMeta"></div></div><div class="stockrows" id="bvStock"></div></div>
     <details class="more"><summary>ดูกราฟละเอียด</summary>
     <div class="chart-grid">
       <div class="panel"><div class="panel-h"><h2>รับเข้าและขายออก</h2><div class="meta">ฟองต่อวัน เส้นประ = สต็อกสิ้นวัน</div></div><div class="cbox"><canvas id="chLFlow" role="img" aria-label="กราฟไข่รับเข้าและขายออกของล้ง"></canvas></div></div>
@@ -2432,7 +2432,7 @@ const SN=Object.fromEntries(SIZES);
 const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Bangkok'});
 const thDate=iso=>{const [y,m,d]=String(iso||'').split('-').map(Number);if(!y)return iso||'';return new Date(Date.UTC(y,m-1,d)).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit',timeZone:'UTC'});};
 const shortD=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(Date.UTC(y,m-1,d)).toLocaleDateString('th-TH',{day:'numeric',month:'short',timeZone:'UTC'});};
-const addDays=(iso,n)=>new Date(Date.parse(iso)+n*864e5).toISOString().slice(0,10);
+const addDays=(iso,n)=>{const t=Date.parse(iso);return isNaN(t)?'':new Date(t+n*864e5).toISOString().slice(0,10);};
 const days=(a,b)=>Math.round((Date.parse(b)-Date.parse(a))/864e5);
 const n0=n=>n==null||isNaN(n)?'–':Math.round(n).toLocaleString('th-TH');
 const n1=(n,d=1)=>n==null||isNaN(n)?'–':Number(n).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -2453,7 +2453,7 @@ document.querySelectorAll('.tray').forEach(t=>{const n=+t.dataset.eggs;let h='';
 /* ---------- who is viewing ---------- */
 let [db,user]=await Promise.all([use('db'),use('user')]);
 /* farm settings (หลังบ้าน → ตั้งค่าฟาร์ม): egg packing, rest/move/depop weeks, alert thresholds */
-let CFG={},EPT,TRAY_KG,EGGS_PER_CRATE,REST_DAYS,MOVE_WEEK,DEPOP_WEEK,AL={};
+let REAR=[],CFG={},EPT,TRAY_KG,EGGS_PER_CRATE,REST_DAYS,MOVE_WEEK,DEPOP_WEEK,AL={};
 function applyCfg(){CFG=window.FARM_CFG||CFG;EPT=CFG.eggsPerTray;TPC=CFG.traysPerCrate;TRAY_KG=CFG.trayKg;EGGS_PER_CRATE=EPT*TPC;REST_DAYS=CFG.restDays;MOVE_WEEK=CFG.moveWeek;DEPOP_WEEK=CFG.depopWeek;AL=CFG.alerts||{};}
 applyCfg();
 document.addEventListener('farmcfg',()=>{applyCfg();try{refresh();}catch(e){}});
@@ -2560,9 +2560,12 @@ function stockRows(st,oldestKey){
       <div class="num2"><b>${n0(s.t*EPT)} ฟอง</b><span>${ct(s.t)} ลัง.แผง${s[oldestKey]?` ผลิต ${shortD(s[oldestKey])}`:''}</span></div></div>`;}).join('');
 }
 // tasks marked done today (per viewer)
-const doneKey=()=>'coop-done-'+today();
-const isDone=id=>{try{return JSON.parse(store.get(doneKey())||'[]').includes(id);}catch(e){return false;}};
-function markDone(id){let a=[];try{a=JSON.parse(store.get(doneKey())||'[]');}catch(e){}if(!a.includes(id))a.push(id);store.set(doneKey(),JSON.stringify(a));}
+/* "ทำแล้ว" is saved in the database (taskdone/<date>) so everyone sees it, on every device */
+let DONE={};
+const doneSlot=id=>{let h=5381;for(const ch of String(id))h=(h*33+ch.charCodeAt(0))>>>0;return 'd_'+h.toString(36);};
+const isDone=id=>!!DONE[doneSlot(id)];
+function markDone(id){const k=doneSlot(id);DONE[k]={id,by:uid,name:myName,at:new Date().toISOString()};if(db)db.collection('taskdone').doc(today()).set({[k]:DONE[k]},{merge:true}).catch(()=>{});}
+function unmarkDone(id){const k=doneSlot(id);delete DONE[k];if(db)db.collection('taskdone').doc(today()).set({[k]:{__delete__:true}},{merge:true}).catch(()=>{});}
 function taskHTML(t){
   return `<div class="task ${t.s}"><div class="task-h"><div class="task-ic">${ico(t.icon)}</div><div><h3>${esc(t.title)}</h3><p>${esc(t.why)}</p></div></div>
     <div class="row2">${t.go?`<button class="btn big" type="button" data-go="${esc(t.go)}"${t.arg?` data-arg="${esc(t.arg)}"`:''}>${t.btnIcon?ico(t.btnIcon):''}${esc(t.btn)}</button>`:''}
@@ -2610,12 +2613,12 @@ function renderOverview(){
     let st='ok';const bump=s=>{if(s==='crit'||(s==='warn'&&st==='ok'))st=s;};
     const tid=k=>`h${h}-${k}-${cur.date}`;
     const push=(s,t)=>{bump(s);if(!isDone(t.id))tasks.push(Object.assign({s},t));};
-    if(deadPct!=null&&deadPct>=0.05)push(deadPct>=0.1?'crit':'warn',{id:tid('dead'),icon:'heart',title:`เล้า ${h}: แยกไก่ป่วย เก็บซากไปตรวจ`,why:`ไก่ตาย ${c.dead} ตัวในวันเดียว มากกว่าปกติ`});
-    if(dl!=null&&dl<=-3)push(dl<=-5?'crit':'warn',{id:tid('hd'),icon:'egg',title:`เล้า ${h}: เดินดูน้ำ อาหาร และไฟในเล้า`,why:`ไข่ออกน้อยลง ทุก 30 ตัวได้ไข่ ${Math.round(c.pct*0.3)} ฟอง จากปกติ ${Math.round(hdAvg*0.3)} ฟอง`});
-    if(ratio!=null&&ratioAvg!=null&&Math.abs(ratio-ratioAvg)/ratioAvg>0.15)push('warn',{id:tid('wf'),icon:'drop',title:`เล้า ${h}: เช็กหัวน้ำและท่อรั่ว`,why:`ไก่กินน้ำ${ratio>ratioAvg?'มากขึ้น':'น้อยลง'}ผิดปกติ อาจร้อนหรือน้ำไม่ไหล`});
-    if(feedAvg&&c.feedPer&&c.feedPer<feedAvg*0.92)push('warn',{id:tid('feed'),icon:'bowl',title:`เล้า ${h}: ดูว่าไก่กินอาหารปกติไหม`,why:`กินอาหาร ${n1(c.feedPer,0)} กรัมต่อตัว น้อยกว่าปกติ ${n1(feedAvg,0)} กรัม`});
-    if(crackPct!=null&&crackPct>1.5)push('warn',{id:tid('crk'),icon:'crack',title:`เล้า ${h}: เช็กสายพานไข่และแคลเซียมในอาหาร`,why:`ไข่แตก ${n0(cracked)} ฟอง มากกว่าปกติ`});
-    const sd=stdFor(h,cur.date);if(sd&&c.pct!=null&&c.pct<sd.hd-5)push(c.pct<sd.hd-10?'crit':'warn',{id:tid('std'),icon:'egg',title:`เล้า ${h}: ไข่ต่ำกว่ามาตรฐาน ${n1(sd.hd-c.pct)} จุด`,why:`ได้ ${n1(c.pct)}% มาตรฐาน ${hdoc(h).breed} ที่อายุ ${sd.week} สัปดาห์คือ ${n1(sd.hd)}% เช็กอาหาร แสง และโรค`});
+    if(deadPct!=null&&deadPct>=AL.deadWarnPct)push(deadPct>=AL.deadCritPct?'crit':'warn',{id:tid('dead'),icon:'heart',title:`เล้า ${h}: แยกไก่ป่วย เก็บซากไปตรวจ`,why:`ไก่ตาย ${c.dead} ตัวในวันเดียว มากกว่าปกติ`});
+    if(dl!=null&&dl<=-AL.hdDropWarn)push(dl<=-AL.hdDropCrit?'crit':'warn',{id:tid('hd'),icon:'egg',title:`เล้า ${h}: เดินดูน้ำ อาหาร และไฟในเล้า`,why:`ไข่ออกน้อยลง ทุก 30 ตัวได้ไข่ ${Math.round(c.pct*0.3)} ฟอง จากปกติ ${Math.round(hdAvg*0.3)} ฟอง`});
+    if(ratio!=null&&ratioAvg!=null&&Math.abs(ratio-ratioAvg)/ratioAvg>AL.waterFeedChangePct/100)push('warn',{id:tid('wf'),icon:'drop',title:`เล้า ${h}: เช็กหัวน้ำและท่อรั่ว`,why:`ไก่กินน้ำ${ratio>ratioAvg?'มากขึ้น':'น้อยลง'}ผิดปกติ อาจร้อนหรือน้ำไม่ไหล`});
+    if(feedAvg&&c.feedPer&&c.feedPer<feedAvg*(1-AL.feedDropPct/100))push('warn',{id:tid('feed'),icon:'bowl',title:`เล้า ${h}: ดูว่าไก่กินอาหารปกติไหม`,why:`กินอาหาร ${n1(c.feedPer,0)} กรัมต่อตัว น้อยกว่าปกติ ${n1(feedAvg,0)} กรัม`});
+    if(crackPct!=null&&crackPct>AL.crackPct)push('warn',{id:tid('crk'),icon:'crack',title:`เล้า ${h}: เช็กสายพานไข่และแคลเซียมในอาหาร`,why:`ไข่แตก ${n0(cracked)} ฟอง มากกว่าปกติ`});
+    const sd=stdFor(h,cur.date);if(sd&&c.pct!=null&&c.pct<sd.hd-AL.stdWarn)push(c.pct<sd.hd-AL.stdCrit?'crit':'warn',{id:tid('std'),icon:'egg',title:`เล้า ${h}: ไข่ต่ำกว่ามาตรฐาน ${n1(sd.hd-c.pct)} จุด`,why:`ได้ ${n1(c.pct)}% มาตรฐาน ${hdoc(h).breed} ที่อายุ ${sd.week} สัปดาห์คือ ${n1(sd.hd)}% เช็กอาหาร แสง และโรค`});
     cards.push(houseCardHTML(h,cur,rs,st,dl));
   });
   PULLETS.filter(n=>hdoc(n).status==='active').forEach(h=>{const rs=records.filter(r=>r.house===h).sort((a,b)=>a.date<b.date?-1:1);const cur=rs[rs.length-1];
@@ -2624,8 +2627,8 @@ function renderOverview(){
   ALLH.filter(n=>hdoc(n).status!=='active').forEach(h=>cards.push(restCardHTML(h)));
   // money & stock tasks
   const bal=balances();
-  buyers.forEach(b=>{const o=bal[b.id].owe;const wk=(tx[b.id]||[]).filter(t=>t.type==='sale'&&t.date>=addDays(T,-6)).reduce((x,t)=>x+(t.total||0),0)/7;const dOwe=wk?o/wk:null;if(o>1000&&(dOwe==null||dOwe>5)&&!isDone('owe-'+b.id))tasks.push({s:dOwe>9?'crit':'warn',id:'owe-'+b.id,icon:'money',title:`ทวงเงิน ${cleanName(b.name)}`,why:`ค้างจ่ายฟาร์ม ${baht(o)} บาท${dOwe?` เท่ากับค่าไข่ราว ${n0(dOwe)} วัน`:''}`,go:'farmpay',arg:b.id,btn:'บันทึกรับเงิน',btnIcon:'money'});});
-  const old=SIZES.filter(([k])=>stock[k]&&stock[k].oldest&&days(stock[k].oldest,T)>7).map(([,l])=>l);
+  buyers.forEach(b=>{const o=bal[b.id].owe;const wk=(tx[b.id]||[]).filter(t=>t.type==='sale'&&t.date>=addDays(T,-6)).reduce((x,t)=>x+(t.total||0),0)/7;const dOwe=wk?o/wk:null;if(o>AL.oweBaht&&(dOwe==null||dOwe>AL.oweDays)&&!isDone('owe-'+b.id))tasks.push({s:dOwe>AL.oweCritDays?'crit':'warn',id:'owe-'+b.id,icon:'money',title:`ทวงเงิน ${cleanName(b.name)}`,why:`ค้างจ่ายฟาร์ม ${baht(o)} บาท${dOwe?` เท่ากับค่าไข่ราว ${n0(dOwe)} วัน`:''}`,go:'farmpay',arg:b.id,btn:'บันทึกรับเงิน',btnIcon:'money'});});
+  const old=SIZES.filter(([k])=>stock[k]&&stock[k].oldest&&days(stock[k].oldest,T)>AL.eggOldDays).map(([,l])=>l);
   if(old.length)tasks.push({s:'warn',icon:'clock',title:`ขายไข่${old.join(' ')}ล็อตเก่าก่อน`,why:'ไข่ค้างในฟาร์มเกิน 7 วัน',go:'farmsell',btn:'ขายไข่ให้ล้ง',btnIcon:'truck'});
   healthTasks().forEach(t=>tasks.push(t));houseTasks().forEach(t=>tasks.push(t));feedTasks().forEach(t=>tasks.push(t));stockTasks().forEach(t=>tasks.push(t));
   const order={crit:0,warn:1,ok:2};tasks.sort((a,b)=>order[a.s]-order[b.s]);
@@ -2657,20 +2660,20 @@ function renderLOverview(L,C){
   const T=today();const name=L.doc?cleanName(L.doc.name):'ล้ง';
   $('loTitle').textContent='สวัสดี '+name;$('loMeta').textContent=L.doc&&L.doc.phone?'โทร '+L.doc.phone:'';
   const tasks=[];
-  const old=SIZES.filter(([k])=>C.st[k].oldest&&days(C.st[k].oldest,T)>7).map(([,l])=>l);
+  const old=SIZES.filter(([k])=>C.st[k].oldest&&days(C.st[k].oldest,T)>AL.eggOldDays).map(([,l])=>l);
   if(old.length)tasks.push({s:'warn',icon:'clock',title:`ขายไข่${old.join(' ')}ล็อตเก่าก่อน`,why:'ไข่ในมือผลิตมาเกิน 7 วันแล้ว',go:'lsell',btn:'บันทึกขายออก',btnIcon:'box'});
   const outT=L.outs.filter(o=>o.type==='sale'&&o.date===T).length;
   const stT=SIZES.reduce((a,[k])=>a+C.st[k].t,0);
   if(!outT&&stT>0)tasks.push({s:'warn',icon:'box',title:'บันทึกการขายออกของวันนี้',why:`มีไข่ในมือ ${n0(stT*EPT)} ฟอง ยังไม่มีรายการขายออกวันนี้`,go:'lsell',btn:'บันทึกขายออก',btnIcon:'box'});
   Object.entries(C.cust).map(([n,c])=>({n,o:c.sold-c.paid})).filter(x=>x.o>5000).sort((a,b)=>b.o-a.o).slice(0,2)
     .forEach(x=>{if(!isDone('c-'+x.n))tasks.push({s:'warn',id:'c-'+x.n,icon:'money',title:`ทวงเงิน ${x.n}`,why:`ลูกค้าค้างจ่าย ${baht(x.o)} บาท`,go:'lpay',arg:x.n,btn:'บันทึกรับชำระ',btnIcon:'money'});});
-  if(C.owe>0.5)tasks.push({s:'warn',icon:'money',title:`จ่ายเงินค่าไข่ให้ปรียาฟาร์ม`,why:`ค้างจ่ายฟาร์ม ${baht(C.owe)} บาท`,go:'lrecv',btn:'ดูรายการที่ค้าง',btnIcon:'truck'});
+  if(C.owe>0.5)tasks.push({s:'warn',icon:'money',title:`จ่ายเงินค่าไข่ให้${FN()}`,why:`ค้างจ่ายฟาร์ม ${baht(C.owe)} บาท`,go:'lrecv',btn:'ดูรายการที่ค้าง',btnIcon:'truck'});
   const bk=renderBroken(L);if(bk.r7&&bk.b7/bk.r7>0.01)tasks.push({s:'warn',icon:'crack',title:'ไข่แตกมากกว่าปกติ เช็กการขนย้าย',why:`7 วันที่ผ่านมาแตก ${n0(bk.b7)} ฟอง (${n1(bk.b7/bk.r7*100,2)}%)`,go:'lsell',btn:'ดูโกดัง',btnIcon:'box'});
   $('loTodo').innerHTML=tasks.length?tasks.map(taskHTML).join(''):taskHTML({s:'ok',icon:'check',title:'วันนี้เรียบร้อยดี',why:'ขายออกแล้ว และไม่มียอดค้างที่ต้องตาม'});
   const recvT=L.tx.filter(t=>t.type==='sale'&&t.date===T).reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0);
   const amtOut=L.outs.filter(o=>o.type==='sale'&&o.date===T).reduce((a,o)=>a+(o.total||0),0);
   $('loMoney').innerHTML=`<div class="scard"><div class="scard-h">${ico('truck')}<h3>รับจากฟาร์มวันนี้</h3></div><div class="bignum"><b>${n0(recvT*EPT)}<small>ฟอง</small></b></div>
-      <div class="bignum ${C.owe>0.5?'owe':'okc'}"><span>ค้างจ่ายปรียาฟาร์ม</span><b>${C.owe>0.5?baht(C.owe)+'<small>บาท</small>':'จ่ายครบแล้ว'}</b></div></div>
+      <div class="bignum ${C.owe>0.5?'owe':'okc'}"><span>ค้างจ่าย${FN()}</span><b>${C.owe>0.5?baht(C.owe)+'<small>บาท</small>':'จ่ายครบแล้ว'}</b></div></div>
     <div class="scard"><div class="scard-h">${ico('box')}<h3>ขายออกวันนี้</h3></div><div class="bignum"><b>${baht(amtOut)}<small>บาท</small></b></div>
       <div class="pair"><div class="bignum"><span>ไข่ในมือตอนนี้</span><b>${n0(stT*EPT)}<small>ฟอง</small></b></div><div class="bignum ${bk.bT>0?'owe':''}"><span>ไข่แตกวันนี้</span><b>${n0(bk.bT)}<small>ฟอง</small></b></div></div></div>`;
   $('loStock').innerHTML=stockRows(C.st,'oldest');
@@ -3037,12 +3040,12 @@ function pulletWeighHTML(){const out=[];PULLETS.forEach(n=>{const W=weighsOf(n);
 /* ---------- executive bento: every label and number in one large size; one fact per box ---------- */
 function eggWeightOf(r){const w=(r.weights||[]).filter(x=>x>0);if(w.length)return {g:(w.reduce((a,b)=>a+b,0)/w.length-TRAY_KG)*1000/EGGS_PER_CRATE,crate:w.reduce((a,b)=>a+b,0)/w.length,n:w.length};
   const c=r.calc||{};return c.avgEgg&&c.avgEgg<68&&!(r.weights||[]).length?{g:c.avgEgg,crate:null,n:0}:null;}
-function renderExecBento(D,cur,pv){if(window.PFX)return window.PFX.render(D,cur,pv,{records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,liveStd,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days,cfg:CFG});return renderExecBentoOld(D,cur,pv);}
+function renderExecBento(D,cur,pv){if(window.PFX)return window.PFX.render(D,cur,pv,{records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days,cfg:CFG,STD});return renderExecBentoOld(D,cur,pv);}
 function renderExecBentoOld(D,cur,pv){const el=$('execBento');if(!el)return;
   const rs=records.filter(r=>r.date===D);const lay=rs.filter(r=>LAYERS.includes(r.house));
   const num=v=>{const x=parseFloat(String(v==null?'':v).replace(/,/g,''));return isFinite(x)?x:0;};
   const sum=(arr,f)=>arr.reduce((a,r)=>a+f(r),0);
-  let tb=0,wb=0,th=0,hb=0;lay.forEach(r=>{const b=(r.calc||{}).birds||0;const sd=stdFor(r.house,D);if(sd&&b){tb+=sd.hd*b;wb+=b;const hs=(r.calc||{}).housed||parseFloat(r.f&&r.f.housed)||0;if(hs){th+=sd.hd*liveStd(sd.week)*hs;hb+=hs;}}});
+  let tb=0,wb=0,th=0,hb=0;lay.forEach(r=>{const b=(r.calc||{}).birds||0;const sd=stdFor(r.house,D);if(sd&&b){tb+=sd.hd*b;wb+=b;const hs=(r.calc||{}).housed||parseFloat(r.f&&r.f.housed)||0;if(hs&&survOf(sd)!=null){th+=sd.hd*survOf(sd)*hs;hb+=hs;}}});
   const stdHd=wb?tb/wb:null,stdHh=hb?th/hb:null;
   const birds=sum(lay,r=>(r.calc||{}).birds||0);
   const feedB=lay.filter(r=>num(r.f&&r.f.f_used)&&(r.calc||{}).birds),waterB=lay.filter(r=>num(r.f&&r.f.w_used)&&(r.calc||{}).birds);
@@ -3132,9 +3135,9 @@ function healthTasks(){const t=[];
 
 /* ---------- health page ---------- */
 let hMode='egg',hHouse=1,qKind='dead';
-const VACS=['นิวคาสเซิล (ND)','หลอดลมอักเสบ (IB)','ND+IB','ฝีดาษไก่ (FP)','หวัดหน้าบวม (Coryza)','อหิวาต์ไก่ (FC)','ไข้หวัดนก (AI)','กล่องเสียงอักเสบ (ILT)','EDS'];
-const CAUSES=['ป่วย','อากาศร้อน','จิกกัน','ติดกรง','ไม่ทราบสาเหตุ'];
-const METHODS_V=['ละลายน้ำ','หยอดตา','ฉีด','พ่นละออง'];
+const VACS=[];
+const CAUSES=[];
+const METHODS_V=[];
 function chips(id,arr,cur){return `<div class="seg3" id="${id}">${arr.map(a=>`<button type="button" data-v="${esc(a)}" aria-pressed="${a===cur}">${esc(a)}</button>`).join('')}</div>`;}
 function hFieldsHTML(){
   if(hMode==='egg')return `<div class="hf-row"><span class="hf-l">ไข่ดี (ลัง.แผง เช่น 62.4)</span><div class="bigin">
@@ -3351,7 +3354,7 @@ function syncHouseLists(){const H=Object.values(houses).filter(h=>+h.no>0&&h.sta
   const sel=$('house');if(sel){const v=sel.value;sel.innerHTML=ALLH.map(n=>`<option value="${n}">เล้า ${n}${PULLETS.includes(n)?' (ไก่เล็ก)':''}</option>`).join('');if(ALLH.includes(+v))sel.value=v;}
   document.querySelectorAll('.rng-lay').forEach(e=>e.textContent=rangeTxt(LAYERS));document.querySelectorAll('.rng-pul').forEach(e=>e.textContent=rangeTxt(PULLETS));document.querySelectorAll('.rng-all').forEach(e=>e.textContent=rangeTxt(ALLH));}
 const REST_STEPS=[['clean','ล้างทำความสะอาดเล้า'],['cage','ซ่อมกรง'],['building','ซ่อมโรงเรือน'],['disinfect','พ่นยาฆ่าเชื้อ']];
-const VAC_PROG=[[1,'มาเร็ก (Marek)'],[7,'ND+IB (หยอดตา)'],[14,'กัมโบโร (IBD) ครั้งที่ 1'],[21,'ND+IB ครั้งที่ 2'],[28,'กัมโบโร (IBD) ครั้งที่ 2'],[42,'ฝีดาษไก่ (FP)'],[56,'ND+IB ครั้งที่ 3'],[70,'หวัดหน้าบวม (Coryza) ครั้งที่ 1'],[84,'อหิวาต์ไก่ (FC)'],[98,'หวัดหน้าบวม (Coryza) ครั้งที่ 2'],[105,'กล่องเสียงอักเสบ (ILT)'],[112,'ND+IB+EDS ก่อนไข่']];
+const VAC_PROG=[];
 let houses={},repairs=[],assetsCap=null;
 use('assets').then(a=>{assetsCap=a;});
 const hdoc=n=>houses['h'+n]||{no:n,type:PULLETS.includes(n)?'pullet':'layer',status:'ready'};
@@ -3370,7 +3373,7 @@ function houseTasks(){const t=[];
       else if(r.left<=0)t.push({s:'warn',icon:'wrench',title:`เล้า ${n} พักครบแล้ว แต่งานยังไม่เสร็จ`,why:`เหลือ ${REST_STEPS.length-r.done} งาน: ${REST_STEPS.filter(([k])=>!(h.checklist||{})[k]).map(x=>x[1]).join(', ')}`,go:'houses',arg:String(n),btn:'ดูงานที่เหลือ',btnIcon:'wrench'});}
   });
   PULLETS.forEach(n=>{const h=hdoc(n);const a=ageDays(h);if(h.status!=='active'||a==null)return;
-    const toMove=MOVE_WEEK*7-a;if(toMove<=7)t.push({s:toMove<=0?'crit':'warn',icon:'move',title:toMove<=0?`ย้ายไก่เล็กเล้า ${n} ไปเป็นไก่ใหญ่`:`อีก ${toMove} วัน ย้ายไก่เล็กเล้า ${n}`,why:`อายุ ${ageTxt(a)} ย้ายไปไก่ยืนกรงที่สัปดาห์ ${MOVE_WEEK}${(()=>{const p=movePlan()[n];return p&&p.to?` ย้ายเข้าเล้า ${p.to} (${p.a.why})`:' ยังไม่มีเล้าไก่ใหญ่ที่ว่าง';})()}`,go:'pullets',arg:String(n),btn:'ไปหน้าไก่เล็ก',btnIcon:'chick'});
+    const toMove=MOVE_WEEK*7-a;if(toMove<=AL.moveSoonDays)t.push({s:toMove<=0?'crit':'warn',icon:'move',title:toMove<=0?`ย้ายไก่เล็กเล้า ${n} ไปเป็นไก่ใหญ่`:`อีก ${toMove} วัน ย้ายไก่เล็กเล้า ${n}`,why:`อายุ ${ageTxt(a)} ย้ายไปไก่ยืนกรงที่สัปดาห์ ${MOVE_WEEK}${(()=>{const p=movePlan()[n];return p&&p.to?` ย้ายเข้าเล้า ${p.to} (${p.a.why})`:' ยังไม่มีเล้าไก่ใหญ่ที่ว่าง';})()}`,go:'pullets',arg:String(n),btn:'ไปหน้าไก่เล็ก',btnIcon:'chick'});
     const dueV=pulletVacs(n).filter(v=>v.st==='late'||v.st==='due');if(dueV.length)t.push({s:dueV.some(v=>v.st==='late')?'crit':'warn',icon:'syringe',title:`ไก่เล็กเล้า ${n}: ให้วัคซีน ${dueV[0].name}`,why:dueV.length>1?`และอีก ${dueV.length-1} รายการที่ถึงกำหนด`:`ถึงกำหนดตอนไก่อายุ ${dueV[0].day} วัน`,go:'pullets',arg:String(n),btn:'ดูวัคซีน',btnIcon:'syringe'});
   });
   const open=repairs.filter(r=>r.status!=='done');if(open.length)t.push({s:'warn',icon:'wrench',title:`งานซ่อมค้าง ${open.length} งาน`,why:open.slice(0,2).map(r=>`${r.house?'เล้า '+r.house:'ทั่วไป'}: ${r.what}`).join(', '),go:'repair',btn:'ดูงานซ่อม',btnIcon:'wrench'});
@@ -3453,7 +3456,7 @@ function renderPullets(){
     const toMove=MOVE_WEEK*7-a;const vs=pulletVacs(n);const nDone=vs.filter(v=>v.st==='done').length;
     const dead7=deadN(n,7);
     return `<div class="pcard">
-      <div class="pc-h"><div><h3>เล้า ${n}</h3><div class="hh-who">${esc(h.breed||'ยังไม่ระบุสายพันธุ์')}${h.source?` จาก ${esc(h.source)}`:''}</div></div><span class="badge ${toMove<=0?'crit':toMove<=7?'warn':'ok'}">${toMove<=0?'ถึงเวลาย้าย':toMove<=7?'ใกล้ย้าย':'กำลังโต'}</span></div>
+      <div class="pc-h"><div><h3>เล้า ${n}</h3><div class="hh-who">${esc(h.breed||'ยังไม่ระบุสายพันธุ์')}${h.source?` จาก ${esc(h.source)}`:''}</div></div><span class="badge ${toMove<=0?'crit':toMove<=7?'warn':'ok'}">${toMove<=0?'ถึงเวลาย้าย':toMove<=AL.moveSoonDays?'ใกล้ย้าย':'กำลังโต'}</span></div>
       <div class="pc-photo">${photos[0]&&photos[0].url?`<img src="${esc(photos[0].url)}" alt="รูปไก่เล็กเล้า ${n} วันที่ ${thDate(photos[0].date)}">`:`<div class="pc-ph">${henSVG('ok')}<span>ยังไม่มีรูปไก่</span></div>`}
         <label class="btn pc-cam">${ico('camera')}ถ่ายรูปไก่<input type="file" accept="image/*" capture="environment" data-photo="${n}" hidden></label></div>
       ${photos[0]?`<p class="hf-hint">รูปล่าสุด ${thDate(photos[0].date)}</p>`:''}
@@ -3500,7 +3503,7 @@ $('vFPullet').addEventListener('change',async e=>{const inp=e.target.closest('[d
 function showPlStatus(m,c){status('plStatus',m,c);}
 
 /* ---------- repairs ---------- */
-const REP_CAT=['กรง','โรงเรือน','พัดลม','ระบบน้ำ','ไฟฟ้า','สายพานไข่','รางอาหาร','อื่นๆ'];
+const REP_CAT=[];
 let repHouse=0,repCat='กรง',repStatus='done',repParts=[{name:'',qty:'',cost:''}];
 function repPartsHTML(){return repParts.map((p,i)=>`<div class="prow"><input class="f" data-pi="${i}" data-pk="name" placeholder="ของที่เบิก เช่น ลวดกรง" value="${esc(p.name)}" aria-label="ของที่เบิก ${i+1}"><input class="f" data-pi="${i}" data-pk="qty" inputmode="decimal" placeholder="จำนวน" value="${esc(p.qty)}" aria-label="จำนวน ${i+1}"></div>`).join('');}
 function renderRepairForm(){
@@ -3541,16 +3544,11 @@ function renderTechList(){if($('vTRepair').hidden)return;const L=repairs.slice()
 
 /* ================= v6: breed standards, daily stats, house info, problem birds, technician ================= */
 // Hen-day % and egg weight (g) by week of age, midpoints from the breeders' published performance tables
-const STD={
- 'Hy-Line Brown':{src:'Hy-Line Brown Commercial Layers Performance Standards (hyline.com)',start:18,
-  hd:[6.9,24.6,53.8,77.8,89.1,93.0,94.7,95.8,96.1,96.0,96.0,95.9,95.8,95.7,95.6,95.5,95.4,95.3,95.1,95.0,94.9,94.7,94.6,94.5,94.3,94.1,93.9,93.8,93.6,93.4,93.3,93.0,92.8,92.6,92.4,92.1,91.9,91.7,91.4,91.2,90.9,90.6,90.3,90.0,89.4,89.1,88.8,88.5,88.2,87.8,87.5,87.1,86.7,86.4,86.0,85.7,85.3,84.9,84.5,84.1,83.7,83.3,82.9,82.5,82.1,81.7,81.3,80.9,80.5,80.0,79.6,79.2,78.7,78.3,77.8,77.4,76.9,76.5,76.1,75.6,75.2,74.7,74.2],
-  ew:[44.2,46.6,49.1,50.7,52.2,53.5,54.8,55.9,56.9,57.9,58.6,59.3,59.8,60.3,60.8,61.1,61.4,61.6,61.8,61.9,62.0,62.1,62.1,62.1,62.2,62.2,62.2,62.3,62.3,62.3,62.4,62.4,62.4,62.5,62.5,62.5,62.6,62.6,62.6,62.7,62.7,62.7,62.8,62.8,62.8,62.9,62.9,62.9,63.0,63.0,63.0,63.1,63.1,63.1,63.2,63.2,63.2,63.3,63.3,63.3,63.4,63.4,63.5,63.5,63.5,63.6,63.6,63.6,63.7,63.7,63.7,63.8,63.8,63.8,63.9,63.9,64.0,64.0,64.0,64.1,64.1,64.1,64.2]},
- 'Lohmann Brown-Classic':{src:'Lohmann Brown-Classic performance data, cage (lohmann-breeders.com)',start:19,
-  hd:[9.0,36.3,54.3,71.7,82.1,87.6,90.7,92.5,93.5,94.0,94.3,94.5,94.6,94.7,94.7,94.6,94.5,94.3,94.1,93.8,93.6,93.3,93.1,92.8,92.6,92.3,91.9,91.6,91.2,90.8,90.4,90.0,89.6,89.2,88.8,88.3,87.9,87.5,87.0,86.6,86.1,85.6,85.2,84.7,84.2,83.8,83.3,82.8,82.3,81.8,81.3,80.7,80.2,79.6,79.0,78.4,77.7,77.1,76.5,75.9,75.2,74.6,73.9,73.3,72.6,71.9,71.3,70.6,69.9,69.2,68.5,67.8,67.1,66.4,65.7,64.9,64.2,63.5,62.7,62.0,61.2,60.4],
-  ew:[43.6,46.1,48.7,51.1,53.3,55.3,57.0,58.2,59.3,60.2,61.0,61.6,62.1,62.5,62.9,63.3,63.7,63.9,64.1,64.3,64.4,64.6,64.7,64.9,65.0,65.1,65.2,65.3,65.4,65.5,65.6,65.7,65.8,65.9,66.0,66.1,66.1,66.2,66.2,66.3,66.3,66.4,66.4,66.5,66.6,66.6,66.7,66.8,66.8,66.9,66.9,67.0,67.0,67.1,67.1,67.2,67.2,67.3,67.3,67.4,67.4,67.5,67.5,67.6,67.6,67.6,67.7,67.7,67.8,67.8,67.8,67.9,67.9,67.9,68.0,68.0,68.0,68.1,68.1,68.1,68.1,68.1]}
-};
-const BREEDS=Object.keys(STD);
-function stdAt(breed,ageDays){const s=STD[breed];if(!s||ageDays==null)return null;const w=Math.floor(ageDays/7);const i=w-s.start;if(i<0||i>=s.hd.length)return null;return {hd:s.hd[i],ew:s.ew[i],week:w};}
+const STD={};
+const BREEDS=[];
+function stdAt(breed,ageDays){const s=STD[breed];if(!s||ageDays==null)return null;const w=Math.floor(ageDays/7);const i=w-s.start;if(i<0||i>=s.hd.length||s.hd[i]==null)return null;return {hd:s.hd[i],ew:s.ew[i],surv:s.surv?s.surv[i]:null,cum:s.cum?s.cum[i]:null,week:w};}
+/* Hen-house standard needs the breed's survival column; without it there is no Hen-house standard */
+const survOf=sd=>sd&&sd.surv!=null?sd.surv/100:null;
 function houseAgeOn(n,date){const h=hdoc(n);if(!h.hatch)return null;return days(h.hatch,date);}
 function stdFor(n,date){return stdAt(hdoc(n).breed,houseAgeOn(n,date));}
 const stdTag=(our,std)=>{if(our==null||std==null)return '';const d=our-std;const c=d>=-2?'ok':d>=-5?'warn':'crit';return `<span class="badge ${c}">${d>=0?'+':''}${n1(d)}</span>`;};
@@ -3597,8 +3595,8 @@ function houseCardHTML(h,cur,rs,st,dl){
       <div class="vsbar"><i class="std" style="left:${Math.min(100,sd.hd)}%"></i><i class="our" style="width:${Math.min(100,s.hd||0)}%"></i></div>`:`<p class="hf-hint">ใส่สายพันธุ์ของเล้านี้ที่หน้า "เล้า" เพื่อเทียบกับมาตรฐาน</p>`}
     <div class="facts f3">
       <div class="fact"><span>ไข่ดี</span><b>${n0(s.good)}<small>ฟอง</small></b></div>
-      <div class="fact ${s.crackPct>1.5?'warn':''}"><span>ไข่แตก</span><b>${n0(s.cracked)}<small>ฟอง</small></b></div>
-      <div class="fact ${s.birds&&s.dead/s.birds>=0.001?'crit':s.birds&&s.dead/s.birds>=0.0005?'warn':''}"><span>ไก่ตาย</span><b>${n0(s.dead)}<small>ตัว</small></b></div>
+      <div class="fact ${s.crackPct>AL.crackPct?'warn':''}"><span>ไข่แตก</span><b>${n0(s.cracked)}<small>ฟอง</small></b></div>
+      <div class="fact ${s.birds&&s.dead/s.birds>=0.001?'crit':s.birds&&s.dead/s.birds*100>=AL.deadWarnPct?'warn':''}"><span>ไก่ตาย</span><b>${n0(s.dead)}<small>ตัว</small></b></div>
       <div class="fact"><span>${ico('bowl','ico sm')} อาหาร</span><b>${n0(s.feed)}<small>กก.</small></b><em>${n1(s.feedPer,0)} ก./ตัว ${flagVs(s.feedPer,avgOf(prev,'feedPer'))}</em></div>
       <div class="fact"><span>${ico('drop','ico sm')} น้ำ</span><b>${n0(s.water)}<small>ลิตร</small></b><em>${n1(s.waterPer,0)} มล./ตัว ${flagVs(s.waterPer,avgOf(prev,'waterPer'))}</em></div>
       <div class="fact"><span>ไก่ทั้งหมด</span><b>${n0(s.birds)}<small>ตัว</small></b></div>
@@ -3791,7 +3789,7 @@ function planHTML(){const P=movePlan();const ks=Object.keys(P).map(Number);if(!k
 /* ================= v9: feed purchase orders → silo deliveries ================= */
 let feedPOs=[],feedDels=[];
 const SILOS=[];ALLH.forEach(n=>['A','B'].forEach(s=>SILOS.push({id:n+s,house:n})));
-const FORMULAS=['ไก่ไข่ ระยะ 1','ไก่ไข่ ระยะ 2','ไก่ไข่ ระยะ 3','ไก่สาว (ไก่เล็ก)','ไก่รุ่น'];
+const FORMULAS=[];
 const fdKg=v=>n0(Math.round(v||0));
 document.querySelectorAll('.cam-i').forEach(e=>{e.outerHTML=ico('camera');});
 
@@ -3819,8 +3817,8 @@ function lastDrop(n){let best=null;feedDels.forEach(d=>(d.drops||[]).forEach(x=>
 
 /* ---------- home-page tasks ---------- */
 function feedTasks(){const t=[];
-  ALLH.forEach(n=>{if(hdoc(n).status!=='active')return;const s=siloState(n);if(!s||s.daysLeft==null||s.daysLeft>=2)return;
-    t.push({s:s.daysLeft<1?'crit':'warn',icon:'bowl',title:`อาหารเล้า ${n} ใกล้หมด`,why:`เหลือประมาณ ${fdKg(s.est)} กก. พอกินอีก ${n1(s.daysLeft,1)} วัน (ไก่กินวันละ ${fdKg(s.avg)} กก.)`,go:'feed',btn:'ดูไซโล / สั่งอาหาร',btnIcon:'bowl'});});
+  ALLH.forEach(n=>{if(hdoc(n).status!=='active')return;const s=siloState(n);if(!s||s.daysLeft==null||s.daysLeft>=AL.siloLowDays)return;
+    t.push({s:s.daysLeft<AL.siloLowDays/2?'crit':'warn',icon:'bowl',title:`อาหารเล้า ${n} ใกล้หมด`,why:`เหลือประมาณ ${fdKg(s.est)} กก. พอกินอีก ${n1(s.daysLeft,1)} วัน (ไก่กินวันละ ${fdKg(s.avg)} กก.)`,go:'feed',btn:'ดูไซโล / สั่งอาหาร',btnIcon:'bowl'});});
   feedPOs.forEach(po=>{const st=poSt(po);if(st.late)t.push({s:'warn',icon:'truck',title:`ใบสั่ง ${po.no||''} ยังส่งไม่ครบ`,why:`นัดส่ง ${thDate(po.due)} ${st.t}`,go:'feed',btn:'ดูใบสั่ง',btnIcon:'truck'});});
   return t;}
 
@@ -3979,8 +3977,8 @@ function itemSt(it){const lots=lotsOf(it.id);const q=lots.reduce((a,l)=>a+l.qty,
   return {q,good,expired,t:'พอใช้',c:'ok'};}
 function stockTasks(){const t=[];stockItems.forEach(it=>{const s=itemSt(it);if(s.c==='ok')return;
     t.push({s:s.c,icon:(SK_CAT.find(c=>c[0]===it.cat)||[])[2]||'box',title:`${it.name}: ${s.t}`,why:`เหลือใช้ได้ ${n0(s.good)} ${it.unit}${it.min?` (ควรมีอย่างน้อย ${n0(it.min)})`:''}`,go:'stock',btn:'ดูสต็อก',btnIcon:'box'});});
-  PULLETS.forEach(n=>{const h=hdoc(n);if(h.status!=='active')return;const w=weighsOf(n);const last=w[w.length-1];if(!last||days(last.date,today())>=8)t.push({s:'warn',icon:'scale',title:`ชั่งน้ำหนักไก่เล็กเล้า ${n}`,why:last?`ชั่งครั้งล่าสุด ${thDate(last.date)} ควรชั่งทุกสัปดาห์`:'ยังไม่เคยชั่งน้ำหนัก',go:'weigh',arg:String(n),btn:'ไปชั่งน้ำหนัก',btnIcon:'scale'});
-    else{const c=bwCmp(n,last);if(c&&c.pct<-5)t.push({s:'warn',icon:'scale',title:`ไก่เล็กเล้า ${n} น้ำหนักต่ำกว่ามาตรฐาน`,why:`ชั่งได้ ${n0(last.avg)} กรัม มาตรฐาน ${n0(c.lo)}–${n0(c.hi)} กรัม (${n1(c.pct,1)}%)`,go:'pullets',btn:'ดูไก่เล็ก',btnIcon:'chick'});}});
+  PULLETS.forEach(n=>{const h=hdoc(n);if(h.status!=='active')return;const w=weighsOf(n);const last=w[w.length-1];if(!last||days(last.date,today())>AL.weighEveryDays)t.push({s:'warn',icon:'scale',title:`ชั่งน้ำหนักไก่เล็กเล้า ${n}`,why:last?`ชั่งครั้งล่าสุด ${thDate(last.date)} ควรชั่งทุกสัปดาห์`:'ยังไม่เคยชั่งน้ำหนัก',go:'weigh',arg:String(n),btn:'ไปชั่งน้ำหนัก',btnIcon:'scale'});
+    else{const c=bwCmp(n,last);if(c&&c.pct<-AL.bwNearPct)t.push({s:'warn',icon:'scale',title:`ไก่เล็กเล้า ${n} น้ำหนักต่ำกว่ามาตรฐาน`,why:`ชั่งได้ ${n0(last.avg)} กรัม มาตรฐาน ${n0(c.lo)}–${n0(c.hi)} กรัม (${n1(c.pct,1)}%)`,go:'pullets',btn:'ดูไก่เล็ก',btnIcon:'chick'});}});
   return t;}
 
 let skTab='see',skCat='all',soItem=null,soLot='',soHouse=null,soProg='',siItem=null,siNew=false,slWho='',slType='';
@@ -4083,7 +4081,7 @@ function renderSkLog(){const L=stockMoves.slice().sort((a,b)=>((b.date||'')+(b.a
 $('sk_log').addEventListener('click',e=>{const w=e.target.closest('#slWho button');if(w){slWho=w.dataset.v;renderSkLog();return;}const t=e.target.closest('#slType button');if(t){slType=t.dataset.v;renderSkLog();}});
 
 /* ---------- pullet body weight ---------- */
-const BW_STD={'Lohmann Brown-Classic':[[73,77],[126,134],[189,201],[265,281],[355,377],[455,483],[556,590],[657,697],[754,800],[847,899],[934,992],[1016,1078],[1094,1162],[1169,1241],[1241,1317],[1310,1392],[1378,1464],[1448,1538],[1518,1612],[1586,1684]],'Lohmann Brown':[[73,77],[126,134],[189,201],[265,281],[355,377],[455,483],[556,590],[657,697],[754,800],[847,899],[934,992],[1016,1078],[1094,1162],[1169,1241],[1241,1317],[1310,1392],[1378,1464],[1448,1538],[1518,1612],[1586,1684]],'Hy-Line Brown':[[69,73],[119,126],[186,197],[266,281],[357,377],[456,482],[561,593],[668,706],[772,816],[871,921],[963,1018],[1046,1105],[1120,1184],[1186,1254],[1246,1317],[1302,1377],[1357,1434],[1411,1492]]};
+const BW_STD={};
 function bwStd(breed,ageD){const T=BW_STD[breed];if(!T||ageD==null)return null;const w=ageD/7;if(w<1)return null;const i=Math.min(T.length-1,Math.floor(w)-1),j=Math.min(T.length-1,i+1),f=Math.min(1,w-Math.floor(w));
   const lo=T[i][0]+(T[j][0]-T[i][0])*f,hi=T[i][1]+(T[j][1]-T[i][1])*f;return {lo,hi,mid:(lo+hi)/2};}
 const weighsOf=n=>health.filter(e=>e.type==='weight'&&e.house===n).sort((a,b)=>a.date<b.date?-1:1);
@@ -4231,12 +4229,12 @@ function renderMainNav(p){if(p!=='farm'){$('mainNav').innerHTML=tabsOf(p).map(t=
 function navMark(t){const g=portal==='farm'?groupOf(t):null;
   if(!g){document.querySelectorAll('#mainNav a').forEach(a=>a.setAttribute('aria-current',a.getAttribute('href')==='#'+t?'page':'false'));$('subNav').hidden=true;return;}
   lastInGroup[g[0]]=t;document.querySelectorAll('#mainNav a').forEach(a=>{a.setAttribute('aria-current',a.dataset.g===g[0]?'page':'false');if(a.dataset.g===g[0])a.setAttribute('href','#'+t);});
-  const pages=g[3].map(id=>FARM_TABS.find(x=>x[0]===id)).filter(Boolean);$('subNav').hidden=pages.length<2;
+  const pages=g[3].filter(id=>id!=='f-control'||CFG.sensors).map(id=>FARM_TABS.find(x=>x[0]===id)).filter(Boolean);$('subNav').hidden=pages.length<2;
   $('subNav').innerHTML=pages.map(x=>`<a href="#${x[0]}" aria-current="${x[0]===t?'page':'false'}">${ico(x[3])}<span>${x[1]}</span></a>`).join('');}
 
 /* ---------- sales dashboard ---------- */
 let dungSales=[],slTab='see',slMonth=today().slice(0,7);
-const DUNG_UNITS=['กระสอบ','ตัน','คันรถ','ลบ.ม.'];
+const DUNG_UNITS=[];
 const ym=d=>(d||'').slice(0,7);
 const monthLabel=m=>{const [y,mo]=m.split('-').map(Number);return new Date(y,mo-1,1).toLocaleDateString('th-TH',{month:'short',year:'2-digit'});};
 const addMonth=(m,k)=>{const [y,mo]=m.split('-').map(Number);const d=new Date(y,mo-1+k,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');};
@@ -4306,16 +4304,16 @@ $('fDung').addEventListener('submit',async e=>{e.preventDefault();if(!db||!isAdm
 /* ================= v12: every house on the home page ================= */
 function pulletCardHTML(h,cur,rs){const H=hdoc(h);const a=ageDays(H);const s=cur?recStats(cur):null;const toMove=MOVE_WEEK*7-a;
   const W=weighsOf(h);const lw=W[W.length-1];const bc=lw?bwCmp(h,lw):null;const vs=pulletVacs(h);const done=vs.filter(v=>v.st==='done').length;const late=vs.filter(v=>v.st==='late').length;
-  const mp=(movePlan()[h]||{});let st='ok';if((bc&&bc.pct<-5)||late)st='warn';if(toMove<=0)st='crit';
+  const mp=(movePlan()[h]||{});let st='ok';if((bc&&bc.pct<-AL.bwNearPct)||late)st='warn';if(toMove<=0)st='crit';
   const dead7=deadN(h,7);
   return `<div class="hh hh-pul st-${st}">
-    <div class="hh-head">${henSVG(st)}<div style="flex:1;min-width:0"><h3>เล้า ${h} <span class="hh-kind">ไก่เล็ก</span></h3><div class="hh-who">${esc(H.breed||'')} อายุ ${ageTxt(a)}</div></div><span class="badge ${st}">${toMove<=0?'ถึงเวลาย้าย':toMove<=7?'ใกล้ย้าย':'กำลังโต'}</span></div>
-    <div><div class="bar ${toMove<=7?'warn':''}"><i style="width:${Math.min(100,a/(MOVE_WEEK*7)*100)}%"></i></div>
+    <div class="hh-head">${henSVG(st)}<div style="flex:1;min-width:0"><h3>เล้า ${h} <span class="hh-kind">ไก่เล็ก</span></h3><div class="hh-who">${esc(H.breed||'')} อายุ ${ageTxt(a)}</div></div><span class="badge ${st}">${toMove<=0?'ถึงเวลาย้าย':toMove<=AL.moveSoonDays?'ใกล้ย้าย':'กำลังโต'}</span></div>
+    <div><div class="bar ${toMove<=AL.moveSoonDays?'warn':''}"><i style="width:${Math.min(100,a/(MOVE_WEEK*7)*100)}%"></i></div>
       <p class="tray-cap">${toMove>0?`อีก <b>${toMove} วัน</b> ครบ ${MOVE_WEEK} สัปดาห์`:`เลยวันย้ายมา <b>${-toMove} วัน</b>`}${mp.to?` ย้ายเข้า <b>เล้า ${mp.to}</b>`:''}</p></div>
     ${lw?`<div class="vs"><div><span>น้ำหนักตัวละ</span><b>${n0(lw.avg)} ก.</b></div><div><span>มาตรฐาน ${bc?n0(bc.lo)+'–'+n0(bc.hi):'–'}</span><b>${lw.uni!=null?'สม่ำเสมอ '+n0(lw.uni)+'%':''}</b></div>${bc?stdTag(bc.pct+100,100):''}</div>`:'<p class="hf-hint">ยังไม่ได้ชั่งน้ำหนัก</p>'}
     <div class="facts f3">
       <div class="fact"><span>ไก่ทั้งหมด</span><b>${n0(s?s.birds:birdsOf(h))}<small>ตัว</small></b></div>
-      <div class="fact ${s&&s.birds&&s.dead/s.birds>=0.0005?'warn':''}"><span>ไก่ตายวันนี้</span><b>${s?n0(s.dead):'–'}<small>ตัว</small></b><em>7 วัน ${n0(dead7)} ตัว</em></div>
+      <div class="fact ${s&&s.birds&&s.dead/s.birds*100>=AL.deadWarnPct?'warn':''}"><span>ไก่ตายวันนี้</span><b>${s?n0(s.dead):'–'}<small>ตัว</small></b><em>7 วัน ${n0(dead7)} ตัว</em></div>
       <div class="fact ${late?'warn':''}"><span>${ico('syringe','ico sm')} วัคซีน</span><b>${done}/${vs.length}</b><em>${late?'เลยกำหนด '+late+' ตัว':'ตามโปรแกรม'}</em></div>
       <div class="fact"><span>${ico('bowl','ico sm')} อาหาร</span><b>${s?n0(s.feed):'–'}<small>กก.</small></b><em>${s?n1(s.feedPer,0)+' ก./ตัว':''}</em></div>
       <div class="fact"><span>${ico('drop','ico sm')} น้ำ</span><b>${s?n0(s.water):'–'}<small>ลิตร</small></b><em>${s?n1(s.waterPer,0)+' มล./ตัว':''}</em></div>
@@ -4380,7 +4378,7 @@ async function tFlush(){if(tBusy||!tQueue.size||LANG==='th')return;
   if(!sampleCap){tStatus('ต้องอนุญาตให้ AI ช่วยแปลก่อน ส่วนที่แปลไว้แล้วจะแสดงตามปกติ');return;}
   tBusy=true;const L=LANG;const name=(LANGS.find(x=>x[0]===L)||[])[2];
   while(tQueue.size&&LANG===L){const batch=[...tQueue].slice(0,70);tStatus(`กำลังแปลเป็น ${name} เหลือ ${tQueue.size} ข้อความ`);
-    try{const r=await sampleCap.json(`Translate each Thai user-interface string of an egg-farm app (houses, hens, pullets, eggs, feed silos, vaccines, egg buyers called "ล้ง") into ${name}. Farm workers with little schooling will read it, so use short everyday words. Keep placeholders such as {0} {1}, numbers, units written in Latin letters, and punctuation exactly as they are. Transliterate personal names and the farm name "ปรียาฟาร์ม" instead of translating them. Return only JSON {"t":[...]} with one translated string per input, in the same order.\nInput:\n${JSON.stringify(batch)}`,{modelTier:'default'});
+    try{const r=await sampleCap.json(`Translate each Thai user-interface string of an egg-farm app (houses, hens, pullets, eggs, feed silos, vaccines, egg buyers called "ล้ง") into ${name}. Farm workers with little schooling will read it, so use short everyday words. Keep placeholders such as {0} {1}, numbers, units written in Latin letters, and punctuation exactly as they are. Transliterate personal names and the farm name "${FN()}" instead of translating them. Return only JSON {"t":[...]} with one translated string per input, in the same order.\nInput:\n${JSON.stringify(batch)}`,{modelTier:'default'});
       const out=r&&Array.isArray(r.t)?r.t:[];const map=I18N[L]||(I18N[L]={});const s=[],t=[];
       batch.forEach((k,i)=>{tQueue.delete(k);const v=out[i];if(typeof v==='string'&&v.trim()){map[k]=v;s.push(k);t.push(v);}});
       try{const c=JSON.parse(localStorage.getItem('coop-i18n-'+L)||'{}');Object.assign(c,Object.fromEntries(s.map((k,i)=>[k,t[i]])));localStorage.setItem('coop-i18n-'+L,JSON.stringify(c));}catch(e){}
@@ -4406,44 +4404,17 @@ markLang();if(LANG!=='th')setTimeout(()=>setLang(LANG).then(markLang),300);
 
 /* ================= v14: breed guide (Lohmann Brown-Classic main, Hisex Brown second) ================= */
 IC.book='<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M19 19v2H6"/><path d="M8 7h7M8 11h5"/>';
-STD['Hisex Brown']={src:'ประมาณจากค่าสรุปทางการของ Hisex (hisex.com)',approx:true,start:18,
-  hd:[8, 30, 58, 80, 91, 95, 96.8, 97.5, 97.4, 97.3, 97.2, 97.1, 97.0, 96.8, 96.6, 96.4, 96.2, 96.0, 95.9, 95.7, 95.5, 95.3, 95.1, 94.9, 94.7, 94.5, 94.3, 94.2, 94.0, 93.8, 93.6, 93.4, 93.2, 93.0, 92.8, 92.6, 92.4, 92.2, 92.1, 91.9, 91.7, 91.5, 91.3, 91.1, 90.9, 90.7, 90.5, 90.3, 90.2, 90.0, 89.8, 89.6, 89.4, 89.1, 88.7, 88.4, 88.1, 87.8, 87.4, 87.1, 86.8, 86.4, 86.1, 85.8, 85.4, 85.1, 84.8, 84.5, 84.1, 83.8, 83.5, 83.1, 82.8, 82.5, 82.1, 81.8, 81.5, 81.2, 80.8, 80.5, 80.2, 79.8, 79.5],
-  ew:[44.0, 45.8, 47.6, 49.4, 51.2, 53.0, 54.8, 56.6, 57.1, 58.9, 59.2, 59.4, 59.7, 59.9, 60.2, 60.4, 60.7, 60.9, 61.0, 61.0, 61.1, 61.2, 61.3, 61.3, 61.4, 61.5, 61.5, 61.6, 61.7, 61.7, 61.8, 61.9, 62.0, 62.0, 62.1, 62.2, 62.2, 62.3, 62.4, 62.4, 62.5, 62.6, 62.7, 62.7, 62.7, 62.8, 62.8, 62.9, 62.9, 62.9, 63.0, 63.0, 63.1, 63.1, 63.1, 63.2, 63.2, 63.2, 63.3, 63.3, 63.4, 63.4, 63.5, 63.5, 63.5, 63.6, 63.6, 63.7, 63.7, 63.7, 63.8, 63.8, 63.9, 63.9, 63.9, 64.0, 64.0, 64.1, 64.1, 64.1, 64.2, 64.2, 64.2]};
-if(!BREEDS.includes('Hisex Brown'))BREEDS.splice(1,0,'Hisex Brown');
-BW_STD['Lohmann Brown-Classic']=BW_STD['Lohmann Brown-Classic'] /* official LB-Classic rearing table, Lohmann management guide 06.21 */;
-const FEED_PHASES=[{a:0,b:3,name:'อาหารไก่เล็ก ระยะ 1 (Starter)',cp:20,ca:1.05},{a:4,b:8,name:'อาหารไก่เล็ก ระยะ 2 (Grower)',cp:18.5,ca:1.0},{a:9,b:16,name:'อาหารไก่สาว (Developer)',cp:15,ca:0.9},{a:17,b:17,name:'อาหารก่อนไข่ (Pre-layer)',cp:17,ca:2.5},
-  {a:18,b:21,name:'อาหารไก่ไข่ ก่อนพีค',cp:16.8,ca:3.45},{a:22,b:40,name:'อาหารไก่ไข่ ระยะ 1',cp:16.5,ca:3.73},{a:41,b:50,name:'อาหารไก่ไข่ ระยะ 2',cp:16.2,ca:3.82},{a:51,b:65,name:'อาหารไก่ไข่ ระยะ 3',cp:15.6,ca:3.91},{a:66,b:999,name:'อาหารไก่ไข่ ระยะ 4',cp:15.1,ca:4.09}];
-const phaseOf=ageD=>{const w=Math.floor((ageD||0)/7);return FEED_PHASES.find(p=>w>=p.a&&w<=p.b)||FEED_PHASES[FEED_PHASES.length-1];};
-const lightHours=ageD=>{if(ageD==null)return 16;if(ageD<=2)return 24;if(ageD<=6)return 16;const w=Math.floor(ageD/7);return w<=1?16:w===2?14:w===3?13:w===4?12:w===5?11:w<=17?10:w===18?12:w===19?13:w===20?14:w===21?15:16;};
-const tempTarget=ageD=>{if(ageD==null)return '24–28';if(ageD<=2)return '35';if(ageD<=4)return '33';if(ageD<=7)return '31';const w=Math.floor(ageD/7);return w<=2?'28':w===3?'26':'24–28';};
+const FEED_PHASES=[];
+const phaseOf=ageD=>{const w=Math.floor((ageD||0)/7);return FEED_PHASES.find(p=>w>=p.a&&w<=p.b)||FEED_PHASES[FEED_PHASES.length-1]||{a:0,b:0,name:'ยังไม่ได้ตั้งระยะอาหาร',cp:null,ca:null};};
+const lightHours=ageD=>{const r=REAR.find(x=>(ageD??9999)>=x.fromDay&&(ageD??9999)<=x.toDay)||REAR[REAR.length-1];return r?r.light:null;};
+const tempTarget=ageD=>{const r=REAR.find(x=>(ageD??9999)>=x.fromDay&&(ageD??9999)<=x.toDay)||REAR[REAR.length-1];return r?r.temp:'–';};
 window.LIGHT_HRS=lightHours;window.TEMP_TARGET=tempTarget;
-FORMULAS.splice(0,FORMULAS.length,...FEED_PHASES.map(p=>p.name));
-VAC_PROG.splice(VAC_PROG.findIndex(v=>v[0]===84),0,[77,'สมองและไขสันหลังอักเสบ (AE)']);
-VAC_PROG.splice(VAC_PROG.findIndex(v=>v[0]===98),0,[91,'มัยโคพลาสมา (MG)']);
 SK_CAT.push(['supp','อาหารเสริม / แร่ธาตุ','bowl']);SK_CAT.find(c=>c[0]==='chlor')[1]='ฆ่าเชื้อ / กำจัดไร หนู';STK_COST.supp='feed';
 skGroups=function(){return [['vac-layer','วัคซีนไก่ไข่',it=>it.cat==='vac'&&it.use!=='pullet'],['vac-pullet','วัคซีนไก่เล็ก',it=>it.cat==='vac'&&it.use==='pullet'],['med','ยา / วิตามิน / เกลือแร่',it=>it.cat==='med'],['supp','อาหารเสริม / แร่ธาตุ',it=>it.cat==='supp'],['chlor','คลอรีน / ฆ่าเชื้อ / กำจัดไร หนู',it=>it.cat==='chlor']];};
 
-const BREED_INFO={
- 'Lohmann Brown-Classic':{th:'โลมันน์ บราวน์ คลาสสิก',role:'พันธุ์หลักของฟาร์ม',
-  facts:[['ไข่ถึง 50%','140–145 วัน'],['ไข่สูงสุด (พีค)','94–96%'],['ไข่ต่อตัว ถึง 72 สัปดาห์','324 ฟอง'],['ไข่ต่อตัว ถึง 100 สัปดาห์','461 ฟอง'],['น้ำหนักไข่เฉลี่ย ถึง 72 สัปดาห์','63.7 กรัม'],['อาหารต่อไข่ 1 กก.','2.0–2.2 กก.'],['น้ำหนักตัว 17 สัปดาห์','1.42 กก.'],['น้ำหนักตัว ปลดไก่','2.06 กก.'],['รอดช่วงเลี้ยงเล็ก','98–99%'],['รอดช่วงไข่ ถึง 72 สัปดาห์','95–96%']],
-  src:[['Lohmann Brown-Classic (กรง) ค่าสรุป','https://lohmann-breeders.com/files/downloads/LEAFLETS/Cage/LB-CLASSIC/2021_Lohmann-infographic_LB-Classic-CAGE_ENG.pdf'],['Lohmann Brown-Classic ตารางไข่รายสัปดาห์','https://lohmann-breeders.com/files/downloads/MG/e-Guides/Cage/English/LB_eMG_Cage_EN_PerfData_LB-Classic_p8.pdf'],['คู่มือ Lohmann Brown (แสง อุณหภูมิ อาหาร วัคซีน น้ำหนักไก่เล็ก)','https://lohmann-breeders.com/media/2020/07/ManagementGuideBrownLiteNorthAmerica.pdf']]},
- 'Hisex Brown':{th:'ไฮเซ็กซ์ บราวน์',role:'พันธุ์รองของฟาร์ม',
-  facts:[['ไข่ถึง 50%','143 วัน'],['ไข่สูงสุด (พีค)','97.5%'],['ไข่ต่อตัว ถึง 100 สัปดาห์','484 ฟอง'],['น้ำหนักไข่เฉลี่ย','61.5 กรัม'],['กินอาหารเฉลี่ย','111 กรัม/ตัว/วัน'],['อาหารต่อไข่ 1 กก.','2.11 กก.'],['น้ำหนักตัว ปลดไก่','1.9 กก.'],['รอดช่วงไข่ ถึง 100 สัปดาห์','92%']],
-  src:[['Hisex Brown (กรง) ค่าสรุปทางการ','https://www.hisex.com/en/product/hisex-brown/'],['หน้าเว็บ Hisex Brown ที่ส่งมา (แนวทางทั่วไป)','https://gardenhub.decorexpro.com/th/kury/hajseks-braun.html']]}};
-const SUPPLIES=[
- ['วัคซีนตามโปรแกรมไก่เล็ก (ND+IB, กัมโบโร, ฝีดาษ, หวัดหน้าบวม, อหิวาต์, ILT, AE, MG, ND+IB+EDS)','vac-pullet','ให้ตามอายุในตารางวัคซีน ต้องเก็บในตู้เย็น 2–8°C'],
- ['วัคซีนกระตุ้นไก่ไข่ (ND, IB)','vac-layer','กระตุ้นทุก 6–8 สัปดาห์ช่วงให้ไข่ ตามที่สัตวแพทย์กำหนด'],
- ['วิตามินรวม และ วิตามิน AD3E','m2|m5','ช่วงเครียด ย้ายเล้า หลังทำวัคซีน และช่วงลอกขน'],
- ['เกลือแร่ อิเล็กโทรไลต์','m3','วันที่ร้อนเกิน 30°C ไก่กินน้ำมากขึ้นถึง 5 เท่าของอาหาร'],
- ['ยาปฏิชีวนะ (ตามสัตวแพทย์สั่ง)','m1','ต้องหยุดขายไข่ตามระยะหยุดยา'],
- ['ยาถ่ายพยาธิ','m4','หน้าเว็บที่ส่งมาระบุให้ถ่ายพยาธิเป็นประจำ'],
- ['ยาป้องกันบิด (ไก่เล็ก)','m6','ช่วงเลี้ยงเล็ก'],
- ['เปลือกหอยป่น / หินปูนเม็ด (แคลเซียมเสริม)','s1','ไก่ไข่ต้องการแคลเซียมสูงขึ้นตามอายุ 3.5–4.5% ในอาหาร เปลือกไข่จะแข็ง'],
- ['คลอรีนใส่น้ำดื่ม','c1','น้ำสะอาดตลอดเวลา'],
- ['น้ำยาฆ่าเชื้อโรงเรือน และ ปูนขาว','c2|c3','ใช้ตอนพักเล้า 45 วัน และอ่างจุ่มเท้าหน้าเล้า'],
- ['ยากำจัดไรไก่และแมลง','c4','ไรไก่ทำให้ไก่ไข่ลด'],
- ['เหยื่อกำจัดหนู','c5','หนูกินอาหารและนำโรค']];
-let gdBreed='Lohmann Brown-Classic';
+const BREED_INFO={};
+const SUPPLIES=[];
+let gdBreed=null;
 function gdHouses(b){return ALLH.filter(n=>hdoc(n).status==='active'&&hdoc(n).breed===b);}
 function gdCurve(b){const s=STD[b];const W=640,H=200,X=w=>36+(w-18)/82*(W-50),Y=v=>12+(100-v)/100*(H-40);
   const pts=s.hd.map((v,i)=>`${X(s.start+i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
@@ -4453,7 +4424,7 @@ function gdPhases(b){const hs=gdHouses(b);const W=100/80;
   return `<div class="gd-phase">${FEED_PHASES.map(p=>{const a=p.a,bb=Math.min(p.b,79);const here=hs.filter(n=>{const w=Math.floor(ageDays(hdoc(n))/7);return w>=p.a&&w<=p.b;});
     return `<div class="gp ${here.length?'on':''}" style="flex:${bb-a+1}"><b>${esc(p.name.replace('อาหาร',''))}</b><span>${p.b>900?`${p.a} สป. ขึ้นไป`:p.a===p.b?`สัปดาห์ที่ ${p.a}`:`${p.a}–${p.b} สป.`}</span><span>โปรตีน ${p.cp}% · แคลเซียม ${p.ca}%</span>${here.length?`<em>เล้า ${here.join(', ')}</em>`:''}</div>`;}).join('')}</div>`;}
 function gdLight(){const ws=Array.from({length:24},(_,w)=>w);return `<div class="gd-light">${ws.map(w=>{const h=lightHours(w===0?1:w*7+3);return `<div class="gl"><i style="height:${h/24*100}%" class="${h>=16?'on':''}"></i><span>${h}</span><small>${w===0?'แรกเกิด':w}</small></div>`;}).join('')}<div class="gl gl-end"><i style="height:66.7%" class="on"></i><span>16</span><small>ช่วงไข่</small></div></div><p class="hf-hint">ชั่วโมงแสงต่อวันตามสัปดาห์อายุ (เล้าปิด) ช่วง 6–17 สัปดาห์ให้แสงสั้น 10 ชม. แล้วเพิ่มทีละชั่วโมงจนถึง 16 ชม. ช่วงไข่ ห้องควบคุมเล้าแสดงชั่วโมงแสงตามอายุของแต่ละเล้าแล้ว</p>`;}
-function renderGuide(){if($('vFGuide').hidden)return;const b=gdBreed,I=BREED_INFO[b];
+function renderGuide(){if($('vFGuide').hidden)return;if(!BREED_INFO[gdBreed])gdBreed=Object.keys(BREED_INFO)[0];const b=gdBreed,I=BREED_INFO[b];if(!I){$('gdBreed').innerHTML='';return;}
   $('gdBreed').innerHTML=Object.keys(BREED_INFO).map(k=>`<button type="button" data-v="${k}" aria-pressed="${k===b}">${esc(BREED_INFO[k].th)}<small>${BREED_INFO[k].role} · ${gdHouses(k).length} เล้า</small></button>`).join('');
   const hs=gdHouses(b);const st=STD[b];
   const sup=SUPPLIES.map(([name,key,why])=>{const its=key.startsWith('vac-')?stockItems.filter(it=>it.cat==='vac'&&(key==='vac-pullet'?it.use==='pullet':it.use!=='pullet')):key.split('|').map(skIt).filter(Boolean);
@@ -4492,24 +4463,24 @@ $('vFGuide').addEventListener('click',e=>{const b=e.target.closest('#gdBreed but
 function deadN(n,k){const from=addDays(today(),-(k-1));const rs=records.filter(r=>r.house===n&&r.date>=from);const dated=new Set(rs.map(r=>r.date));
   return rs.reduce((x,r)=>x+((recStats(r)||{}).dead||0),0)+health.filter(e=>e.type==='dead'&&e.house===n&&e.date>=from&&!dated.has(e.date)).reduce((x,e)=>x+(e.count||0),0);}
 // hen-housed standard ≈ hen-day standard × birds still alive by the breeder's livability (about 93.5% left at 100 weeks)
-const liveStd=w=>Math.max(0.9,1-0.0008*Math.max(0,w-18));
-function stdHH(n,date){const sd=stdFor(n,date);return sd?{hh:sd.hd*liveStd(sd.week),hd:sd.hd}:null;}
+
+function stdHH(n,date){const sd=stdFor(n,date);return sd?{hh:survOf(sd)!=null?sd.hd*survOf(sd):null,hd:sd.hd}:null;}
 function henRowHTML(h,D){const H=hdoc(h);const x=houseDay(h,D);const sd=stdFor(h,D);const sh=stdHH(h,D);
   if(!x){const why=H.status==='active'?(H.hatch?'ยังไม่มีใบบันทึกวันนี้':'มีไก่ไข่ ยังไม่ได้ลงข้อมูลในตาราง'):H.status==='rest'?'พักเล้า':'ยังไม่มีไก่ / ยังไม่ได้ลงข้อมูล';
     return `<div class="hp hp-none"><b>เล้า ${h}</b><span class="muted">${why}</span></div>`;}
   return `<div class="hp hp-lay"><b>เล้า ${h}</b><span><i>Hen-day</i><strong>${x.hd!=null?n1(x.hd)+'%':'–'}</strong><em><small>มาตรฐาน</small>${sd?n1(sd.hd)+'%':'–'}</em>${sd&&x.hd!=null?stdTag(x.hd,sd.hd):'<span></span>'}</span><span><i>Hen-housed</i><strong>${x.hh!=null?n1(x.hh)+'%':'–'}</strong><em><small>มาตรฐาน</small>${sh?n1(sh.hh)+'%':'–'}</em>${sh&&x.hh!=null?stdTag(x.hh,sh.hh):'<span></span>'}</span>${!H.breed?'<span class="muted" style="font-size:12px">ยังไม่ได้ระบุสายพันธุ์ จึงไม่มีมาตรฐาน</span>':x.hh==null?'<span class="muted" style="font-size:12px">ยังไม่รู้จำนวนไก่ลงเล้าต้นรุ่น</span>':''}</div>`;}
-function henStdTiles(D,cur){let tb=0,th=0,wb=0,hb=0,ab=0,aw=0,th2=0,hb2=0;records.filter(r=>r.date===D&&LAYERS.includes(r.house)).forEach(r=>{const c=r.calc||{};const b=c.birds||0;const ag=houseAgeOn(r.house,D);if(ag!=null&&b){ab+=ag/7*b;aw+=b;}const sd=stdFor(r.house,D);if(!sd)return;tb+=sd.hd*b;wb+=b;const hs=c.housed||parseFloat(r.f&&r.f.housed)||0;if(hs){th+=sd.hd*liveStd(sd.week)*hs;hb+=hs;}else{th2+=sd.hd*liveStd(sd.week)*b;hb2+=b;}});if(!hb){th=th2;hb=hb2;}
+function henStdTiles(D,cur){let tb=0,th=0,wb=0,hb=0,ab=0,aw=0,th2=0,hb2=0;records.filter(r=>r.date===D&&LAYERS.includes(r.house)).forEach(r=>{const c=r.calc||{};const b=c.birds||0;const ag=houseAgeOn(r.house,D);if(ag!=null&&b){ab+=ag/7*b;aw+=b;}const sd=stdFor(r.house,D);if(!sd)return;tb+=sd.hd*b;wb+=b;const hs=c.housed||parseFloat(r.f&&r.f.housed)||0;if(survOf(sd)==null){}else if(hs){th+=sd.hd*survOf(sd)*hs;hb+=hs;}else{th2+=sd.hd*survOf(sd)*b;hb2+=b;}});if(!hb){th=th2;hb=hb2;}
   let ag=$('hdAge');if(!ag){ag=document.createElement('div');ag.id='hdAge';ag.className='hage';$('hdSub').before(ag);}
   ag.innerHTML=aw?`อายุไก่ไข่เฉลี่ยทั้งฟาร์ม <b>${n1(ab/aw)} สัปดาห์</b> <span>เฉลี่ยตามจำนวนไก่แต่ละเล้า</span>`:'';
   const put=(id,v,real)=>{let el=$(id);if(!el){el=document.createElement('span');el.id=id;el.className='hstd';$(id==='hdStd'?'hdDelta':'hhDelta').after(el);}
-    el.classList.add('hstd2');el.innerHTML=v==null?'<i>มาตรฐานสายพันธุ์</i><b>–</b>':`<i>มาตรฐานสายพันธุ์</i><b>${n1(v)}<small>%</small></b>${real!=null?`<em class="sdiff ${real-v>=-2?'ok':real-v>=-5?'warn':'crit'}">${real-v>=0?'สูงกว่า':'ต่ำกว่า'} ${n1(Math.abs(real-v))}</em>`:''}`;};
+    el.classList.add('hstd2');el.innerHTML=v==null?'<i>มาตรฐานสายพันธุ์</i><b>–</b>':`<i>มาตรฐานสายพันธุ์</i><b>${n1(v)}<small>%</small></b>${real!=null?`<em class="sdiff ${real-v>=-AL.stdNear?'ok':real-v>=-AL.stdWarn?'warn':'crit'}">${real-v>=0?'สูงกว่า':'ต่ำกว่า'} ${n1(Math.abs(real-v))}</em>`:''}`;};
   put('hdStd',wb?tb/wb:null,cur.hd);put('hhStd',hb?th/hb:null,cur.hh);
   let nt=$('hhNote');if(!nt){nt=document.createElement('span');nt.id='hhNote';nt.className='hstd';$('hhStd').after(nt);}
   nt.innerHTML=cur.hh!=null&&!cur.hFull?`คิดจากเล้า ${cur.hH.join(', ')} เท่านั้น (${cur.hH.length} จาก ${cur.n} เล้า) เพราะเล้าอื่นยังไม่มีจำนวนไก่ลงเล้าต้นรุ่น`:'';}
 function pulletRowsHTML(){return '<div class="hp-h">ไก่เล็ก เล้า '+rangeTxt(PULLETS)+'</div>'+PULLETS.map(n=>{const H=hdoc(n);if(H.status!=='active')return `<div class="hp hp-none"><b>เล้า ${n}</b><span class="muted">ยังไม่มีไก่เล็ก</span></div>`;
   const a=ageDays(H);const W=weighsOf(n);const lw=W[W.length-1];const bc=lw?bwCmp(n,lw):null;const r=records.filter(x=>x.house===n).sort((x,y)=>x.date<y.date?1:-1)[0];const birds=(r&&r.calc&&r.calc.birds)||H.birds;
   const live=H.birdsIn&&birds?birds/H.birdsIn*100:null;
-  return `<div class="hp"><b>เล้า ${n}</b><span>อายุ <strong>${n1(a/7)} สป.</strong> ไก่ <strong>${n0(birds)}</strong> ตัว${live!=null?` <em>รอด ${n1(live)}%</em>`:''}</span><span>น้ำหนัก <strong>${lw?n0(lw.avg)+' ก.':'ยังไม่ได้ชั่ง'}</strong> <em>มาตรฐาน ${bc?n0(bc.lo)+'–'+n0(bc.hi)+' ก.':'–'}</em> ${bc?`<span class="badge ${Math.abs(bc.pct)<=5?'ok':Math.abs(bc.pct)<=10?'warn':'crit'}">${bc.pct>=0?'+':''}${n1(bc.pct)}%</span>`:''}</span><span>ตาย 7 วัน <strong>${n0(deadN(n,7))}</strong> ตัว</span></div>`;}).join('');}
+  return `<div class="hp"><b>เล้า ${n}</b><span>อายุ <strong>${n1(a/7)} สป.</strong> ไก่ <strong>${n0(birds)}</strong> ตัว${live!=null?` <em>รอด ${n1(live)}%</em>`:''}</span><span>น้ำหนัก <strong>${lw?n0(lw.avg)+' ก.':'ยังไม่ได้ชั่ง'}</strong> <em>มาตรฐาน ${bc?n0(bc.lo)+'–'+n0(bc.hi)+' ก.':'–'}</em> ${bc?`<span class="badge ${Math.abs(bc.pct)<=AL.bwNearPct?'ok':Math.abs(bc.pct)<=AL.bwWarnPct?'warn':'crit'}">${bc.pct>=0?'+':''}${n1(bc.pct)}%</span>`:''}</span><span>ตาย 7 วัน <strong>${n0(deadN(n,7))}</strong> ตัว</span></div>`;}).join('');}
 /* ================= v17: roles (farm / ล้ง / ลูกค้า / คนงาน), worker screens without money, customers, deliveries ================= */
 IC.users='<path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 12 0v1M16 3.5a4 4 0 0 1 0 7.5M22 21v-1a6 6 0 0 0-4-5.6"/>';
 IC.list='<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>';
@@ -4517,18 +4488,15 @@ const lhongs=()=>buyers.filter(b=>b.kind!=='retail');
 const retails=()=>buyers.filter(b=>b.kind==='retail');
 const W_ROLES=[['care','คนดูแลไก่','chick'],['egg','คนเก็บไข่','egg'],['vet','สัตวแพทย์','syringe'],['tech','ช่างซ่อม','wrench'],['load','คนยกของ','truck']];
 const WR=Object.fromEntries(W_ROLES.map(r=>[r[0],r]));
-let workRole=store.get('coop-wrole')||'care',workName=store.get('coop-wname')||'';
+let workRole=(window.__PF&&WR[window.__PF.role])?window.__PF.role:(store.get('coop-wrole')||'care'),workName=(window.__PF&&window.__PF.group==='work'&&myName)||store.get('coop-wname')||'';
 const careTakers=()=>[...new Set(ALLH.map(n=>hdoc(n).caretaker).filter(Boolean))];
-function workerNames(r){
-  if(r==='care')return careTakers();
-  if(r==='egg')return ['พี่แดง (ตัวอย่าง)','น้องฝน (ตัวอย่าง)',...careTakers()];
-  if(r==='vet')return ['หมอวิทย์ (ตัวอย่าง)'];
-  if(r==='tech')return [...new Set(['ช่างสมชาย','ช่างเอก',...repairs.map(x=>x.byName).filter(Boolean)])];
-  return ['น้องมด (ตัวอย่าง)','พี่ต้น (ตัวอย่าง)'];}
+/* worker names come from the accounts in หลังบ้าน → บัญชีผู้ใช้ (plus caretakers set on each house) */
+let PROFILES=[];fetch('/api/profiles',{credentials:'same-origin'}).then(r=>r.ok?r.json():{profiles:[]}).then(j=>{PROFILES=j.profiles||[];refresh();}).catch(()=>{});
+function workerNames(r){return [...new Set([...PROFILES.filter(p=>p.role===r).map(p=>p.name),...(r==='care'||r==='egg'?careTakers():[]),...(r==='tech'?repairs.map(x=>x.byName):[])].filter(Boolean))];}
 function myHouses(){
   {const PF=window.__PF||{};if(PF.group==='work'&&PF.houses&&PF.houses.length)return ALLH.filter(n=>PF.houses.includes(n));}
   if(workRole==='care'){const hs=ALLH.filter(n=>hdoc(n).caretaker===workName);return hs.length?hs:ALLH;}
-  if(workRole==='egg'){const fixed={'พี่แดง (ตัวอย่าง)':[1,2,3],'น้องฝน (ตัวอย่าง)':[4,5,6,7]}[workName];const own=LAYERS.filter(n=>hdoc(n).caretaker===workName);return fixed||(own.length?own:LAYERS);}
+  if(workRole==='egg'){const own=LAYERS.filter(n=>hdoc(n).caretaker===workName);return own.length?own:LAYERS;}
   return ALLH;}
 function wTabs(){const t=[['w-today','งานของฉันวันนี้','vWork','check']];
   if(workRole==='care')t.push(['f-record','จดประจำวัน','viewRecord','camera'],['f-health','แจ้งปัญหา / ไก่ป่วย','vFHealth','heart']);
@@ -4541,7 +4509,7 @@ const P_LABEL={farm:'ฟาร์ม',lhong:'ล้ง',work:'คนงาน',c
 function setIdentity(p){
   $('portalBadge').textContent=P_LABEL[p]||'';
   const b=previewBid&&buyers.find(x=>x.id===previewBid);
-  $('abTitle').textContent=p==='farm'?'ปรียาฟาร์ม':p==='lhong'?(b?cleanName(b.name):(lDoc&&cleanName(lDoc.name))||'ล้ง'):p==='cust'?(b?cleanName(b.name):'ลูกค้า'):p==='work'?`${cleanName(workName)} · ${WR[workRole][1]}`:'ปรียาฟาร์ม';
+  $('abTitle').textContent=p==='farm'?FN():p==='lhong'?(b?cleanName(b.name):(lDoc&&cleanName(lDoc.name))||'ล้ง'):p==='cust'?(b?cleanName(b.name):'ลูกค้า'):p==='work'?`${cleanName(workName)} · ${WR[workRole][1]}`:FN();
   $('abUser').textContent=p==='work'?'':(myName||'');}
 
 /* ---------- gate ---------- */
@@ -4615,32 +4583,32 @@ function renderWork(){if($('vWork').hidden)return;const T=today();const hs=myHou
     ${cards}${extra}
     <p class="hf-hint">หน้านี้แสดงเฉพาะงานและจำนวน ไม่แสดงราคา ต้นทุน หรือยอดเงิน</p>`;}
 $('vWork').addEventListener('change',e=>{const c=e.target.closest('[data-wid]');if(!c)return;const id='w|'+workName+'|'+c.dataset.wid;
-  if(c.checked)markDone(id);else{try{const a=JSON.parse(store.get(doneKey())||'[]').filter(x=>x!==id);store.set(doneKey(),JSON.stringify(a));}catch(err){}}renderWork();});
+  if(c.checked)markDone(id);else unmarkDone(id);renderWork();});
 $('vWork').addEventListener('click',async e=>{const b=e.target.closest('[data-wrdone]');if(!b||!db)return;b.disabled=true;try{await db.collection('repairs').doc(b.dataset.wrdone).update({status:'done',doneAt:new Date().toISOString(),doneBy:workName});toast('บันทึกว่าซ่อมเสร็จแล้ว');}catch(err){b.disabled=false;}});
 function applyWorkerMask(){document.body.classList.add('worker');}
 
 /* ---------- deliveries (farm) ---------- */
 let delivs={};
-const PLATES=['70-1234 (ตัวอย่าง)','70-5678 (ตัวอย่าง)','81-2468 (ตัวอย่าง)'];const DRIVERS=['พี่ต้น (ตัวอย่าง)','สมชาย (ตัวอย่าง)','วิชัย (ตัวอย่าง)'];
+
 function delivList(){const T=today();const out=[];
   buyers.forEach((b,bi)=>{const sales=(tx[b.id]||[]).filter(t=>t.type==='sale'&&t.date>=addDays(T,-13));
     sales.forEach(t=>{const id=`${b.id}_${t.id}`;const o=delivs[id]||{};
       out.push({id,date:t.date,to:cleanName(b.name),toId:b.id,kind:'egg',kindL:'ส่งไข่',retail:b.kind==='retail',qty:eggQty(t.items)*EPT,qtyTxt:`${itemsTxt(t.items)} (${n0(eggQty(t.items)*EPT)} ฟอง)`,
-        time:o.time||['06:30','07:30','09:00','10:30','13:00'][bi%5],truck:o.truck||PLATES[bi%3],driver:o.driver||DRIVERS[bi%3],loaders:o.loaders||['น้องมด (ตัวอย่าง)'],status:o.status||(t.date<T?'done':'plan'),total:t.total});});
+        time:o.time||'',truck:o.truck||'',driver:o.driver||'',loaders:o.loaders||[],status:o.status||(t.date<T?'done':'plan'),total:t.total});});
     const last=sales.sort((a,c)=>a.date<c.date?1:-1)[0];
     if(last){const d=addDays(T,1);const id=`${b.id}_plan_${d}`;const o=delivs[id]||{};
       out.push({id,date:d,to:cleanName(b.name),toId:b.id,kind:'egg',kindL:'ส่งไข่ (แผน)',retail:b.kind==='retail',qty:eggQty(last.items)*EPT,qtyTxt:`ประมาณ ${n0(eggQty(last.items)*EPT)} ฟอง เท่ารอบล่าสุด`,
-        time:o.time||['06:30','07:30','09:00','10:30','13:00'][bi%5],truck:o.truck||PLATES[bi%3],driver:o.driver||DRIVERS[bi%3],loaders:o.loaders||['น้องมด (ตัวอย่าง)'],status:o.status||'plan',plan:true});}});
+        time:o.time||'',truck:o.truck||'',driver:o.driver||'',loaders:o.loaders||[],status:o.status||'plan',plan:true});}});
   LAYERS.forEach(n=>{const D=depopPlan(n);if(!D||D.date>addDays(T,30)||D.date<T)return;const id=`hen_${n}_${D.date}`;const o=delivs[id]||{};
-    out.push({id,date:D.date,to:'พ่อค้าไก่ปลด',kind:'hen',kindL:'ขนไก่แก่',qty:birdsOf(n),qtyTxt:`เล้า ${n} ประมาณ ${n0(birdsOf(n))} ตัว`,time:o.time||'05:00',truck:o.truck||'รถผู้ซื้อ',driver:o.driver||'–',loaders:o.loaders||['น้องมด (ตัวอย่าง)','พี่ต้น (ตัวอย่าง)'],status:o.status||'plan'});});
+    out.push({id,date:D.date,to:'พ่อค้าไก่ปลด',kind:'hen',kindL:'ขนไก่แก่',qty:birdsOf(n),qtyTxt:`เล้า ${n} ประมาณ ${n0(birdsOf(n))} ตัว`,time:o.time||'',truck:o.truck||'',driver:o.driver||'',loaders:o.loaders||[],status:o.status||'plan'});});
   dungSales.filter(x=>x.date>=addDays(T,-13)).forEach(x=>{const id=`dung_${x.id}`;const o=delivs[id]||{};
-    out.push({id,date:x.date,to:cleanName(x.buyer||'ผู้ซื้อขี้ไก่'),kind:'dung',kindL:'ส่งขี้ไก่',qty:x.qty,qtyTxt:`${n0(x.qty)} ${esc(x.unit||'')}`,time:o.time||'08:00',truck:o.truck||'รถผู้ซื้อ',driver:o.driver||'–',loaders:o.loaders||['พี่ต้น (ตัวอย่าง)'],status:o.status||(x.date<T?'done':'plan'),total:x.total});});
+    out.push({id,date:x.date,to:cleanName(x.buyer||'ผู้ซื้อขี้ไก่'),kind:'dung',kindL:'ส่งขี้ไก่',qty:x.qty,qtyTxt:`${n0(x.qty)} ${esc(x.unit||'')}`,time:o.time||'',truck:o.truck||'',driver:o.driver||'',loaders:o.loaders||[],status:o.status||(x.date<T?'done':'plan'),total:x.total});});
   return out.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(a.time<b.time?-1:1));}
 const DST={plan:['รอส่ง','warn'],load:['กำลังโหลด','info'],sent:['ออกรถแล้ว','info'],done:['ส่งถึงแล้ว','ok']};
 let dvTab='today';
 function delivCard(x,money){return `<div class="dv"><div class="dv-h"><b>${esc(x.kindL)}</b><span class="badge ${DST[x.status][1]}">${DST[x.status][0]}</span></div>
   <div class="dv-to">${ico(x.kind==='egg'?'egg':x.kind==='hen'?'chick':'sack')} ${esc(x.to)}${x.retail?' <span class="badge">ลูกค้าปลีก</span>':''}</div>
-  <small>${thDate(x.date)} ${x.time} · ${x.qtyTxt}</small><small>รถ ${esc(x.truck)} · คนขับ ${esc(x.driver)} · คนยกของ ${x.loaders.map(esc).join(', ')}</small>
+  <small>${thDate(x.date)}${x.time?' '+esc(x.time):''} · ${x.qtyTxt}</small><small>${[x.truck?'รถ '+esc(x.truck):'',x.driver?'คนขับ '+esc(x.driver):'',x.loaders.length?'คนยกของ '+x.loaders.map(esc).join(', '):''].filter(Boolean).join(' · ')||'ยังไม่ได้ใส่รถและคนขับ'}</small>
   ${money&&x.total?`<small>มูลค่า ${baht(Math.round(x.total))} บาท</small>`:''}
   ${money&&x.status!=='done'?`<div class="dv-act">${Object.entries(DST).filter(([k])=>k!==x.status).map(([k,[l]])=>`<button class="btn ghost sm" type="button" data-dv="${esc(x.id)}" data-st="${k}">${l}</button>`).join('')}</div>`:''}</div>`;}
 function renderFDeliv(){const v=$('vFDeliv');if(v.hidden)return;const T=today();const L=delivList();
@@ -4680,7 +4648,7 @@ $('vFCustomers').addEventListener('click',async e=>{const i=e.target.closest('[d
 
 /* ---------- customer (retail shop) screen ---------- */
 function renderCust(){const v=$('vCust');if(v.hidden)return;const b=buyers.find(x=>x.id===previewBid);if(!b){v.innerHTML='<div class="empty">ไม่พบร้านนี้</div>';return;}
-  v.innerHTML=`<div class="hello"><h2>สวัสดี ${esc(cleanName(b.name))}</h2><p>ไข่ที่ซื้อจากปรียาฟาร์ม รอบส่ง และยอดค้างจ่ายของร้าน</p></div><div class="panel">${custDetailHTML(b,false)}</div>`;}
+  v.innerHTML=`<div class="hello"><h2>สวัสดี ${esc(cleanName(b.name))}</h2><p>ไข่ที่ซื้อจาก${FN()} รอบส่ง และยอดค้างจ่ายของร้าน</p></div><div class="panel">${custDetailHTML(b,false)}</div>`;}
 
 /* ---------- ล้ง: customers & deliveries ---------- */
 let lcSel=null;
@@ -4696,7 +4664,7 @@ function renderLDeliv(){const v=$('vLDeliv');if(v.hidden)return;const L=lData();
   const inn=(L.tx||[]).filter(t=>t.type==='sale'&&t.date>=addDays(T,-6)).sort((a,b)=>a.date<b.date?1:-1);
   const out=(L.outs||[]).filter(o=>o.type==='sale'&&o.date>=addDays(T,-6)).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(a.at<b.at?-1:1));
   v.innerHTML=`<div class="hello"><h2>จัดส่ง</h2><p>ไข่ที่รับเข้าจากฟาร์ม และรอบส่งไข่ให้ลูกค้าของล้ง 7 วันล่าสุด</p></div>
-   <div class="panel"><div class="panel-h"><h2>รับเข้าจากฟาร์ม</h2></div><div class="dvs">${inn.map(t=>`<div class="dv"><div class="dv-h"><b>รับไข่จากปรียาฟาร์ม</b><span class="badge ok">รับแล้ว</span></div><small>${thDate(t.date)} · ${itemsTxt(t.items)} (${n0(eggQty(t.items)*EPT)} ฟอง)</small></div>`).join('')||'<div class="empty">7 วันนี้ยังไม่มีรอบรับ</div>'}</div></div>
+   <div class="panel"><div class="panel-h"><h2>รับเข้าจากฟาร์ม</h2></div><div class="dvs">${inn.map(t=>`<div class="dv"><div class="dv-h"><b>รับไข่จาก${FN()}</b><span class="badge ok">รับแล้ว</span></div><small>${thDate(t.date)} · ${itemsTxt(t.items)} (${n0(eggQty(t.items)*EPT)} ฟอง)</small></div>`).join('')||'<div class="empty">7 วันนี้ยังไม่มีรอบรับ</div>'}</div></div>
    <div class="panel"><div class="panel-h"><h2>ส่งให้ลูกค้า</h2>${isPreview()?'<div class="meta">ข้อมูลตัวอย่าง</div>':''}</div><div class="dvs">${out.map(o=>`<div class="dv"><div class="dv-h"><b>${esc(o.customer||'ลูกค้า')}</b><span class="badge ${o.date<T?'ok':'warn'}">${o.date<T?'ส่งถึงแล้ว':'รอส่ง'}</span></div><small>${thDate(o.date)} · ${itemsTxt(o.items)} (${n0(eggQty(o.items)*EPT)} ฟอง)</small><small>เป็นเงิน ${baht(o.total)} บาท</small></div>`).join('')||'<div class="empty">7 วันนี้ยังไม่มีรอบส่ง</div>'}</div></div>`;}
 function renderV17(){if(!portal)return;['vWork','vCust','vFDeliv','vFCustomers','vLCust','vLDeliv'].forEach(id=>{if(!$(id).hidden)({vWork:renderWork,vCust:renderCust,vFDeliv:renderFDeliv,vFCustomers:renderFCust,vLCust:renderLCust,vLDeliv:renderLDeliv})[id]();});
   if(portal==='work')setIdentity('work');}
@@ -4706,13 +4674,13 @@ const L_TABS=[['l-overview','หน้าแรก','vLOverview','home'],['l-rec
 document.querySelector('#doorWork .toolbox').innerHTML=['syringe','wrench','chick','egg','truck','heart'].map(n=>`<i>${ico(n)}</i>`).join('');
 const T_TABS=[['t-repair','จดงานซ่อม','vTRepair','wrench']];
 const ALL_VIEWS=[...new Set([...FARM_TABS,...L_TABS,...T_TABS].map(t=>t[2]).concat(['vWork','vCust','viewNone']))];
-const tabsOf=p=>p==='farm'?FARM_TABS:p==='tech'?T_TABS:p==='work'?wTabs():p==='cust'?C_TABS:L_TABS;
+const tabsOf=p=>p==='farm'?FARM_TABS.filter(t=>t[0]!=='f-control'||CFG.sensors):p==='tech'?T_TABS:p==='work'?wTabs():p==='cust'?C_TABS:L_TABS;
 function renderGate(){
   $('gate').hidden=false;$('appbar').hidden=true;$('previewBanner').hidden=true;ALL_VIEWS.forEach(v=>$(v).hidden=true);
   document.body.dataset.portal='';document.body.classList.remove('has-nav');
   if(guestMode){$('gateWho').textContent='ยังไม่ได้ Sign in เปิดให้ลองใช้ทุกหน้าด้วยข้อมูลตัวอย่าง';}
   const who=myName?`ลงชื่อในชื่อ ${myName}`:(db?'ลงชื่อเข้าใช้แล้ว':'ยังไม่ได้ลงชื่อเข้าใช้ เปิดดูได้อย่างเดียว');
-  if(!guestMode)$('gateWho').textContent=role==='farm'?`${who} บัญชีนี้เป็นของปรียาฟาร์ม กดเข้าหน้าฟาร์มได้เลย`:role==='lhong'?`${who} กดเข้าหน้าล้งได้เลย`:`${who} บัญชีนี้ยังไม่ได้รับสิทธิ์ ติดต่อปรียาฟาร์มเพื่อเพิ่มชื่อคุณ`;
+  if(!guestMode)$('gateWho').textContent=role==='farm'?`${who} บัญชีนี้เป็นของ${FN()} กดเข้าหน้าฟาร์มได้เลย`:role==='lhong'?`${who} กดเข้าหน้าล้งได้เลย`:`${who} บัญชีนี้ยังไม่ได้รับสิทธิ์ ติดต่อ${FN()}เพื่อเพิ่มชื่อคุณ`;
   const fOk=canFarm,lOk=role==='lhong'||role==='farm';$('gateSignin').hidden=!guestMode;
   $('doorFarm').classList.toggle('off',!fOk);$('enterFarm').disabled=!fOk;$('doorFarm').classList.toggle('mine',role==='farm');
   $('farmState').textContent=fOk?'':'บัญชีนี้ไม่ใช่บัญชีฟาร์ม';
@@ -4773,6 +4741,19 @@ function route(){
 addEventListener('hashchange',route);
 
 /* ---------- data ---------- */
+function applyStandards(list){Object.keys(STD).forEach(k=>delete STD[k]);Object.keys(BW_STD).forEach(k=>delete BW_STD[k]);
+  list.forEach(d=>{const rows=(d.rows||[]).slice().sort((a,b)=>a.w-b.w);const lay=rows.filter(r=>r.hd!=null);
+    if(lay.length){const start=lay[0].w,end=lay[lay.length-1].w,byW=Object.fromEntries(rows.map(r=>[r.w,r]));const hd=[],ew=[],surv=[],cum=[];
+      for(let w=start;w<=end;w++){const r=byW[w]||{};hd.push(r.hd??null);ew.push(r.ew??null);surv.push(r.surv??null);cum.push(r.cum??null);}
+      STD[d.breed]={src:d.src||'',approx:!!d.approx,start,hd,ew,surv,cum};}
+    const bw=rows.filter(r=>r.bwMin!=null&&r.bwMax!=null&&r.w>=1);if(bw.length){const T=[];bw.forEach(r=>{T[r.w-1]=[r.bwMin,r.bwMax];});for(let i=0;i<T.length;i++)if(!T[i])T[i]=T[i-1]||T.find(Boolean);BW_STD[d.breed]=T;}});
+  BREEDS.splice(0,BREEDS.length,...Object.keys(STD).sort());}
+function applyReference(R){const put=(arr,v)=>arr.splice(0,arr.length,...(v||[]));
+  put(VAC_PROG,(R.vacProg||[]).map(x=>[+x.day,x.name]).sort((a,b)=>a[0]-b[0]));
+  put(FEED_PHASES,(R.feedPhases||[]).map(x=>({a:+x.fromWeek,b:+x.toWeek,name:x.name,cp:x.protein,ca:x.calcium})).sort((a,b)=>a.a-b.a));
+  put(FORMULAS,FEED_PHASES.map(p=>p.name));REAR=(R.rearing||[]).map(x=>({fromDay:+x.fromDay,toDay:+x.toDay,light:x.light,temp:x.temp}));
+  const L=R.lists||{};put(VACS,L.vacs);put(CAUSES,L.deathCauses);put(METHODS_V,L.vacMethods);put(REP_CAT,L.repairCats);put(DUNG_UNITS,L.dungUnits);
+  Object.keys(BREED_INFO).forEach(k=>delete BREED_INFO[k]);Object.assign(BREED_INFO,R.breedInfo||{});put(SUPPLIES,(R.supplies||[]).map(x=>[x.name,x.key,x.why]));}
 let raf=0;const refresh=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;compute();if(!portal){renderGate();return;}try{renderV17();}catch(e){}renderOverview();renderSales();renderLhong();renderHealth();renderHousesBoard();renderPullets();renderRepairs();if(!$('vFStock').hidden&&(skTab==='see'||skTab==='log'))renderStock();if(!$('vFSell').hidden&&slTab==='see')renderSell();if(!$('vFGuide').hidden)renderGuide();if(window.ctlSync)window.ctlSync(ctlInfo());if(!$('vFFeed').hidden&&fdTab==='see')renderFeed();if(!$('vFCost').hidden&&cTab!=='sim')renderCost();if(!$('vFCost').hidden&&cTab==='sim'&&!document.activeElement.matches('input[type=range]'))renderSim();renderFarmToday&&!$('vFOverview').hidden;renderTechList();});};
 compute();
 if(db){
@@ -4780,6 +4761,10 @@ if(db){
     SIZES.forEach(([k])=>{if(prices.p&&prices.p[k]!=null)$('pp_'+k).value=prices.p[k];});
     $('priceMeta').textContent=prices.updatedAt?'ตั้งเมื่อ '+new Date(prices.updatedAt).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'ยังไม่ได้ตั้งราคา';refresh();},()=>{});
   db.doc('public/stock').onSnapshot(d=>{pubStock=d.exists?d.data():null;refresh();},()=>{});
+  /* breed standards and reference tables come from the database (หลังบ้าน → มาตรฐานและข้อมูลอ้างอิง) */
+  db.collection('taskdone').onSnapshot(s=>{const d=s.docs.find(x=>x.id===today());DONE=Object.fromEntries(Object.entries(d?d.data():{}).filter(([,v])=>v&&!v.__delete__));refresh();},()=>{});
+  db.collection('standards').onSnapshot(s=>{applyStandards(s.docs.map(d=>d.data()));refresh();},()=>{});
+  db.doc('config/reference').onSnapshot(d=>{applyReference(d.exists?d.data():{});refresh();},()=>{});
   if(role==='farm'){
     db.collection('records').orderBy('date','asc').onSnapshot(s=>{records=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
     db.collection('costs').onSnapshot(s=>{costs=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});

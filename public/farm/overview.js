@@ -4,8 +4,8 @@
 (function () {
   // the dashboard's own data and helpers, handed in on every render (they live inside its closure)
   let C = {}, A = {};
-  let records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,liveStd,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days;
-  const bind = c => ({ records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,liveStd,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days } = c);
+  let records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days;
+  const bind = c => ({ records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days } = c);
   const WEEKLY = {};            // weekly/h{n} docs: whole-flock history from the house's own Excel
   let chartHouse = null, sel = null, last = null; const HID = new Set();
 
@@ -14,16 +14,12 @@
   const sum = (a, f) => a.reduce((s, r) => s + f(r), 0);
   const fx = (v, d = 1) => v == null || !isFinite(v) ? '–' : n1(v, d);
   const latestRec = (h, D) => records.filter(r => r.house === h && r.date <= D).sort((a, b) => a.date < b.date ? 1 : -1)[0] || null;
-  const isLoh = h => /lohmann/i.test(hdoc(h).breed || '');
-  const excelStd = () => (WEEKLY.h2 && WEEKLY.h2.rows) || [];
-  const stdRowAt = (h, week) => isLoh(h) ? excelStd().find(r => r.w === week) || null : null;
   const weekOf = (h, D) => { const a = houseAgeOn(h, D); return a == null ? null : Math.floor(a / 7); };
   // breed standard for one house on one day: the farm's own Excel standard for Lohmann birds, else the published table
+  // breed standard for one house on one day, from the breed's standard table (หลังบ้าน → มาตรฐานและข้อมูลอ้างอิง)
   function stdOf(h, D) {
-    const w = weekOf(h, D); if (w == null) return null;
-    const ex = stdRowAt(h, w);
-    if (ex && ex.layStd != null) return { hd: ex.layStd, hh: ex.survStd != null ? ex.layStd * ex.survStd / 100 : null, ew: ex.ewStd, week: w };
-    const s = stdFor(h, D); return s ? { hd: s.hd, hh: s.hd * liveStd(s.week), ew: s.ew, week: s.week } : null;
+    const s = stdFor(h, D); if (!s) return null;
+    return { hd: s.hd, hh: s.surv != null ? s.hd * s.surv / 100 : null, ew: s.ew, week: s.week };
   }
   const cls = (a, b) => a == null || b == null ? '' : a - b >= -A.stdNear ? 'up' : a - b >= -A.stdWarn ? 'mid' : 'down';
   const dif = (a, b) => a == null || b == null ? '–' : `<span class="${cls(a, b)}">${a - b >= 0 ? '+' : '−'}${n1(Math.abs(a - b))}</span>`;
@@ -61,11 +57,9 @@
       });
     }
     // standards: the farm's Excel standard for Lohmann birds, the published table for the rest
-    const sx = isLoh(h) ? excelStd() : [];
     for (let w = 16; w <= 100; w++) {
-      const o = out[w] = out[w] || { w }; const s = sx.find(r => r.w === w);
-      if (s) ['survStd', 'layStd', 'cumStd', 'ewStd'].forEach(k => { if (o[k] == null && s[k] != null) o[k] = s[k]; });
-      else { const t = stdAt(H.breed, w * 7); if (t) { if (o.layStd == null) o.layStd = t.hd; if (o.ewStd == null) o.ewStd = t.ew; } }
+      const o = out[w] = out[w] || { w }; const t = stdAt(H.breed, w * 7); if (!t) continue;
+      if (o.layStd == null) o.layStd = t.hd; if (o.ewStd == null && t.ew != null) o.ewStd = t.ew; if (o.survStd == null && t.surv != null) o.survStd = t.surv; if (o.cumStd == null && t.cum != null) o.cumStd = t.cum;
     }
     // vaccine, medicine and vitamin notes from the health log
     health.filter(e => e.house === h && (e.type === 'vac' || e.type === 'med') && H.hatch).forEach(e => {
@@ -123,8 +117,6 @@
   }
 
   // ---------- farm map ----------
-  const SLOTS = [{ s: 9, x: 170, y: 206, w: 265 }, { s: 10, x: 445, y: 206, w: 265 }, { s: 8, x: 170, y: 294, w: 540 },
-    ...[[7, 418], [6, 506], [5, 594], [4, 812], [3, 900], [2, 988], [1, 1076]].map(([s, y]) => ({ s, x: 170, y, w: 540 }))];
   function houseState(h, D) {
     const H = hdoc(h); const r = latestRec(h, D); const pul = PULLETS.includes(h);
     if (H.depop) return { k: 'depop', t: 'กำลังปลดไก่', r };
@@ -135,19 +127,44 @@
     return { k: c === 'down' ? 'bad' : c === 'mid' ? 'warn' : 'ok', t: c === 'down' ? 'ต่ำกว่ามาตรฐานมาก' : c === 'mid' ? 'ต่ำกว่ามาตรฐานเล็กน้อย' : 'ตามมาตรฐาน', r };
   }
   const DOT = { ok: '#2f8a5b', warn: '#e3a21a', bad: '#c2362b', late: '#9aa6a0', depop: '#7b4fb0', empty: 'none' };
+  // houses are placed from the saved houses: pullets two to a row in the pullet zone, layers one per row with the
+  // in-farm pond and Stock room in the middle; a house's mapOrder (set in ตั้งค่าฟาร์ม) overrides the default order
+  function layoutMap() {
+    const ord = h => { const o = hdoc(h).mapOrder; return o == null || o === '' ? null : +o; };
+    const sortBy = (list, desc) => list.slice().sort((a, b) => { const oa = ord(a), ob = ord(b); if (oa != null && ob != null) return oa - ob; if (oa != null) return -1; if (ob != null) return 1; return desc ? b - a : a - b; });
+    const M = C.map || {}, top = M.top || [], H = 78, G = 10, X = 170, W = 540;
+    let y = 44; const bands = top.map((t, i) => { const b = { t, y, water: i === 0 && /บ่อ|น้ำ/.test(t) }; y += 78; return b; });
+    const slots = []; const pz = { y0: y - 6 };
+    const pl = sortBy(PULLETS, false);
+    for (let i = 0; i < pl.length; i += 2) {
+      if (i + 1 < pl.length) { slots.push({ s: pl[i], x: X, y: y + 6, w: (W - G) / 2 }, { s: pl[i + 1], x: X + (W + G) / 2, y: y + 6, w: (W - G) / 2 }); }
+      else slots.push({ s: pl[i], x: X, y: y + 6, w: W });
+      y += H + G;
+    }
+    pz.y1 = y + 4; y += pl.length ? 24 : 0;
+    const lz = { y0: y - 4 }; const ll = sortBy(LAYERS, true); const mid = Math.floor(ll.length / 2); let midY = null;
+    ll.forEach((h, i) => { if (i === mid && M.showStock !== false) { midY = y + 10; y += 124; } slots.push({ s: h, x: X, y: y + 10, w: W }); y += H + G; });
+    if (midY == null && M.showStock !== false) { midY = y + 10; y += 124; }
+    lz.y1 = y + 14;
+    return { bands, slots, pz: pl.length ? pz : null, lz: ll.length ? lz : null, midY, MH: y + 110 };
+  }
   function mapSVG(D) {
-    const MH = 1250; const VB = innerWidth < 640 ? `92 20 724 ${MH - 40}` : `0 0 1000 ${MH}`; let g = `<svg viewBox="${VB}" class="xo-map" role="img" aria-label="ผังฟาร์มและสถานะของแต่ละเล้า"><defs><pattern id="xwv" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#cfe3ef"/><path d="M0 8 Q4 5 8 8 T16 8" stroke="#fff" stroke-opacity=".5" fill="none" stroke-width="1.5"/></pattern><pattern id="xdp" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="14" height="14" fill="#e9e4f3"/><path d="M0 0V14" stroke="#b9a9d9" stroke-width="5"/></pattern></defs>`;
+    const L = layoutMap(), M = C.map || {}, MH = L.MH;
+    const VB = innerWidth < 640 ? `92 20 724 ${MH - 40}` : `0 0 1000 ${MH}`;
+    let g = `<svg viewBox="${VB}" class="xo-map" role="img" aria-label="ผังฟาร์มและสถานะของแต่ละเล้า"><defs><pattern id="xwv" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#cfe3ef"/><path d="M0 8 Q4 5 8 8 T16 8" stroke="#fff" stroke-opacity=".5" fill="none" stroke-width="1.5"/></pattern><pattern id="xdp" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="14" height="14" fill="#e9e4f3"/><path d="M0 0V14" stroke="#b9a9d9" stroke-width="5"/></pattern></defs>`;
     g += `<rect width="1000" height="${MH}" rx="28" fill="url(#xwv)"/><rect x="90" y="24" width="720" height="${MH - 48}" rx="22" fill="#eef3e6" stroke="#d6d2c4" stroke-width="16"/>`;
     g += `<rect x="742" y="40" width="44" height="${MH - 110}" fill="#d6d2c4"/><rect x="905" y="0" width="70" height="${MH}" fill="#d6d2c4"/>`;
-    g += `<text x="940" y="${MH / 2}" class="m-t" transform="rotate(-90 940 ${MH / 2})">ถนนหน้าฟาร์ม</text><text x="48" y="${MH / 2}" class="m-m" transform="rotate(-90 48 ${MH / 2})">คลอง</text><text x="858" y="${MH / 2}" class="m-m" transform="rotate(-90 858 ${MH / 2})">บ่อน้ำ</text>`;
-    g += `<rect x="170" y="44" width="540" height="62" rx="8" fill="url(#xwv)" stroke="#e3a21a" stroke-width="4" stroke-dasharray="12 8"/><text x="440" y="87" class="m-t">ขยายบ่อน้ำ</text>`;
-    g += `<rect x="200" y="122" width="480" height="62" rx="8" fill="#5ba34a"/><text x="440" y="165" class="m-t" fill="#fff">บ้านคนงาน</text>`;
-    g += `<rect x="156" y="194" width="568" height="190" rx="12" fill="none" stroke="#c2362b" stroke-width="4" stroke-dasharray="14 8"/><rect x="100" y="208" width="48" height="162" rx="8" fill="#c2362b"/><text x="132" y="289" class="m-z" fill="#fff" transform="rotate(-90 132 289)">ไก่เล็ก</text>`;
-    g += `<rect x="156" y="404" width="568" height="764" rx="12" fill="none" stroke="#e3a21a" stroke-width="4" stroke-dasharray="14 8"/><rect x="100" y="700" width="48" height="170" rx="8" fill="#e3a21a"/><text x="132" y="785" class="m-z" fill="#2a1b00" transform="rotate(-90 132 785)">ไก่ไข่</text>`;
-    g += `<rect x="172" y="690" width="262" height="104" rx="44" fill="url(#xwv)"/><text x="303" y="752" class="m-m">บ่อน้ำในฟาร์ม</text>`;
-    g += `<g class="xo-hs" role="button" tabindex="0" data-h="stock" aria-label="ห้อง Stock"><rect x="452" y="684" width="258" height="116" rx="10" fill="#fff" stroke="${sel === 'stock' ? '#17231d' : '#2f6fd6'}" stroke-width="${sel === 'stock' ? 6 : 4}"/><text x="581" y="734" class="m-h" fill="#173b8c">Stock</text><text x="581" y="778" class="m-s">ห้องเก็บไข่</text></g>`;
-    g += `<rect x="786" y="${MH - 104}" width="119" height="34" fill="#d6d2c4"/><rect x="600" y="${MH - 66}" width="140" height="50" rx="8" fill="#fff" stroke="#7a8f2c" stroke-width="3"/><text x="670" y="${MH - 31}" class="m-m" fill="#55661c">จุดฆ่าเชื้อ</text><text x="845" y="${MH - 40}" class="m-m">ทางเข้า</text>`;
-    SLOTS.forEach(sl => {
+    const side = (x, t, cls) => t ? `<text x="${x}" y="${MH / 2}" class="${cls}" transform="rotate(-90 ${x} ${MH / 2})">${esc(t)}</text>` : '';
+    g += side(940, M.road, 'm-t') + side(48, M.left, 'm-m') + side(858, M.right, 'm-m');
+    L.bands.forEach(b => { g += b.water ? `<rect x="170" y="${b.y}" width="540" height="62" rx="8" fill="url(#xwv)" stroke="#e3a21a" stroke-width="4" stroke-dasharray="12 8"/><text x="440" y="${b.y + 43}" class="m-t">${esc(b.t)}</text>` : `<rect x="200" y="${b.y}" width="480" height="62" rx="8" fill="#5ba34a"/><text x="440" y="${b.y + 43}" class="m-t" fill="#fff">${esc(b.t)}</text>`; });
+    const zone = (z, col, label, ink) => { if (!z) return ''; const hgt = z.y1 - z.y0, tag = Math.min(170, hgt - 20), ty = z.y0 + (hgt - tag) / 2; return `<rect x="156" y="${z.y0}" width="568" height="${hgt}" rx="12" fill="none" stroke="${col}" stroke-width="4" stroke-dasharray="14 8"/><rect x="100" y="${ty}" width="48" height="${tag}" rx="8" fill="${col}"/><text x="132" y="${ty + tag / 2}" class="m-z" fill="${ink}" transform="rotate(-90 132 ${ty + tag / 2})">${label}</text>`; };
+    g += zone(L.pz, '#c2362b', 'ไก่เล็ก', '#fff') + zone(L.lz, '#e3a21a', 'ไก่ไข่', '#2a1b00');
+    if (L.midY != null) {
+      g += `<rect x="172" y="${L.midY + 6}" width="262" height="104" rx="44" fill="url(#xwv)"/><text x="303" y="${L.midY + 68}" class="m-m">${esc(M.pond || '')}</text>`;
+      g += `<g class="xo-hs" role="button" tabindex="0" data-h="stock" aria-label="ห้อง Stock"><rect x="452" y="${L.midY}" width="258" height="116" rx="10" fill="#fff" stroke="${sel === 'stock' ? '#17231d' : '#2f6fd6'}" stroke-width="${sel === 'stock' ? 6 : 4}"/><text x="581" y="${L.midY + 50}" class="m-h" fill="#173b8c">Stock</text><text x="581" y="${L.midY + 94}" class="m-s">ห้องเก็บไข่</text></g>`;
+    }
+    g += `<rect x="786" y="${MH - 104}" width="119" height="34" fill="#d6d2c4"/>${M.gate ? `<rect x="600" y="${MH - 66}" width="140" height="50" rx="8" fill="#fff" stroke="#7a8f2c" stroke-width="3"/><text x="670" y="${MH - 31}" class="m-m" fill="#55661c">${esc(M.gate)}</text>` : ''}${M.entrance ? `<text x="845" y="${MH - 40}" class="m-m">${esc(M.entrance)}</text>` : ''}`;
+    L.slots.forEach(sl => {
       const h = sl.s, H = hdoc(h), s = houseState(h, D), pul = PULLETS.includes(h), r = s.r, Hh = 78, on = sel === h;
       const fill = s.k === 'empty' ? 'none' : s.k === 'depop' ? 'url(#xdp)' : pul ? '#f7d3cc' : '#f8dc98';
       const half = sl.w < 400;

@@ -52,6 +52,8 @@ pre.ocr{white-space:pre-wrap;max-height:360px;overflow:auto;background:var(--sur
   <a href="#inbox" data-r="inbox">📥 กล่องเอกสาร <span class="badge" id="nPend" hidden></span></a>
   <a href="#upload" data-r="upload">📷 ส่งรูปเอกสารเอง</a>
   <div class="grp admin">ตั้งค่า</div>
+  <a href="#farm" data-r="farm" class="admin">🏠 ตั้งค่าฟาร์ม</a>
+  <a href="#std" data-r="std" class="admin">📏 มาตรฐานและข้อมูลอ้างอิง</a>
   <a href="#accounts" data-r="accounts" class="admin">👥 บัญชีผู้ใช้</a>
   <a href="#line" data-r="line" class="admin">💬 LINE OA</a>
   <a href="#ai" data-r="ai" class="admin">✨ ตั้งค่า AI</a>
@@ -370,6 +372,103 @@ R.lab = async () => {
         ${results.filter(r => r.text || r.error).map(r => `<div class="card"><b>${esc(r.cfg.label || r.cfg.model)}</b> <small>${(r.ms / 1000).toFixed(1)} วิ</small>${r.error ? `<div class="status err">${esc(r.error)}</div>` : `<pre class="ocr">${esc(r.text)}</pre>`}</div>`).join('')}</div></div>`;
     } catch (e) { $('#sLab').className = 'status err'; $('#sLab').textContent = e.message; }
   };
+};
+
+
+/* ---------------- farm settings ---------------- */
+R.farm = async () => {
+  const { config: c } = await api('GET', 'settings/farm'); const { houses } = await api('GET', 'settings/houses');
+  const A = c.alerts, num = (k, v, label, step = 'any', hint = '') => `<label class="f">${label}<input type="number" step="${step}" min="0" data-k="${k}" value="${v ?? ''}">${hint ? `<small>${hint}</small>` : ''}</label>`;
+  const AL = [['stdNear', 'เขียว: ต่ำกว่ามาตรฐานไม่เกิน (จุด)'], ['stdWarn', 'เหลือง: ต่ำกว่ามาตรฐานไม่เกิน (จุด)'], ['stdCrit', 'แดงเข้ม: ต่ำกว่ามาตรฐานเกิน (จุด)'],
+    ['hdDropWarn', 'ไข่ลดจากค่าเฉลี่ย 7 วัน เตือนเมื่อเกิน (จุด)'], ['hdDropCrit', 'ไข่ลด เตือนแรงเมื่อเกิน (จุด)'], ['deadWarnPct', 'ไก่ตายต่อวัน เตือนเมื่อถึง (%)'], ['deadCritPct', 'ไก่ตายต่อวัน เตือนแรงเมื่อถึง (%)'],
+    ['waterFeedChangePct', 'น้ำต่ออาหารเปลี่ยนเกิน (%)'], ['waterChangePct', 'รายงานเสียง: น้ำเปลี่ยนจากวันก่อนเกิน (%)'], ['feedDropPct', 'กินอาหารน้อยลงเกิน (%)'], ['crackPct', 'ไข่แตกเกิน (%)'],
+    ['oweBaht', 'ทวงเงินเมื่อค้างเกิน (บาท)'], ['oweDays', 'และค้างนานกว่ายอดขาย (วัน)'], ['oweCritDays', 'เตือนแรงเมื่อค้างนานกว่า (วัน)'], ['eggOldDays', 'ไข่ค้างในฟาร์มนานเกิน (วัน)'],
+    ['bwNearPct', 'น้ำหนักไก่เล็กห่างมาตรฐานไม่เกิน (%) = ปกติ'], ['bwWarnPct', 'น้ำหนักไก่เล็กห่างมาตรฐานเกิน (%) = เตือน'], ['weighEveryDays', 'เตือนชั่งไก่เล็กทุก (วัน)'], ['moveSoonDays', 'เตือนก่อนย้ายไก่เล็ก (วัน)'], ['siloLowDays', 'อาหารในไซโลเหลือน้อยกว่า (วัน)']];
+  const hRow = h => `<tr data-no="${h.no}"><td><b>เล้า ${h.no}</b></td><td><select class="hType"><option value="layer" ${h.type !== 'pullet' ? 'selected' : ''}>ไก่ไข่</option><option value="pullet" ${h.type === 'pullet' ? 'selected' : ''}>ไก่เล็ก</option></select></td>
+    <td><input class="hTiers" type="number" min="1" max="12" value="${h.tiers ?? ''}" style="width:80px"></td><td><input class="hOrd" type="number" min="1" value="${h.mapOrder ?? ''}" style="width:80px" placeholder="อัตโนมัติ"></td>
+    <td>${h.status === 'removed' ? '<span class="pill warn">ถอดออกแล้ว</span> <button class="btn ghost sm hBack">ใช้อีกครั้ง</button>' : '<button class="btn ghost sm danger hDel">ถอดเล้านี้ออก</button>'}</td></tr>`;
+  M.innerHTML = `<div class="ph"><div><h1>ตั้งค่าฟาร์ม</h1><p>ค่าที่ทุกหน้าใช้คำนวณและเตือน แก้ที่นี่ที่เดียว ทุกหน้าเปลี่ยนตามภายในไม่กี่วินาที</p></div></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));align-items:start">
+   <form id="fFarm" class="card grid"><h3>ฟาร์มและการบรรจุไข่</h3>
+    <label class="f">ชื่อฟาร์ม<input name="name" value="${esc(c.name || '')}" required></label>
+    <div class="grid g3">${num('eggsPerTray', c.eggsPerTray, 'ไข่ต่อแผง (ฟอง)', '1')}${num('traysPerCrate', c.traysPerCrate, 'แผงต่อลัง', '1')}${num('trayKg', c.trayKg, 'แผงเปล่าต่อลัง (กก.)', '0.1', 'ใช้หักออกตอนคิดน้ำหนักไข่ต่อฟอง')}</div>
+    <h3>รอบการเลี้ยง</h3>
+    <div class="grid g3">${num('restDays', c.restDays, 'พักเล้า (วัน)', '1')}${num('moveWeek', c.moveWeek, 'ย้ายไก่เล็กขึ้นกรง (สัปดาห์)', '1')}${num('depopWeek', c.depopWeek, 'ปลดไก่ (สัปดาห์)', '1')}</div>
+    <h3>ส่งสรุปประจำวันทาง LINE</h3>
+    ${num('summaryHour', c.summaryHour, 'ส่งได้ตั้งแต่เวลา (ชั่วโมง 0–23)', '1', 'ระบบบน Vercel แพ็กเกจฟรีเรียกส่งวันละครั้งตอน 18:00 ถ้าตั้งหลัง 18 นาฬิกา ต้องมีระบบอื่น (เช่น n8n) เรียกลิงก์ส่งสรุปทุกชั่วโมง')}
+    <h3>เกณฑ์แจ้งเตือน</h3>
+    <div class="grid g2">${AL.map(([k, l]) => num('alerts.' + k, A[k], l)).join('')}</div>
+    <h3>ชื่อจุดต่างๆ บนผังฟาร์ม</h3>
+    <label class="f">แถบด้านบน (บรรทัดละหนึ่งอย่าง เรียงจากบนลงล่าง)<textarea data-k="map.top" rows="2">${esc((c.map.top || []).join('\n'))}</textarea></label>
+    <div class="grid g3">${[['left', 'ด้านซ้าย'], ['right', 'ด้านขวา'], ['road', 'ถนน'], ['pond', 'บ่อน้ำกลางฟาร์ม'], ['gate', 'จุดฆ่าเชื้อ'], ['entrance', 'ทางเข้า']].map(([k, l]) => `<label class="f">${l}<input data-k="map.${k}" value="${esc(c.map[k] || '')}"></label>`).join('')}</div>
+    <label class="chk"><input type="checkbox" data-k="map.showStock" ${c.map.showStock !== false ? 'checked' : ''}>แสดงห้อง Stock บนผัง</label>
+    <div class="row"><button class="btn" type="submit">บันทึกค่าฟาร์ม</button><span class="status" id="sFarm"></span></div>
+   </form>
+   <div class="card grid"><h3>เล้าในฟาร์ม</h3><p class="muted">ประเภทเล้ากำหนดว่าเล้าไปอยู่ฝั่งไก่ไข่หรือไก่เล็กในทุกหน้า ลำดับบนผัง: ไก่เล็กเรียงซ้ายไปขวาทีละ 2 เล้า ไก่ไข่เรียงจากบนลงล่าง เว้นว่างไว้ให้ระบบเรียงตามเลขเล้า สายพันธุ์ วันเกิด และจำนวนไก่ แก้ในหน้าเล้าและไก่ของแดชบอร์ด</p>
+    <div class="tbl"><table><tr><th>เล้า</th><th>ประเภท</th><th>จำนวนชั้น</th><th>ลำดับบนผัง</th><th></th></tr><tbody id="hBody">${houses.sort((a, b) => a.no - b.no).map(hRow).join('')}</tbody></table></div>
+    <div class="row"><input id="hNew" type="number" min="1" placeholder="เลขเล้าใหม่" style="width:140px"><select id="hNewT"><option value="layer">ไก่ไข่</option><option value="pullet">ไก่เล็ก</option></select><button class="btn ghost" id="hAdd">เพิ่มเล้า</button><span class="status" id="sHouse"></span></div>
+   </div>
+  </div>`;
+  $('#fFarm').onsubmit = async e => {
+    e.preventDefault(); const b = { name: e.target.name.value, alerts: {}, map: {} };
+    $$('#fFarm [data-k]').forEach(i => { const k = i.dataset.k; const v = i.type === 'checkbox' ? i.checked : k === 'map.top' ? i.value.split('\n').map(s => s.trim()).filter(Boolean) : i.value;
+      if (k.startsWith('alerts.')) b.alerts[k.slice(7)] = v; else if (k.startsWith('map.')) b.map[k.slice(4)] = v; else b[k] = v; });
+    try { await api('POST', 'settings/farm', b); $('#sFarm').className = 'status ok'; $('#sFarm').textContent = 'บันทึกแล้ว'; $$('.fname').forEach(x => x.textContent = b.name); } catch (er) { $('#sFarm').className = 'status err'; $('#sFarm').textContent = er.message; }
+  };
+  const save = async (no, data) => { try { await api('POST', 'db/write', { op: 'update', path: 'houses/h' + no, data }); $('#sHouse').className = 'status ok'; $('#sHouse').textContent = `บันทึกเล้า ${no} แล้ว`; } catch (er) { $('#sHouse').className = 'status err'; $('#sHouse').textContent = er.message; } };
+  $('#hBody').addEventListener('change', e => { const tr = e.target.closest('tr'); const no = +tr.dataset.no; const n = v => v === '' ? null : +v;
+    if (e.target.matches('.hType')) save(no, { type: e.target.value }); if (e.target.matches('.hTiers')) save(no, { tiers: n(e.target.value) }); if (e.target.matches('.hOrd')) save(no, { mapOrder: n(e.target.value) }); });
+  $('#hBody').addEventListener('click', async e => { const tr = e.target.closest('tr'); if (!tr) return; const no = +tr.dataset.no;
+    if (e.target.matches('.hDel')) { if (!confirmAsk(`ถอดเล้า ${no} ออกจากทุกหน้า? ข้อมูลเก่าของเล้านี้ยังเก็บไว้`)) return; await save(no, { status: 'removed' }); R.farm(); }
+    if (e.target.matches('.hBack')) { await save(no, { status: 'ready' }); R.farm(); } });
+  $('#hAdd').onclick = async () => { const no = +$('#hNew').value; if (!(no > 0)) return; if (houses.some(h => +h.no === no && h.status !== 'removed')) { $('#sHouse').textContent = 'มีเล้านี้แล้ว'; return; }
+    await save(no, { no, type: $('#hNewT').value, status: 'ready', birds: 0 }); R.farm(); };
+};
+
+
+/* ---------------- standards & reference tables ---------------- */
+// tables are edited as tab-separated text, so a block copied from Excel can be pasted straight in
+const TSV = { parse: (txt, keys) => txt.split('\n').map(l => l.replace(/\r$/, '')).filter(l => l.trim()).map(l => l.split(/\t|\s{2,}|,(?=\s*\d)/)).filter(c => !isNaN(parseFloat(c[0]))).map(c => Object.fromEntries(keys.map((k, i) => [k, c[i] == null ? '' : c[i].trim()]))),
+  out: (rows, keys) => rows.map(r => keys.map(k => r[k] ?? '').join('\t')).join('\n') };
+R.std = async () => {
+  const { standards, reference: ref } = await api('GET', 'settings/reference');
+  const SK = ['w', 'hd', 'ew', 'surv', 'cum', 'bwMin', 'bwMax'], SH = 'สัปดาห์\t%ไข่ (Hen-day)\tน้ำหนักไข่ (กรัม)\t%เลี้ยงรอด\tไข่สะสมต่อแม่\tน้ำหนักตัวต่ำสุด (กรัม)\tน้ำหนักตัวสูงสุด (กรัม)';
+  const tbl = (id, head, rows, keys, h = 10) => `<label class="f">${head.split('\t').join(' · ')}<textarea id="${id}" rows="${h}" class="mono" spellcheck="false">${esc(TSV.out(rows || [], keys))}</textarea></label>`;
+  const L = ref.lists || {};
+  M.innerHTML = `<div class="ph"><div><h1>มาตรฐานและข้อมูลอ้างอิง</h1><p>ตารางมาตรฐานสายพันธุ์ โปรแกรมวัคซีน ระยะอาหาร แสงและอุณหภูมิ และรายการตัวเลือกในฟอร์ม แก้ที่นี่แล้วทุกหน้าใช้ค่าใหม่ทันที ตารางวางจาก Excel ได้เลย (คัดลอกทั้งแถว ไม่ต้องมีหัวตาราง)</p></div></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));align-items:start">
+   <div class="card grid"><h3>มาตรฐานสายพันธุ์</h3>
+    <div class="row"><select id="sBreed">${standards.map(s => `<option value="${esc(s.id)}">${esc(s.breed)}</option>`).join('')}<option value="__new">+ เพิ่มสายพันธุ์ใหม่</option></select></div>
+    <div id="sForm" class="grid"></div></div>
+   <div class="card grid"><h3>โปรแกรมวัคซีน</h3>${tbl('tVac', 'อายุ (วัน)\tชื่อวัคซีน', ref.vacProg, ['day', 'name'], 8)}
+    <h3>ระยะอาหาร</h3>${tbl('tFeed', 'สัปดาห์เริ่ม\tสัปดาห์สิ้นสุด\tชื่ออาหาร\tโปรตีน (%)\tแคลเซียม (%)', ref.feedPhases, ['fromWeek', 'toWeek', 'name', 'protein', 'calcium'], 7)}
+    <h3>แสงและอุณหภูมิตามอายุ</h3>${tbl('tRear', 'จากวันที่\tถึงวันที่\tชั่วโมงแสง\tอุณหภูมิ (°C)', ref.rearing, ['fromDay', 'toDay', 'light', 'temp'], 7)}
+    <h3>ตัวเลือกในฟอร์ม (บรรทัดละหนึ่งอย่าง)</h3>
+    <div class="grid g2">${[['vacs', 'ชื่อวัคซีน'], ['vacMethods', 'วิธีให้วัคซีน'], ['deathCauses', 'สาเหตุไก่ตาย'], ['repairCats', 'หมวดงานซ่อม'], ['dungUnits', 'หน่วยขายขี้ไก่']].map(([k, l]) => `<label class="f">${l}<textarea data-list="${k}" rows="5">${esc((L[k] || []).join('\n'))}</textarea></label>`).join('')}</div>
+    <details><summary>คู่มือสายพันธุ์และรายการยา-วัสดุ (สำหรับคนที่แก้ JSON เป็น)</summary>
+     <label class="f">คู่มือสายพันธุ์<textarea id="tGuide" rows="8" class="mono" spellcheck="false">${esc(JSON.stringify(ref.breedInfo || {}, null, 1))}</textarea></label>
+     <label class="f">รายการยาและวัสดุที่ควรมี<textarea id="tSup" rows="6" class="mono" spellcheck="false">${esc(JSON.stringify(ref.supplies || [], null, 1))}</textarea></label></details>
+    <div class="row"><button class="btn" id="bRef">บันทึกตารางด้านบนทั้งหมด</button><span class="status" id="sRef"></span></div></div>
+  </div>`;
+  const form = id => { const s = standards.find(x => x.id === id) || { breed: '', src: '', approx: false, rows: [] };
+    $('#sForm').innerHTML = `<label class="f">ชื่อสายพันธุ์ (ต้องตรงกับชื่อที่ตั้งในหน้าเล้า)<input id="sName" value="${esc(s.breed)}" ${id === '__new' ? '' : 'readonly'}></label>
+      <label class="f">ที่มาของตัวเลข<input id="sSrc" value="${esc(s.src || '')}"></label>
+      <label class="chk"><input type="checkbox" id="sApprox" ${s.approx ? 'checked' : ''}>เป็นค่าประมาณ (แสดงคำเตือนบนกราฟ)</label>
+      ${tbl('sRows', SH, s.rows, SK, 16)}
+      <small>ช่องที่ไม่มีตัวเลขเว้นว่างได้ Hen-house มาตรฐานจะคำนวณได้เมื่อมีคอลัมน์ %เลี้ยงรอด</small>
+      <div class="row"><button class="btn" id="bStd">บันทึกมาตรฐานนี้</button><span class="status" id="sStd"></span></div>`;
+    $('#bStd').onclick = async () => { try { const rows = TSV.parse($('#sRows').value, SK); const r = await api('POST', 'settings/standard', { id: id === '__new' ? '' : id, breed: $('#sName').value, src: $('#sSrc').value, approx: $('#sApprox').checked, rows });
+      $('#sStd').className = 'status ok'; $('#sStd').textContent = `บันทึก ${r.rows} สัปดาห์แล้ว`; if (id === '__new') R.std(); } catch (e) { $('#sStd').className = 'status err'; $('#sStd').textContent = e.message; } }; };
+  $('#sBreed').onchange = e => form(e.target.value); form($('#sBreed').value);
+  $('#bRef').onclick = async () => { try {
+    const n = v => v === '' ? null : Number(v);
+    const body = { vacProg: TSV.parse($('#tVac').value, ['day', 'name']).map(r => ({ day: n(r.day), name: r.name })),
+      feedPhases: TSV.parse($('#tFeed').value, ['fromWeek', 'toWeek', 'name', 'protein', 'calcium']).map(r => ({ fromWeek: n(r.fromWeek), toWeek: n(r.toWeek), name: r.name, protein: n(r.protein), calcium: n(r.calcium) })),
+      rearing: TSV.parse($('#tRear').value, ['fromDay', 'toDay', 'light', 'temp']).map(r => ({ fromDay: n(r.fromDay), toDay: n(r.toDay), light: n(r.light), temp: r.temp })),
+      lists: Object.fromEntries($$('[data-list]').map(t => [t.dataset.list, t.value.split('\n').map(s => s.trim()).filter(Boolean)])),
+      breedInfo: JSON.parse($('#tGuide').value || '{}'), supplies: JSON.parse($('#tSup').value || '[]') };
+    await api('POST', 'settings/reference', body); $('#sRef').className = 'status ok'; $('#sRef').textContent = 'บันทึกแล้ว';
+  } catch (e) { $('#sRef').className = 'status err'; $('#sRef').textContent = e instanceof SyntaxError ? 'JSON ในคู่มือหรือรายการยาไม่ถูกต้อง' : e.message; } };
 };
 
 /* ---------------- data ---------------- */
