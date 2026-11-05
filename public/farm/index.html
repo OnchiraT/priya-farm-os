@@ -1003,6 +1003,33 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
 .hp-lay em{font-family:var(--f-display);font-size:22px!important;color:#56635b!important;display:flex;align-items:baseline;gap:6px}
 .hp-lay em small{font-family:var(--f-body);font-size:12px;font-weight:500;color:var(--muted)}
 @media (max-width:520px){.hp-lay>span:not(.muted){grid-template-columns:84px 70px minmax(0,1fr) auto;gap:4px}.hp-lay strong,.hp-lay em{font-size:18px!important}}
+
+/* executive bento — one large type size for labels and numbers alike */
+.xb{--xl:clamp(24px,2.4vw,36px);margin:0 0 18px;display:flex;flex-direction:column;gap:14px}
+.xb-h{font-family:var(--f-display);font-size:var(--xl);font-weight:700;line-height:1.25}
+.xgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.xt{background:#fff;border:2px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.xt span,.xt b,.xt em,.xt small{font-family:var(--f-display);font-size:var(--xl)!important;line-height:1.2;font-weight:700;font-style:normal;overflow-wrap:anywhere}
+.xt span{color:var(--muted)}.xt b{font-variant-numeric:tabular-nums;color:var(--ink,#17231d)}.xt small{color:var(--muted)}
+.xt em.up{color:#24804a}.xt em.down{color:#c2362b}.xt em.mid{color:#a86400}.xt em:not(.up):not(.down):not(.mid){color:var(--muted)}
+.xt.t-hd{background:#e4f1ea;border-color:#b9dcc8}.xt.t-hd b{color:#1e6a4a}
+.xt.t-hh{background:#fdf0d8;border-color:#f1d9a6}.xt.t-hh b{color:#a86400}
+.xt.t-std{background:#f2f4f3}.xt.t-std b{color:#4c5a52}
+.xt.t-warn b{color:#c2362b}
+@media (min-width:1000px){.xt.wide{grid-column:span 2}}
+.xtabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:12px;align-items:start}
+.xtab{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:2px solid var(--line);border-radius:18px;overflow:hidden}
+.xtab caption{text-align:left;font-family:var(--f-display);font-size:var(--xl);font-weight:700;padding:0 4px 8px;caption-side:top}
+.xtab th,.xtab td{font-family:var(--f-display)!important;font-size:var(--xl)!important;font-weight:700;padding:10px 14px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1.2}
+.xtab th{color:var(--muted);background:#f6f8f7}.xtab th:first-child,.xtab td:first-child{text-align:center}
+.xtab tr.none td{color:var(--muted);text-align:left}.xtab tr.none td:first-child{text-align:center}
+.xtab tfoot td{font-size:calc(var(--xl)*.6)!important;color:var(--muted);text-align:left;white-space:normal;font-weight:500}
+.xtab .up{color:#24804a}.xtab .down{color:#c2362b}.xtab .mid{color:#a86400}
+.xtw{overflow-x:auto;background:#fff;border:2px solid var(--line);border-radius:18px;min-width:0}
+.xtw .xtab{border:0;border-radius:0}
+.xtab caption{padding:12px 14px 6px!important}
+#vFOverview .henbox .hen-today{display:none}
+#vFOverview .henbox{grid-template-columns:minmax(0,1fr)!important}
 </style>
 
 <div class="wrap">
@@ -1067,6 +1094,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
       <details id="vrText" hidden><summary>อ่านเป็นข้อความ</summary><p id="vrBody"></p></details>
     </section>
     <div class="hello"><h2>สวัสดี ปรียาฟาร์ม</h2><p id="foMeta"></p></div>
+    <div id="execBento" class="xb"></div>
     <section class="panel henbox" aria-label="Hen-day และ Hen-housed">
       <div class="hen-today">
         <div class="hbig a"><span id="hdLabel">Hen-day วันนี้</span><b id="hdToday">–</b><em id="hdDelta">&nbsp;</em></div>
@@ -2870,6 +2898,54 @@ function farmDay(d){const rs=records.filter(r=>r.date===d&&LAYERS.includes(r.hou
   return {eggs,birds,housed,hd:birds?eggs/birds*100:null,hh:housed?eggsH/housed*100:null,hH:hH.sort((a,b)=>a-b),hFull:eggsH===eggs,n:rs.length};}
 function houseDay(h,d){const r=records.find(x=>x.house===h&&x.date===d);if(!r)return null;const c=r.calc||{};const hs=c.housed||parseFloat(r.f&&r.f.housed)||0;
   return {hd:c.pct!=null?c.pct:null,hh:hs?goodEggsOf(r)/hs*100:null};}
+
+/* ---------- executive bento: every label and number in one large size; one fact per box ---------- */
+const TRAY_KG=2.5,EGGS_PER_CRATE=300;
+function eggWeightOf(r){const w=(r.weights||[]).filter(x=>x>0);if(w.length)return {g:(w.reduce((a,b)=>a+b,0)/w.length-TRAY_KG)*1000/EGGS_PER_CRATE,crate:w.reduce((a,b)=>a+b,0)/w.length,n:w.length};
+  const c=r.calc||{};return c.avgEgg&&c.avgEgg<68&&!(r.weights||[]).length?{g:c.avgEgg,crate:null,n:0}:null;}
+function renderExecBento(D,cur,pv){const el=$('execBento');if(!el)return;
+  const rs=records.filter(r=>r.date===D);const lay=rs.filter(r=>LAYERS.includes(r.house));
+  const num=v=>{const x=parseFloat(String(v==null?'':v).replace(/,/g,''));return isFinite(x)?x:0;};
+  const sum=(arr,f)=>arr.reduce((a,r)=>a+f(r),0);
+  let tb=0,wb=0,th=0,hb=0;lay.forEach(r=>{const b=(r.calc||{}).birds||0;const sd=stdFor(r.house,D);if(sd&&b){tb+=sd.hd*b;wb+=b;const hs=(r.calc||{}).housed||parseFloat(r.f&&r.f.housed)||0;if(hs){th+=sd.hd*liveStd(sd.week)*hs;hb+=hs;}}});
+  const stdHd=wb?tb/wb:null,stdHh=hb?th/hb:null;
+  const birds=sum(lay,r=>(r.calc||{}).birds||0);
+  const feedB=lay.filter(r=>num(r.f&&r.f.f_used)&&(r.calc||{}).birds),waterB=lay.filter(r=>num(r.f&&r.f.w_used)&&(r.calc||{}).birds);
+  const feedPer=feedB.length?sum(feedB,r=>num(r.f.f_used))*1000/sum(feedB,r=>r.calc.birds):null;
+  const waterPer=waterB.length?sum(waterB,r=>num(r.f.w_used))*1000/sum(waterB,r=>r.calc.birds):null;
+  const ew=lay.map(r=>({r,e:eggWeightOf(r)})).filter(x=>x.e);const eggW=ew.length?ew.reduce((a,x)=>a+x.e.g*((x.r.calc||{}).goodEggs||1),0)/ew.reduce((a,x)=>a+((x.r.calc||{}).goodEggs||1),0):null;
+  let ab=0,aw=0;lay.forEach(r=>{const ag=houseAgeOn(r.house,D);const b=(r.calc||{}).birds||0;if(ag!=null&&b){ab+=ag/7*b;aw+=b;}});
+  const diff=(a,b,unit)=>a==null||b==null?'':`<em class="${a-b>=0?'up':'down'}">${a-b>=0?'▲':'▼'} ${n1(Math.abs(a-b))}${unit||''}</em>`;
+  const vs=(our,std)=>our==null||std==null?'':`<em class="${our-std>=-2?'up':our-std>=-5?'mid':'down'}">${our>=std?'สูงกว่า':'ต่ำกว่า'} ${n1(Math.abs(our-std))}</em>`;
+  const pvRs=pv?records.filter(r=>r.date===[...new Set(records.map(x=>x.date))].sort().filter(d=>d<D).pop()&&LAYERS.includes(r.house)):[];
+  const tile=(cls,label,val,unit,extra)=>`<div class="xt ${cls||''}"><span>${label}</span><b>${val}${unit?`<small> ${unit}</small>`:''}</b>${extra||''}</div>`;
+  const T=[
+    tile('t-hd wide','Hen-day ของเรา',cur.hd==null?'–':n1(cur.hd),'%',diff(cur.hd,pv&&pv.hd,' จากวันก่อน')),
+    tile('t-std wide','มาตรฐาน Hen-day',stdHd==null?'–':n1(stdHd),'%',vs(cur.hd,stdHd)),
+    tile('t-hh','Hen-housed',cur.hh==null?'–':n1(cur.hh),'%',diff(cur.hh,pv&&pv.hh)),
+    tile('t-std','มาตรฐาน Hen-housed',stdHh==null?'–':n1(stdHh),'%',vs(cur.hh,stdHh)),
+    tile('','ไข่ดี',n0(cur.eggs),'ฟอง',`<em>${n0(cur.eggs/EGGS_PER_CRATE)} ลัง</em>`),
+    tile('','ไก่มีชีวิต',n0(birds),'ตัว'),
+    tile('t-warn','ไก่ตายวันนี้',n0(sum(rs,r=>num(r.f&&r.f.h_dead))),'ตัว',`<em>คัด ${n0(sum(rs,r=>num(r.f&&r.f.h_culled)))} ตัว</em>`),
+    tile('','ไข่แตก',n0(sum(lay,r=>num(r.f&&r.f.d_cracked))),'ฟอง'),
+    tile('','น้ำหนักไข่เฉลี่ย',eggW==null?'–':n1(eggW),'กรัม/ฟอง',ew.length?`<em>จาก ${ew.length} เล้าที่ชั่ง</em>`:''),
+    tile('','อาหาร',feedPer==null?'–':n0(feedPer),'กรัม/ตัว'),
+    tile('','น้ำ',waterPer==null?'–':n0(waterPer),'มล./ตัว'),
+    tile('','อายุไก่เฉลี่ย',aw?n1(ab/aw):'–','สัปดาห์'),
+  ];
+  const rowOf=h=>{const H=hdoc(h);const r=rs.find(x=>x.house===h);
+    if(!r){const why=H.depop?'กำลังปลดไก่':H.status==='rest'?'พักเล้า':(H.birds||0)>0?'ยังไม่ส่งใบวันนี้':(h>=8?'รอข้อมูลไก่เล็ก':'ยังไม่มีไก่');return {h,none:why};}
+    const c=r.calc||{};const sd=stdFor(h,D);const e=eggWeightOf(r);const ag=houseAgeOn(h,D);
+    return {h,age:ag!=null?n1(ag/7):(r.f&&r.f.age)||'–',birds:c.birds,eggs:c.goodEggs,hd:c.pct,std:sd?sd.hd:null,dead:num(r.f&&r.f.h_dead),feed:c.feedPer,ew:e&&e.g,crate:e&&e.crate,n:e&&e.n};};
+  const rows=ALLH.map(rowOf);
+  const lay7=rows.filter(x=>x.h<=7);const dc=(a,b)=>a!=null&&b!=null?`<span class="${a-b>=-2?'up':a-b>=-5?'mid':'down'}">${a-b>=0?'+':'−'}${n1(Math.abs(a-b))}</span>`:'–';
+  const mkTab=(cap,heads,list,cells)=>`<div class="xtw"><table class="xtab"><caption>${cap}</caption><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.map(x=>x.none?`<tr class="none"><td>${x.h}</td><td colspan="${heads.length-1}">${x.none}</td></tr>`:`<tr><td>${x.h}</td>${cells(x).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  const t1=mkTab('Hen-day เทียบมาตรฐาน',['เล้า','Hen-day','มาตรฐาน','ต่าง'],lay7,x=>[x.hd!=null?n1(x.hd)+'%':'–',x.std!=null?n1(x.std)+'%':'–',dc(x.hd,x.std)]);
+  const t2=mkTab('ไข่ดีและไก่',['เล้า','ไข่ดี (ฟอง)','ไก่ (ตัว)','ตาย'],rows,x=>[x.eggs?n0(x.eggs):'–',x.birds?n0(x.birds):'–',n0(x.dead)]);
+  const t2b=mkTab('อายุและอาหาร',['เล้า','อายุ (สป.)','อาหาร (ก./ตัว)'],rows,x=>[x.age,x.feed?n0(x.feed):'–']);
+  const ewRows=rows.filter(x=>!x.none&&x.ew);
+  const t3=ewRows.length?`<div class="xtw"><table class="xtab"><caption>น้ำหนักไข่จากใบชั่ง</caption><thead><tr><th>เล้า</th><th>ชั่ง (ลัง)</th><th>เฉลี่ยต่อลัง (กก.)</th><th>ต่อฟอง (กรัม)</th></tr></thead><tbody>${ewRows.map(x=>`<tr><td>${x.h}</td><td>${x.n||'–'}</td><td>${x.crate?x.crate.toFixed(2):'–'}</td><td>${n1(x.ew)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="4">ต่อฟอง = (น้ำหนักลัง − แผงเปล่า ${TRAY_KG} กก.) ÷ ${EGGS_PER_CRATE} ฟอง</td></tr></tfoot></table></div>`:'';
+  el.innerHTML=`<div class="xb-h">ภาพรวมวันที่ ${shortD(D)} · มีใบบันทึก ${cur.n} เล้า</div><div class="xgrid">${T.join('')}</div><div class="xtabs">${t1}${t2}${t2b}${t3}</div>`;}
 let hdScope='farm';
 function renderHenBox(){
   const T=today();const dates=[...new Set(records.map(r=>r.date))].sort();
@@ -2881,6 +2957,7 @@ function renderHenBox(){
   $('hdToday').innerHTML=cur.hd==null?'–':n1(cur.hd)+'<small>%</small>';$('hhToday').innerHTML=cur.hh==null?'–':n1(cur.hh)+'<small>%</small>';
   $('hdDelta').innerHTML=delta(cur.hd,pv&&pv.hd)||'&nbsp;';$('hhDelta').innerHTML=delta(cur.hh,pv&&pv.hh)||'&nbsp;';
   henStdTiles(D,cur);
+  try{renderExecBento(D,cur,pv);}catch(e){console.error(e);}
   const actL=LAYERS.filter(h=>hdoc(h).status==='active').length;
   $('hdSub').textContent=`ไข่ดี ${n0(cur.eggs)} ฟอง ไก่มีชีวิต ${n0(cur.birds)} ตัว`+(cur.housed?` ไก่ลงเล้า ${n0(cur.housed)} ตัว${cur.hFull?'':' (เฉพาะเล้า '+cur.hH.join(', ')+')'}`:'')+(cur.n<actL?` (มีใบบันทึก ${cur.n} จาก ${actL} เล้าไก่ไข่)`:'');
   $('hdPer').innerHTML='<div class="hp-h">ไก่ไข่ เล้า 1–7</div>'+LAYERS.map(h=>henRowHTML(h,D)).join('')+pulletRowsHTML();
