@@ -84,7 +84,7 @@
     const S = weekly(chartHouse); const W = []; for (let w = 16; w <= 100; w++) W.push(w);
     const g = k => W.map(w => S[w] && S[w][k] != null ? Math.round(S[w][k] * 100) / 100 : null);
     const mark = k => W.map(w => S[w] && S[w][k] ? 4 : null);
-    const fs = Math.round(Math.min(36, Math.max(24, innerWidth * 0.024)));
+    const ff = getComputedStyle(document.body).fontFamily; const fs = Math.round(Math.min(36, Math.max(24, innerWidth * 0.024)));
     const ln = (label, data, color, dash, axis, extra) => Object.assign({ label, data, borderColor: color, backgroundColor: color, borderWidth: dash ? 3 : 4, borderDash: dash ? [10, 7] : [], pointRadius: 0, pointHoverRadius: 6, spanGaps: true, tension: .25, yAxisID: axis || 'y' }, extra || {});
     const pt = (label, data, color, style) => ({ type: 'line', label, data, showLine: false, pointStyle: style, pointRadius: 11, pointHoverRadius: 13, borderColor: color, backgroundColor: color, yAxisID: 'y' });
     const ds = [
@@ -97,13 +97,13 @@
     ];
     const cv = document.getElementById('xoCv'); if (!cv || !window.Chart) { host.querySelector('.cbig').innerHTML = '<div class="xo-empty">โหลดกราฟไม่ได้ในตอนนี้</div>'; return; }
     if (cv._c) cv._c.destroy();
-    const tick = { font: { size: fs - 4, weight: '700', family: 'IBM Plex Sans Thai' }, color: '#4c5a52' };
+    const tick = { font: { size: fs - 4, weight: '700', family: ff }, color: '#4c5a52' };
     cv._c = new Chart(cv, {
       type: 'line', data: { labels: W.map(String), datasets: ds },
       options: {
         responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { position: 'bottom', labels: { font: { size: fs - 4, weight: '700', family: 'IBM Plex Sans Thai' }, color: '#17231d', boxWidth: 34, boxHeight: 6, padding: 16, usePointStyle: false } },
+          legend: { position: 'bottom', labels: { font: { size: fs - 4, weight: '700', family: ff }, color: '#17231d', boxWidth: 34, boxHeight: 6, padding: 16, usePointStyle: false } },
           tooltip: { titleFont: { size: fs - 6 }, bodyFont: { size: fs - 8 }, callbacks: { title: it => 'อายุ ' + it[0].label + ' สัปดาห์', label: c => { const w = W[c.dataIndex]; const k = { 9: 'vac', 10: 'med', 11: 'vit' }[c.datasetIndex]; if (k) return c.dataset.label + ': ' + ((S[w] || {})[k] || []).join(', '); return c.dataset.label + ': ' + n1(c.parsed.y); } } },
         },
         scales: {
