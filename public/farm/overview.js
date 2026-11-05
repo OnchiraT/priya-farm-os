@@ -3,10 +3,11 @@
    Every label, number and note uses one large size (--xl). Uses the dashboard's globals (records, hdoc, stdFor …). */
 (function () {
   // the dashboard's own data and helpers, handed in on every render (they live inside its closure)
+  let C = {}, A = {};
   let records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,liveStd,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days;
   const bind = c => ({ records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,liveStd,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days } = c);
   const WEEKLY = {};            // weekly/h{n} docs: whole-flock history from the house's own Excel
-  let chartHouse = null, sel = null, last = null;
+  let chartHouse = null, sel = null, last = null; const HID = new Set();
 
   // ---------- small helpers ----------
   const num = v => { const x = parseFloat(String(v == null ? '' : v).replace(/,/g, '')); return isFinite(x) ? x : 0; };
@@ -24,7 +25,7 @@
     if (ex && ex.layStd != null) return { hd: ex.layStd, hh: ex.survStd != null ? ex.layStd * ex.survStd / 100 : null, ew: ex.ewStd, week: w };
     const s = stdFor(h, D); return s ? { hd: s.hd, hh: s.hd * liveStd(s.week), ew: s.ew, week: s.week } : null;
   }
-  const cls = (a, b) => a == null || b == null ? '' : a - b >= -2 ? 'up' : a - b >= -5 ? 'mid' : 'down';
+  const cls = (a, b) => a == null || b == null ? '' : a - b >= -A.stdNear ? 'up' : a - b >= -A.stdWarn ? 'mid' : 'down';
   const dif = (a, b) => a == null || b == null ? '–' : `<span class="${cls(a, b)}">${a - b >= 0 ? '+' : '−'}${n1(Math.abs(a - b))}</span>`;
 
   // ---------- pictures ----------
@@ -79,12 +80,13 @@
   function drawChart() {
     const host = document.getElementById('xoChart'); if (!host) return;
     const list = chartable(); if (!list.length) { host.innerHTML = '<div class="xo-empty">ยังไม่มีเล้าที่มีข้อมูลพอทำกราฟ</div>'; return; }
-    if (!list.includes(chartHouse)) chartHouse = list.includes(2) ? 2 : list[0];
+    // default: the house with the longest history
+    if (!list.includes(chartHouse)) chartHouse = list.slice().sort((a, b) => ((WEEKLY['h' + b] || {}).rows || []).length - ((WEEKLY['h' + a] || {}).rows || []).length || records.filter(r => r.house === b).length - records.filter(r => r.house === a).length)[0];
     document.querySelectorAll('#xoHouses button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.h === chartHouse)));
     const S = weekly(chartHouse); const W = []; for (let w = 16; w <= 100; w++) W.push(w);
     const g = k => W.map(w => S[w] && S[w][k] != null ? Math.round(S[w][k] * 100) / 100 : null);
     const mark = k => W.map(w => S[w] && S[w][k] ? 4 : null);
-    const ff = getComputedStyle(document.body).fontFamily; const fs = Math.round(Math.min(36, Math.max(24, innerWidth * 0.024)));
+    const ff = getComputedStyle(document.body).fontFamily; const fs = innerWidth < 640 ? 22 : Math.round(Math.min(36, Math.max(24, innerWidth * 0.024)));
     const ln = (label, data, color, dash, axis, extra) => Object.assign({ label, data, borderColor: color, backgroundColor: color, borderWidth: dash ? 3 : 4, borderDash: dash ? [10, 7] : [], pointRadius: 0, pointHoverRadius: 6, spanGaps: true, tension: .25, yAxisID: axis || 'y' }, extra || {});
     const pt = (label, data, color, style) => ({ type: 'line', label, data, showLine: false, pointStyle: style, pointRadius: 11, pointHoverRadius: 13, borderColor: color, backgroundColor: color, yAxisID: 'y' });
     const ds = [
@@ -95,6 +97,9 @@
       ln('อาหาร (กรัม/ตัว/วัน)', g('feed'), '#7b4fb0', false, 'y2'),
       pt('ให้วัคซีน', mark('vac'), '#c2362b', 'triangle'), pt('ให้ยา', mark('med'), '#17231d', 'rectRot'), pt('ให้วิตามิน', mark('vit'), '#e3a21a', 'circle'),
     ];
+    const leg = document.getElementById('xoLeg');
+    if (leg) leg.innerHTML = ds.map((d, i) => `<button type="button" data-i="${i}" aria-pressed="${!HID.has(i)}"><i class="${d.showLine === false ? 'pt' : d.borderDash.length ? 'dash' : 'line'}" style="--c:${d.borderColor}"></i>${d.label}</button>`).join('');
+    ds.forEach((d, i) => { d.hidden = HID.has(i); });
     const cv = document.getElementById('xoCv'); if (!cv || !window.Chart) { host.querySelector('.cbig').innerHTML = '<div class="xo-empty">โหลดกราฟไม่ได้ในตอนนี้</div>'; return; }
     if (cv._c) cv._c.destroy();
     const tick = { font: { size: fs - 4, weight: '700', family: ff }, color: '#4c5a52' };
@@ -103,18 +108,18 @@
       options: {
         responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { position: 'bottom', labels: { font: { size: fs - 4, weight: '700', family: ff }, color: '#17231d', boxWidth: 34, boxHeight: 6, padding: 16, usePointStyle: false } },
+          legend: { display: false },
           tooltip: { titleFont: { size: fs - 6 }, bodyFont: { size: fs - 8 }, callbacks: { title: it => 'อายุ ' + it[0].label + ' สัปดาห์', label: c => { const w = W[c.dataIndex]; const k = { 9: 'vac', 10: 'med', 11: 'vit' }[c.datasetIndex]; if (k) return c.dataset.label + ': ' + ((S[w] || {})[k] || []).join(', '); return c.dataset.label + ': ' + n1(c.parsed.y); } } },
         },
         scales: {
-          x: { title: { display: true, text: 'อายุไก่ (สัปดาห์)', font: tick.font, color: '#17231d' }, ticks: Object.assign({ autoSkip: true, maxTicksLimit: 18 }, tick), grid: { color: '#eef1ef' } },
-          y: { min: 0, max: 120, title: { display: true, text: '% และ กรัม/ฟอง', font: tick.font, color: '#17231d' }, ticks: Object.assign({ stepSize: 20 }, tick), grid: { color: '#e3e8e5' } },
-          y2: { position: 'right', min: 0, max: 500, title: { display: true, text: 'ฟอง/แม่ และ กรัมอาหาร', font: tick.font, color: '#17231d' }, ticks: Object.assign({ stepSize: 100 }, tick), grid: { drawOnChartArea: false } },
+          x: { title: { display: true, text: 'อายุไก่ (สัปดาห์)', font: tick.font, color: '#17231d' }, ticks: Object.assign({ autoSkip: true, maxTicksLimit: innerWidth < 640 ? 7 : 18, maxRotation: 0 }, tick), grid: { color: '#eef1ef' } },
+          y: { min: 0, max: 120, title: { display: innerWidth >= 640, text: '% และ กรัม/ฟอง', font: tick.font, color: '#17231d' }, ticks: Object.assign({ stepSize: 20 }, tick), grid: { color: '#e3e8e5' } },
+          y2: { position: 'right', min: 0, max: 500, title: { display: innerWidth >= 640, text: 'ฟอง/แม่ และ กรัมอาหาร', font: tick.font, color: '#17231d' }, ticks: Object.assign({ stepSize: 100 }, tick), grid: { drawOnChartArea: false } },
         },
       },
     });
     const H = hdoc(chartHouse); const ex = WEEKLY['h' + chartHouse];
-    document.getElementById('xoChartNote').innerHTML = `เล้า ${chartHouse} · ${esc(H.breed || 'ไม่ระบุสายพันธุ์')} · ${ex ? 'ข้อมูลรายสัปดาห์จากไฟล์ Excel ของเล้า' : 'คำนวณจากใบบันทึกรายวัน'} · เส้นประ = มาตรฐาน เส้นทึบ = เล้าของเรา`;
+    document.getElementById('xoChartNote').innerHTML = `เล้า ${chartHouse} ${esc(H.breed || 'ไม่ระบุสายพันธุ์')} ${ex ? 'ข้อมูลรายสัปดาห์จากไฟล์ Excel ของเล้า' : 'คำนวณจากใบบันทึกรายวัน'} เส้นประคือมาตรฐาน เส้นทึบคือเล้าของเรา กดชื่อเส้นด้านล่างเพื่อซ่อนหรือแสดง`;
   }
 
   // ---------- farm map ----------
@@ -131,7 +136,7 @@
   }
   const DOT = { ok: '#2f8a5b', warn: '#e3a21a', bad: '#c2362b', late: '#9aa6a0', depop: '#7b4fb0', empty: 'none' };
   function mapSVG(D) {
-    const MH = 1250; let g = `<svg viewBox="0 0 1000 ${MH}" class="xo-map" role="img" aria-label="ผังฟาร์มและสถานะของแต่ละเล้า"><defs><pattern id="xwv" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#cfe3ef"/><path d="M0 8 Q4 5 8 8 T16 8" stroke="#fff" stroke-opacity=".5" fill="none" stroke-width="1.5"/></pattern><pattern id="xdp" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="14" height="14" fill="#e9e4f3"/><path d="M0 0V14" stroke="#b9a9d9" stroke-width="5"/></pattern></defs>`;
+    const MH = 1250; const VB = innerWidth < 640 ? `92 20 724 ${MH - 40}` : `0 0 1000 ${MH}`; let g = `<svg viewBox="${VB}" class="xo-map" role="img" aria-label="ผังฟาร์มและสถานะของแต่ละเล้า"><defs><pattern id="xwv" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#cfe3ef"/><path d="M0 8 Q4 5 8 8 T16 8" stroke="#fff" stroke-opacity=".5" fill="none" stroke-width="1.5"/></pattern><pattern id="xdp" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="14" height="14" fill="#e9e4f3"/><path d="M0 0V14" stroke="#b9a9d9" stroke-width="5"/></pattern></defs>`;
     g += `<rect width="1000" height="${MH}" rx="28" fill="url(#xwv)"/><rect x="90" y="24" width="720" height="${MH - 48}" rx="22" fill="#eef3e6" stroke="#d6d2c4" stroke-width="16"/>`;
     g += `<rect x="742" y="40" width="44" height="${MH - 110}" fill="#d6d2c4"/><rect x="905" y="0" width="70" height="${MH}" fill="#d6d2c4"/>`;
     g += `<text x="940" y="${MH / 2}" class="m-t" transform="rotate(-90 940 ${MH / 2})">ถนนหน้าฟาร์ม</text><text x="48" y="${MH / 2}" class="m-m" transform="rotate(-90 48 ${MH / 2})">คลอง</text><text x="858" y="${MH / 2}" class="m-m" transform="rotate(-90 858 ${MH / 2})">บ่อน้ำ</text>`;
@@ -190,7 +195,7 @@
 
   // ---------- main render ----------
   function render(D, cur, pv, ctx) {
-    if (ctx) bind(ctx);
+    if (ctx) { bind(ctx); C = ctx.cfg || C; A = C.alerts || {}; }
     const el = document.getElementById('execBento'); if (!el) return; last = { D, cur, pv };
     const rs = records.filter(r => r.date === D), lay = rs.filter(r => LAYERS.includes(r.house));
     const layNow = LAYERS.filter(h => !hdoc(h).status || hdoc(h).status === 'active').map(h => ({ h, r: latestRec(h, D) })).filter(x => x.r || num(hdoc(x.h).birds) > 0);
@@ -216,27 +221,38 @@
     const tile = (c, label, val, unit, ex) => `<div class="xt ${c || ''}"><span>${label}</span><b>${val}${unit ? ` <small>${unit}</small>` : ''}</b>${ex || ''}</div>`;
     const hero = (pic, label, val, unit, ex, c) => `<div class="xo-hero ${c || ''}">${pic}<div><span>${label}</span><b>${val} <small>${unit}</small></b>${ex ? `<em>${ex}</em>` : ''}</div></div>`;
 
-    const heroes = [
-      hero(HEN, 'ไก่ไข่คงเหลือ', n0(henLeft), 'ตัว', `${layNow.length} เล้า · เล้า ${layNow.map(x => x.h).join(', ')}`, 'h-hen'),
-      hero(CHICK, 'ไก่เล็กคงเหลือ', n0(pulLeft), 'ตัว', pulNow.length ? `${pulNow.length} เล้า · เล้า ${pulNow.map(x => x.h).join(', ')}` : 'ยังไม่มีไก่เล็ก', 'h-chick'),
-      hero(EGG, 'ไข่ดีวันนี้', n0(cur.eggs), 'ฟอง', `${n0(cur.eggs / 300)} ลัง · ${n0(cur.eggs / 30)} แผง`, 'h-egg'),
-    ];
-    const T = [
+    const EPC = C.eggsPerTray * C.traysPerCrate;
+    const pulOf = k => sum(pulRs, r => num(r.f && r.f[k]));
+    const pulStd = pulRs.map(r => r.f && r.f.std).filter(Boolean);
+    const lastW = PULLETS.map(h => (weighsOf(h) || []).slice(-1)[0]).filter(w => w && (w.weights || []).length).sort((x, y) => x.date < y.date ? 1 : -1)[0];
+    const bw = lastW ? bwStats(lastW.weights.map(Number).filter(x => x > 0)) : null;
+    const pulAge = (() => { let s = 0, w = 0; pulNow.forEach(x => { const a = houseAgeOn(x.h, D), b = x.r ? ((x.r.calc || {}).birds || num(x.r.f && x.r.f.birds)) : num(hdoc(x.h).birds); if (a != null && b) { s += a / 7 * b; w += b; } }); return w ? s / w : null; })();
+    const onDate = pulD && pulD !== D ? `<em>จากใบวันที่ ${shortD(pulD)}</em>` : '';
+    const layTiles = [
+      `<div class="xt t-egg wide">${EGG}<div><span>ไข่ดีวันนี้</span><b>${n0(cur.eggs)} <small>ฟอง</small></b><em>${n0(cur.eggs / EPC)} ลัง หรือ ${n0(cur.eggs / C.eggsPerTray)} แผง</em></div></div>`,
       tile('t-hd', 'Hen-day ของเรา', fx(cur.hd), '%', delta(cur.hd, pv && pv.hd)),
       tile('t-std', 'มาตรฐาน Hen-day', fx(stdHd), '%', vs(cur.hd, stdHd)),
       tile('t-hh', 'Hen-house ของเรา', fx(cur.hh), '%', delta(cur.hh, pv && pv.hh)),
       tile('t-std', 'มาตรฐาน Hen-house', fx(stdHh), '%', vs(cur.hh, stdHh)),
-      tile('t-warn', 'ไก่ตาย', n0(cnt(rs, 'h_dead')), 'ตัว', `<em>ไก่ไข่ ${n0(cnt(lay, 'h_dead'))} · ไก่เล็ก ${n0(cnt(pulRs.filter(r => r.date === D), 'h_dead'))}</em>`),
-      tile('t-warn', 'ไก่คัด', n0(cnt(rs, 'h_culled')), 'ตัว', `<em>ไก่ไข่ ${n0(cnt(lay, 'h_culled'))} · ไก่เล็ก ${n0(cnt(pulRs.filter(r => r.date === D), 'h_culled'))}</em>`),
+      tile('t-warn', 'ไก่ตาย', n0(cnt(lay, 'h_dead')), 'ตัว'),
+      tile('t-warn', 'ไก่คัด', n0(cnt(lay, 'h_culled')), 'ตัว'),
       tile('t-warn', 'ไก่จิก', n0(cnt(lay, 'h_pecked')), 'ตัว'),
       tile('', 'ไข่แตก', n0(cnt(lay, 'd_cracked')), 'ฟอง'),
-      tile('t-feed', 'อาหารไก่ไข่', feedKg ? n0(feedKg) : '–', 'กก.', feedPer ? `<em>${n0(feedPer)} กรัม/ตัว</em>` : ''),
-      tile('t-feed', 'อาหารไก่เล็ก', pFeed ? n0(pFeed) : '–', 'กก.', pFeed && pBirds ? `<em>${n1(pFeed * 1000 / pBirds)} กรัม/ตัว${pulD && pulD !== D ? ' · ใบวันที่ ' + shortD(pulD) : ''}</em>` : ''),
+      tile('t-feed', 'อาหาร', feedKg ? n0(feedKg) : '–', 'กก.', feedPer ? `<em>${n0(feedPer)} กรัม/ตัว</em>` : ''),
       tile('', 'อาหารต่อไข่ 1 โหล', perDozen == null ? '–' : n1(perDozen, 2), 'กก.'),
       tile('', 'น้ำ', waterPer == null ? '–' : n0(waterPer), 'มล./ตัว'),
       tile('', 'น้ำหนักไข่เฉลี่ย', eggW == null ? '–' : n1(eggW), 'กรัม/ฟอง', ew.length ? `<em>จาก ${ew.length} เล้าที่ชั่ง</em>` : ''),
-      tile('', 'อายุไก่ไข่เฉลี่ย', aw ? n1(ab / aw) : '–', 'สัปดาห์'),
+      tile('', 'อายุเฉลี่ย', aw ? n1(ab / aw) : '–', 'สัปดาห์'),
     ];
+    const pulTilesTop = pulNow.length ? [
+      tile('', 'อายุเฉลี่ย', pulAge == null ? '–' : n1(pulAge), 'สัปดาห์'),
+      tile('t-warn', 'ไก่ตาย', n0(pulOf('h_dead')), 'ตัว', onDate),
+      tile('t-warn', 'ไก่คัด', n0(pulOf('h_culled')), 'ตัว', onDate),
+      tile('t-feed', 'อาหาร', pFeed ? n0(pFeed) : '–', 'กก.', pFeed && pBirds ? `<em>${n1(pFeed * 1000 / pBirds)} กรัม/ตัว${pulStd.length ? ' มาตรฐาน ' + esc(pulStd[0]) : ''}</em>` : ''),
+      bw ? tile('', 'น้ำหนักตัวเฉลี่ย', n0(bw.m), 'กรัม', `<em>เล้า ${lastW.house} ชั่ง ${shortD(lastW.date)}</em>`) : '',
+      bw ? tile(bw.uni >= 80 ? 't-hd' : 't-hh', 'ความสม่ำเสมอ', n1(bw.uni), '%', '<em>เป้าหมาย 80% ขึ้นไป</em>') : '',
+    ] : [];
+    const band = (cls, pic, title, list, count) => `<header class="xo-band ${cls}">${pic}<div><h2>${title}</h2><p>${list.length ? 'เล้า ' + list.join(', ') : 'ยังไม่มีเล้า'}</p></div><b>${n0(count)} <small>ตัว</small></b></header>`;
 
     // Hen-day / Hen-house vs breed standard, one table each
     const rows = LAYERS.map(h => {
@@ -245,10 +261,10 @@
       const c = r.calc || {}; return { h, age: a != null ? n1(a / 7) : '–', hd: c.pct, hh: c.hh, sHd: s && s.hd, sHh: s && s.hh };
     });
     const tab = (cap, k, sk, foot) => `<div class="xtw"><table class="xtab"><caption>${cap}</caption><thead><tr><th>เล้า</th><th>อายุ (สป.)</th><th>ของเรา</th><th>มาตรฐาน</th><th>ต่าง</th></tr></thead><tbody>${rows.map(x => x.none ? `<tr class="none"><td>${x.h}</td><td colspan="4">${x.none}</td></tr>` : `<tr><td>${x.h}</td><td>${x.age}</td><td>${x[k] != null ? n1(x[k]) + '%' : '–'}</td><td>${x[sk] != null ? n1(x[sk]) + '%' : '–'}</td><td>${dif(x[k], x[sk])}</td></tr>`).join('')}</tbody><tfoot><tr><td>รวม</td><td>${aw ? n1(ab / aw) : '–'}</td><td>${foot[0] != null ? n1(foot[0]) + '%' : '–'}</td><td>${foot[1] != null ? n1(foot[1]) + '%' : '–'}</td><td>${dif(foot[0], foot[1])}</td></tr></tfoot></table></div>`;
-    const above = rows.filter(x => !x.none && x.sHd != null && x.hd - x.sHd >= 0).length, within = rows.filter(x => !x.none && x.sHd != null && x.hd - x.sHd < 0 && x.hd - x.sHd >= -5).length, below = rows.filter(x => !x.none && x.sHd != null && x.hd - x.sHd < -5).length, nostd = rows.filter(x => !x.none && x.sHd == null).length;
-    const sumTiles = `<div class="xgrid">${tile('t-hd', 'สูงกว่ามาตรฐาน', n0(above), 'เล้า')}${tile('t-hh', 'ต่ำกว่าไม่เกิน 5 จุด', n0(within), 'เล้า')}${tile('t-warn', 'ต่ำกว่าเกิน 5 จุด', n0(below), 'เล้า')}${tile('t-std', 'ยังไม่มีมาตรฐาน', n0(nostd), 'เล้า', nostd ? `<em>เล้า ${rows.filter(x => !x.none && x.sHd == null).map(x => x.h).join(', ')}</em>` : '')}</div>`;
+    const above = rows.filter(x => !x.none && x.sHd != null && x.hd - x.sHd >= 0).length, within = rows.filter(x => !x.none && x.sHd != null && x.hd - x.sHd < 0 && x.hd - x.sHd >= -A.stdWarn).length, below = rows.filter(x => !x.none && x.sHd != null && x.hd - x.sHd < -A.stdWarn).length, nostd = rows.filter(x => !x.none && x.sHd == null).length;
+    const sumTiles = `<div class="xgrid">${tile('t-hd', 'สูงกว่ามาตรฐาน', n0(above), 'เล้า')}${tile('t-hh', `ต่ำกว่าไม่เกิน ${A.stdWarn} จุด`, n0(within), 'เล้า')}${tile('t-warn', `ต่ำกว่าเกิน ${A.stdWarn} จุด`, n0(below), 'เล้า')}${tile('t-std', 'ยังไม่มีมาตรฐาน', n0(nostd), 'เล้า', nostd ? `<em>เล้า ${rows.filter(x => !x.none && x.sHd == null).map(x => x.h).join(', ')}</em>` : '')}</div>`;
     const ewRows = lay.map(r => ({ h: r.house, e: eggWeightOf(r), s: stdOf(r.house, D) })).filter(x => x.e).sort((a, b) => a.h - b.h);
-    const ewTab = ewRows.length ? `<div class="xtw"><table class="xtab"><caption>น้ำหนักไข่จากใบชั่ง</caption><thead><tr><th>เล้า</th><th>ชั่ง (ลัง)</th><th>ต่อลัง (กก.)</th><th>ต่อฟอง (กรัม)</th><th>มาตรฐาน</th></tr></thead><tbody>${ewRows.map(x => `<tr><td>${x.h}</td><td>${x.e.n || '–'}</td><td>${x.e.crate ? x.e.crate.toFixed(2) : '–'}</td><td>${n1(x.e.g)}</td><td>${x.s && x.s.ew ? n1(x.s.ew) : '–'}</td></tr>`).join('')}</tbody></table></div><p class="xo-note">ต่อฟอง = (น้ำหนักลัง − แผงเปล่า 2.5 กก.) ÷ 300 ฟอง</p>` : '';
+    const ewTab = ewRows.length ? `<div class="xtw"><table class="xtab"><caption>น้ำหนักไข่จากใบชั่ง</caption><thead><tr><th>เล้า</th><th>ชั่ง (ลัง)</th><th>ต่อลัง (กก.)</th><th>ต่อฟอง (กรัม)</th><th>มาตรฐาน</th></tr></thead><tbody>${ewRows.map(x => `<tr><td>${x.h}</td><td>${x.e.n || '–'}</td><td>${x.e.crate ? x.e.crate.toFixed(2) : '–'}</td><td>${n1(x.e.g)}</td><td>${x.s && x.s.ew ? n1(x.s.ew) : '–'}</td></tr>`).join('')}</tbody></table></div><p class="xo-note">ต่อฟอง = (น้ำหนักลัง − แผงเปล่า ${n1(C.trayKg)} กก.) ÷ ${n0(C.eggsPerTray * C.traysPerCrate)} ฟอง</p>` : '';
 
     // pullets
     const pulTiles = PULLETS.map(h => {
@@ -259,30 +275,44 @@
     }).join('');
 
     const houses = chartable();
-    el.innerHTML = `<div class="xo-top"><h2>ภาพรวมฟาร์ม</h2><p>ข้อมูลวันที่ ${shortD(D)} · มีใบบันทึก ${cur.n} เล้า</p></div>
-      <div class="xo-heroes">${heroes.join('')}</div>
-      <div class="xgrid">${T.join('')}</div>
-      <section class="xo-panel" id="xoChart"><h2>เทียบมาตรฐานสายพันธุ์ รายสัปดาห์</h2>
-        <div class="xo-seg" id="xoHouses">${houses.map(h => `<button type="button" data-h="${h}" aria-pressed="false">เล้า ${h}</button>`).join('')}</div>
-        <div class="cbig"><canvas id="xoCv" role="img" aria-label="กราฟเส้นเทียบมาตรฐานกับเล้าที่เลือก รายสัปดาห์ตามอายุไก่"></canvas></div>
-        <p class="xo-note" id="xoChartNote"></p></section>
-      <section class="xo-panel"><h2>สรุป Hen-day และ Hen-house เทียบมาตรฐานสายพันธุ์</h2>${sumTiles}
-        <div class="xtabs">${tab('Hen-day (ไก่ที่มีชีวิต)', 'hd', 'sHd', [cur.hd, stdHd])}${tab('Hen-house (ไก่ตั้งต้น)', 'hh', 'sHh', [cur.hh, stdHh])}</div>${ewTab}</section>
-      <section class="xo-panel"><h2>ไก่เล็ก–ไก่สาว (เล้า 8–10)</h2><div class="xo-puls">${pulTiles}</div>${pulletWeighHTML()}</section>
+    el.innerHTML = `<div class="xo-top"><h2>ภาพรวมฟาร์ม</h2><p>ข้อมูลวันที่ ${shortD(D)} มีใบบันทึก ${cur.n} เล้า</p></div>
+      <section class="xo-side s-lay" aria-label="ไก่ไข่">
+        ${band('b-lay', HEN, 'ไก่ไข่', layNow.map(x => x.h), henLeft)}
+        <div class="xo-body">
+        <div class="xgrid">${layTiles.join('')}</div>
+        <section class="xo-panel" id="xoChart"><h3>เทียบมาตรฐานสายพันธุ์ รายสัปดาห์</h3>
+          <div class="xo-seg" id="xoHouses">${houses.map(h => `<button type="button" data-h="${h}" aria-pressed="false">เล้า ${h}</button>`).join('')}</div>
+          <div class="cbig"><canvas id="xoCv" role="img" aria-label="กราฟเส้นเทียบมาตรฐานกับเล้าที่เลือก รายสัปดาห์ตามอายุไก่"></canvas></div>
+          <div class="xo-leg2" id="xoLeg"></div>
+          <p class="xo-note" id="xoChartNote"></p></section>
+        <section class="xo-panel"><h3>สรุป Hen-day และ Hen-house เทียบมาตรฐานสายพันธุ์</h3>${sumTiles}
+          <div class="xtabs">${tab('Hen-day (ไก่ที่มีชีวิต)', 'hd', 'sHd', [cur.hd, stdHd])}${tab('Hen-house (ไก่ตั้งต้น)', 'hh', 'sHh', [cur.hh, stdHh])}</div>${ewTab}</section>
+        </div>
+      </section>
+      <section class="xo-side s-pul" aria-label="ไก่เล็ก">
+        ${band('b-pul', CHICK, 'ไก่เล็ก–ไก่สาว', pulNow.map(x => x.h), pulLeft)}
+        <div class="xo-body">
+        ${pulTilesTop.length ? `<div class="xgrid">${pulTilesTop.join('')}</div>` : '<div class="xo-empty">ยังไม่มีไก่เล็กในฟาร์ม</div>'}
+        <div class="xo-puls">${pulTiles}</div>${pulletWeighHTML()}
+        </div>
+      </section>
       <section class="xo-mapwrap"><div class="xo-panel"><h2>ผังฟาร์ม</h2><p class="xo-note">กดที่เล้าเพื่อดูรายละเอียด</p><div id="xoMap"></div>
         <div class="xo-leg"><span><i style="background:#2f8a5b"></i>ตามมาตรฐาน</span><span><i style="background:#e3a21a"></i>ต่ำกว่าเล็กน้อย</span><span><i style="background:#c2362b"></i>ต่ำกว่ามาก</span><span><i style="background:#9aa6a0"></i>ยังไม่ส่งใบวันนี้</span><span><i style="background:#7b4fb0"></i>ปลดไก่</span></div></div>
         <div class="xo-panel" id="xoDetail"></div></section>`;
     paintMap(D); drawChart();
+    // phones: open the sideways-scrolling weight chart on the average, not on the empty left edge
+    el.querySelectorAll('.xo-scroll').forEach(b => { const m = b.querySelector('.mline'), sv = b.querySelector('svg'); if (!m || !sv || b.scrollWidth <= b.clientWidth) return; const vb = sv.viewBox.baseVal; b.scrollLeft = (+m.getAttribute('x1') - vb.x) / vb.width * b.scrollWidth - b.clientWidth / 2; });
   }
 
   // ---------- events ----------
   document.addEventListener('click', e => {
     const b = e.target.closest('#xoHouses button'); if (b) { chartHouse = +b.dataset.h; drawChart(); return; }
+    const lg = e.target.closest('#xoLeg button'); if (lg) { const i = +lg.dataset.i, c = (document.getElementById('xoCv') || {})._c; if (HID.has(i)) HID.delete(i); else HID.add(i); lg.setAttribute('aria-pressed', String(!HID.has(i))); if (c) { c.setDatasetVisibility(i, !HID.has(i)); c.update(); } return; }
     const g = e.target.closest('#xoMap .xo-hs'); if (g && last) { const v = g.dataset.h; sel = v === 'stock' ? 'stock' : +v; paintMap(last.D); if (innerWidth < 1000) document.getElementById('xoDetail').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     const c = e.target.closest('.xo-go'); if (c) { chartHouse = +c.dataset.chart; drawChart(); document.getElementById('xoChart').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   });
   document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('#xoMap .xo-hs')) { e.preventDefault(); e.target.closest('.xo-hs').dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
-  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (document.getElementById('xoCv')) drawChart(); }, 250); });
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (document.getElementById('xoCv')) drawChart(); if (last) paintMap(last.D); }, 250); });
 
   // weekly history docs
   (async () => {

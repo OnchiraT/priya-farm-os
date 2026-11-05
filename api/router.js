@@ -12,6 +12,7 @@ import crypto from 'node:crypto';
 import { DOC_TYPES, FIELD_LABELS } from '../lib/doctypes.js';
 import { saveFile, createIntake, processIntake, getIntake, approve, answer, toReview, openQuestionIn, logEvent, sweep, dailySummary, score } from '../lib/pipeline.js';
 import { lineConfig, verifySignature, getContent, say, push, botInfo, chatName, memberName, chatIdOf } from '../lib/line.js';
+import { farmConfig, saveFarmConfig, FARM_DEFAULTS } from '../lib/farmconfig.js';
 import { readFile, fileExists, migrateFiles, pruneVoice, fileStats, fileStore } from '../lib/files.js';
 import fs from 'node:fs'; import path from 'node:path';
 
@@ -25,7 +26,10 @@ const b64img = i => { if (!i || !i.b64) bad('ไม่มีรูป'); const m
 
 // ---------- health / session ----------
 on('GET', 'health', async () => ({ ok: true, db: !!(await one('select 1 as x')), time: new Date().toISOString() }));
-on('GET', 'me', async req => { const u = await currentUser(req); return { user: u ? publicUser(u) : null, setupNeeded: (await userCount()) === 0, farm: (await one('select name from farms where id=$1', [FARM]))?.name }; });
+on('GET', 'me', async req => { const u = await currentUser(req); const cfg = u ? await farmConfig() : null; return { user: u ? publicUser(u) : null, setupNeeded: (await userCount()) === 0, farm: (await one('select name from farms where id=$1', [FARM]))?.name, config: cfg, configDefaults: u ? FARM_DEFAULTS : undefined }; });
+// farm-wide values (egg packing, rest/move/depop weeks, alert thresholds, summary time, map labels)
+on('GET', 'settings/farm', async req => { await requireUser(req, 'staff'); return { config: await farmConfig(), defaults: FARM_DEFAULTS }; });
+on('POST', 'settings/farm', async req => { const u = await requireUser(req, 'admin'); return { config: await saveFarmConfig(await readJson(req), u.id) }; });
 on('POST', 'setup', async (req, res) => {
   if ((await userCount()) > 0) bad('ตั้งค่าครั้งแรกไปแล้ว ให้เข้าสู่ระบบแทน', 409);
   const b = await readJson(req);
@@ -139,7 +143,7 @@ on('POST', 'settings/line', async req => {
   return { ok: true };
 });
 on('POST', 'settings/line/test', async req => { await requireUser(req, 'admin'); const c = await lineConfig(); const info = await botInfo(c); return { ok: true, bot: { name: info.displayName, basicId: info.basicId } }; });
-on('POST', 'settings/line/push-test', async req => { await requireUser(req, 'admin'); const b = await readJson(req); const c = await lineConfig(); await push(c, b.to, 'ทดสอบจากระบบปรียาฟาร์ม ✅'); return { ok: true }; });
+on('POST', 'settings/line/push-test', async req => { await requireUser(req, 'admin'); const b = await readJson(req); const c = await lineConfig(); await push(c, b.to, 'ทดสอบจากระบบฟาร์ม ✅'); return { ok: true }; });
 
 // ---------- settings: AI + keys ----------
 on('GET', 'settings/ai', async req => {
@@ -161,7 +165,7 @@ on('POST', 'settings/ai/test', async req => {
   await requireUser(req, 'admin'); const b = await readJson(req); const cfg = b.config || await featureConfig(b.feature);
   const P = PROVIDERS[cfg.provider]; if (!P) bad('ยังไม่ได้เลือกผู้ให้บริการ');
   const t0 = Date.now();
-  if (P.ttsOnly) { const a = await tts(cfg, 'ทดสอบเสียงรายงานของปรียาฟาร์ม'); return { ok: true, ms: Date.now() - t0, reply: `ได้ไฟล์เสียง ${Math.round(a.length / 1024)} KB`, audio: a.toString('base64') }; }
+  if (P.ttsOnly) { const a = await tts(cfg, 'ทดสอบเสียงรายงานประจำวันของฟาร์ม'); return { ok: true, ms: Date.now() - t0, reply: `ได้ไฟล์เสียง ${Math.round(a.length / 1024)} KB`, audio: a.toString('base64') }; }
   if (P.ocrOnly) {
     const img = b.image ? b64img(b.image) : null; if (!img) return { ok: true, note: 'ผู้ให้บริการนี้ทดสอบด้วยรูปจริงได้ที่หน้า "ทดสอบ OCR"' };
     const text = await ocr(cfg, img); return { ok: true, ms: Date.now() - t0, reply: text.slice(0, 400) };

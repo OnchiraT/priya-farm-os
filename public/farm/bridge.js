@@ -23,9 +23,19 @@
         for (const p of r.deleted || []) { if (p in STORE) { delete STORE[p]; changed = true; } }
         after = r.after; upto = r.upto;
       } while (r.more);
-      since = r.now; if (changed) fire();
+      since = r.now; if (changed) { syncCfg(); fire(); }
     } finally { polling = false; }
   }
+  // farm settings: server starting values merged with the saved config/farm doc; pages read window.FARM_CFG
+  let CFG_DEF = null, cfgKey = '';
+  const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
+  const merge = (a, b) => { const o = Object.assign({}, a); for (const [k, v] of Object.entries(b || {})) o[k] = isObj(v) && isObj(a[k]) ? merge(a[k], v) : v; return o; };
+  function syncCfg() {
+    if (!CFG_DEF) return; const k = JSON.stringify(STORE['config/farm'] || null); if (k === cfgKey && window.FARM_CFG) return; cfgKey = k;
+    window.FARM_CFG = Object.assign(merge(CFG_DEF, STORE['config/farm'] || {}), { name: (ME && ME.farm) || '' });
+    try { document.dispatchEvent(new CustomEvent('farmcfg')); } catch (e) { }
+  }
+  const paintName = () => document.querySelectorAll('.fname').forEach(e => e.textContent = (ME && ME.farm) || '');
   const toast = msg => { let t = document.getElementById('pfToast'); if (!t) { t = document.createElement('div'); t.id = 'pfToast'; t.style.cssText = 'position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#c2362b;color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;font:14px system-ui;max-width:90vw'; document.body.append(t); } t.textContent = msg; t.hidden = false; clearTimeout(t._t); t._t = setTimeout(() => t.hidden = true, 4000); };
   async function write(op) {
     try { await api('POST', 'db/write', op); }
@@ -97,9 +107,10 @@
   ready = (async () => {
     const me = await api('GET', 'me');
     if (!me.user) { location.replace('/?next=' + encodeURIComponent('/farm/' + location.hash)); throw new Error('login'); }
-    const u = me.user; ME = { uid: (u.group === 'lhong' || u.group === 'cust') && u.buyerId ? u.buyerId : u.id, name: u.name, role: u.role, group: u.group, buyerId: u.buyerId, houses: u.houses, roleLabel: u.roleLabel };
+    CFG_DEF = me.configDefaults || me.config || {};
+    const u = me.user; ME = { farm: me.farm || '', uid: (u.group === 'lhong' || u.group === 'cust') && u.buyerId ? u.buyerId : u.id, name: u.name, role: u.role, group: u.group, buyerId: u.buyerId, houses: u.houses, roleLabel: u.roleLabel };
     window.__PF = ME;
-    await pull();
+    await pull(); syncCfg(); paintName(); document.addEventListener('DOMContentLoaded', paintName);
     setInterval(() => { if (!document.hidden) pull().catch(() => { }); }, 8000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) pull().catch(() => { }); });
   })();

@@ -1,5 +1,5 @@
 <!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>หลังบ้าน ปรียาฟาร์ม</title>
+<title>หลังบ้าน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="/os.css">
 <style>
@@ -43,10 +43,10 @@ main{padding:22px 24px 60px;max-width:1180px;width:100%}
 .cmp td{font-size:13px}.cmp td.diff{background:var(--warn-soft)}
 pre.ocr{white-space:pre-wrap;max-height:360px;overflow:auto;background:var(--surface-2);border-radius:8px;padding:8px;font-size:12px}
 </style></head><body>
-<div class="topbar"><button id="hamb" aria-label="เมนู">☰</button><b>หลังบ้าน ปรียาฟาร์ม</b></div>
+<div class="topbar"><button id="hamb" aria-label="เมนู">☰</button><b>หลังบ้าน <span class="fname"></span></b></div>
 <div class="shell">
 <nav class="side" id="side">
-  <div class="brand" id="brand">ปรียาฟาร์ม OS<small>หลังบ้าน</small></div>
+  <div class="brand" id="brand"><span class="fname"></span> OS<small>หลังบ้าน</small></div>
   <a href="/farm/">← กลับไปแดชบอร์ดฟาร์ม</a>
   <div class="grp">เอกสารเข้า</div>
   <a href="#inbox" data-r="inbox">📥 กล่องเอกสาร <span class="badge" id="nPend" hidden></span></a>
@@ -64,7 +64,7 @@ pre.ocr{white-space:pre-wrap;max-height:360px;overflow:auto;background:var(--sur
 </div>
 <script type="module">
 import { $, $$, esc, api, toast, shrink, confCls, thTime } from '/os.js';
-let ME; try { ME = (await api('GET', 'me')).user; } catch { }
+let ME, FARMCFG = {}; try { const m = await api('GET', 'me'); ME = m.user; FARMCFG = m.config || {}; $$('.fname').forEach(e => e.textContent = m.farm || ''); document.title = 'หลังบ้าน ' + (m.farm || ''); } catch { }
 if (!ME) location.replace('/?next=' + encodeURIComponent('/app' + location.hash));
 const ADMIN = ME.role === 'owner' || ME.role === 'exec', STAFF = ADMIN || ME.role === 'office';
 if (!STAFF) { document.body.innerHTML = '<div class="empty">บัญชีนี้ไม่มีสิทธิ์เข้าหลังบ้าน <a href="/farm/">กลับแดชบอร์ด</a></div>'; throw 0; }

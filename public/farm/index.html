@@ -1064,7 +1064,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
 .xo-seg button,.xo-go{font-family:var(--f-display);font-size:var(--xl);font-weight:700;border:2px solid var(--line);background:#fff;color:#17231d;border-radius:14px;padding:8px 16px;cursor:pointer;min-height:48px}
 .xo-seg button[aria-pressed=true]{background:#17231d;color:#fff;border-color:#17231d}
 .xo-go{background:#e4f1ea;border-color:#b9dcc8;color:#1e6a4a;align-self:flex-start}
-.cbig{position:relative;height:clamp(620px,80vh,860px)}
+.cbig{position:relative;height:clamp(520px,72vh,820px)}
 .xtab tfoot td{font-size:var(--xl)!important;font-weight:800!important;color:#17231d;text-align:right;background:#f6f8f7}.xtab tfoot td:first-child{text-align:center}
 .xleg{font-size:var(--xl)!important}
 .xo-puls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px}
@@ -1080,6 +1080,59 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
 .xo-hs{cursor:pointer}.xo-hs:hover rect:first-child,.xo-hs:focus rect:first-child{stroke:#17231d;stroke-width:5}.xo-hs:focus{outline:none}
 .xo-leg{display:flex;flex-wrap:wrap;gap:8px 20px}.xo-leg i{display:inline-block;width:24px;height:24px;border-radius:50%;margin-right:8px;vertical-align:-3px}
 .xo-dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:10px}
+
+/* two sides of the farm, coloured like the zones on the farm map: layers = yolk, pullets = coral red */
+.xo-side{--zc:#e3a21a;--zt:#2a1b00;--zbg:#fffaf0;--zline:#f0d9a8;border:3px solid var(--zline);border-radius:24px;background:var(--zbg);overflow:clip}
+.xo-side.s-pul{--zc:#c2362b;--zt:#fff;--zbg:#fff6f4;--zline:#f2c2bb}
+.xo-band{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:16px;background:var(--zc);color:var(--zt);padding:12px 20px}
+.xo-band .pic{width:clamp(64px,7vw,104px);height:auto;flex:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.15))}
+.xo-band>div{flex:1;min-width:0}
+.xo-band h2,.xo-band p,.xo-band b,.xo-band small{font-family:var(--f-display);font-size:var(--xl);line-height:1.2;margin:0;color:inherit}
+.xo-band h2{font-weight:800}.xo-band p{font-weight:600;opacity:.85}
+.xo-band b{font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}.xo-band small{font-weight:600}
+.xo-body{padding:16px;display:flex;flex-direction:column;gap:14px}
+.xo-body .xt{background:#fff}
+.xo-body .xo-panel{border-color:var(--zline)}
+.xo-panel h3{font-family:var(--f-display);font-size:var(--xl);font-weight:800;margin:0;line-height:1.25}
+.xt.t-egg{flex-direction:row;align-items:center;gap:14px;background:#fff}.xt.t-egg>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.xt.t-egg .pic{width:clamp(72px,8vw,110px);height:auto;flex:none}
+.s-pul .xo-pul{background:#fff;border-color:var(--zline)}
+.s-pul .xo-pul h4 .pic{width:48px}
+.xo-leg2{display:flex;flex-wrap:wrap;gap:8px}
+.xo-leg2 button{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:var(--xl);font-weight:700;color:#17231d;background:#fff;border:2px solid var(--line);border-radius:14px;padding:6px 12px;min-height:48px;cursor:pointer;line-height:1.2;text-align:left}
+.xo-leg2 button[aria-pressed=false]{color:#8c978f;background:#f2f4f3;text-decoration:line-through}
+.xo-leg2 i{flex:none;width:34px;height:0;border-top:5px solid var(--c)}.xo-leg2 i.dash{border-top-style:dashed}
+.xo-leg2 i.pt{width:18px;height:18px;border:0;background:var(--c);border-radius:4px;transform:rotate(45deg)}
+.xo-seg button:focus-visible,.xo-leg2 button:focus-visible,.xo-go:focus-visible{outline:3px solid #2c6fb5;outline-offset:2px}
+@media (max-width:640px){
+  .xb{--xl:22px}
+  .xo-body{padding:10px;gap:10px}
+  .xo-band{padding:10px 12px;gap:10px;flex-wrap:wrap}
+  .xo-band .pic{width:56px}
+  .xo-band b{flex-basis:100%;padding-left:66px}
+  .xgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .xt{padding:12px;border-radius:14px}
+  .xt.wide,.xt.t-egg{grid-column:1/-1}
+  .xo-panel{padding:12px;border-radius:16px}
+  .cbig{height:clamp(380px,62vh,520px)}
+  .xtab th,.xtab td{padding:8px 10px}
+  .xo-leg2 button{padding:4px 10px;min-height:44px}
+  .xo-mapwrap{gap:10px}
+}
+
+/* phone: keep the back-office/sign-out pills above the bottom tab bar; scroll wide pictures sideways instead of shrinking their text */
+@media (max-width:720px){#pfOs{bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}}
+@media (max-width:640px){
+  .xo-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -12px;padding:0 12px}
+  .xo-scroll>svg{min-width:860px}
+  .xo-scroll-hint{display:block!important}
+  .xo-mapwrap .xo-panel{padding:10px}
+  .xo-dg{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+}
+.xo-side .xtabs{grid-template-columns:repeat(auto-fit,minmax(min(100%,700px),1fr))}
+.xo-scroll-hint{display:none;font-family:var(--f-display);font-size:var(--xl);font-weight:600;color:var(--muted)}
+.xo-mapwrap{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)!important}
+@media (max-width:1000px){.xo-mapwrap{grid-template-columns:minmax(0,1fr)!important}}
 </style>
 
 <div class="wrap">
@@ -1164,7 +1217,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
     <div class="todaygrid" id="foToday"></div>
     <h2 class="sec">วันนี้ต้องทำ</h2>
     <section class="todo" id="foTodo"></section>
-    <h2 class="sec">ไก่ทุกเล้า (1–10)</h2>
+    <h2 class="sec">ไก่ทุกเล้า (<span class="rng-all"></span>)</h2>
     <div class="hgrid" id="foHouses"></div>
     <h2 class="sec">ขายไข่วันนี้ ให้ล้งและลูกค้าปลีก</h2>
     <div class="scards" id="foSales"></div>
@@ -1203,10 +1256,10 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
   <div id="vFHouses" class="view" hidden>
     <div class="hello"><h2>เล้าทั้งหมด</h2><p>แตะเล้าเพื่อดูรายละเอียด ปลดไก่ ติ๊กงานพักเล้า หรือรับไก่ชุดใหม่</p></div>
     <div class="kpis" id="hbSum" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
-    <h2 class="sec">ไก่ใหญ่ (ไก่ยืนกรง) เล้า 1–7</h2>
+    <h2 class="sec">ไก่ใหญ่ (ไก่ยืนกรง) เล้า <span class="rng-lay"></span></h2>
     <p class="hf-hint" style="margin:-6px 0 0">แถบสีคืออายุไก่เทียบกับวันปลดที่ 85 สัปดาห์</p>
     <div class="hboard" id="hbLayers"></div>
-    <h2 class="sec">ไก่เล็ก เล้า 8–10</h2>
+    <h2 class="sec">ไก่เล็ก เล้า <span class="rng-pul"></span></h2>
     <p class="hf-hint" style="margin:-6px 0 0">แถบสีคืออายุไก่เทียบกับวันย้ายไปไก่ยืนกรงที่ 16 สัปดาห์</p>
     <div class="hboard" id="hbPullets"></div>
     <h2 class="sec">แผนย้ายไก่เล็กไปไก่ใหญ่</h2>
@@ -1580,7 +1633,7 @@ body[data-portal="farm"] .appbar,body[data-portal="lhong"] .appbar,body[data-por
           <div class="calc" id="calc"></div>
           <div class="checks" id="checks"></div>
           <div class="note" style="margin-top:10px">Hen-day = ไข่ดี ÷ ไก่ที่มีชีวิตวันนั้น × 100 · Hen-housed = ไข่ดี ÷ ไก่ลงเล้าต้นรุ่น × 100 · HHE สะสม = ไข่ดีรวมทั้งรุ่น ÷ ไก่ลงเล้า (ฟอง/ตัว)</div>
-          <div class="unitset"><span>1 ลัง =</span><input class="f" id="tpc" inputmode="numeric" value="10"><span>แผง · 1 แผง = 30 ฟอง</span></div>
+          <div class="unitset"><span>1 ลัง =</span><input class="f" id="tpc" inputmode="numeric" value=""><span>แผง · 1 แผง = <span class="cfg-ept"></span> ฟอง</span></div>
         </div>
         <div class="panel" id="savedPhotoPanel" hidden>
           <div class="panel-h"><h2>รูปต้นฉบับ</h2></div>
@@ -2101,14 +2154,15 @@ const FIELD_IDS=['age',...SIZES.flatMap(([k])=>COLS.map(([c])=>`e_${k}_${c}`)),.
 
 function todayISO(){return new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Bangkok'});}
 $('date').value=todayISO();
-try{const t=localStorage.getItem('coop-tpc');if(t)$('tpc').value=t;}catch(e){}
+const EPTr=()=>(window.FARM_CFG||{}).eggsPerTray;
+(window.__PF_READY||Promise.resolve()).then(()=>{if(window.FARM_CFG&&!$('tpc').dataset.touched)$('tpc').value=window.FARM_CFG.traysPerCrate;document.querySelectorAll('.cfg-ept').forEach(e=>e.textContent=window.FARM_CFG.eggsPerTray);}).catch(()=>{});
 
 /* ---------- maths ---------- */
 const num=id=>{const v=($(id).value||'').replace(/,/g,'').trim();if(v==='')return null;const n=parseFloat(v);return isFinite(n)?n:null;};
-function tpc(){const n=parseInt($('tpc').value,10);return n>0&&n<100?n:10;}
+function tpc(){const n=parseInt($('tpc').value,10);return n>0&&n<100?n:(window.FARM_CFG||{}).traysPerCrate;}
 // "6.4" = 6 ลัง 4 แผง ; ".3" = 3 แผง
 function trays(s){s=String(s||'').replace(/,/g,'').trim();if(!s)return null;const m=s.match(/^(\d*)(?:\.(\d+))?$/);if(!m)return NaN;return (+(m[1]||0))*tpc()+(+(m[2]||0));}
-const eggsOf=s=>{const t=trays(s);return t==null||isNaN(t)?t:t*30;};
+const eggsOf=s=>{const t=trays(s);return t==null||isNaN(t)?t:t*EPTr();};
 const fmtCT=t=>{const c=Math.floor(t/tpc()),r=t-c*tpc();return r?`${c}.${r}`:`${c}`;};
 const n0=n=>n==null||isNaN(n)?'–':Math.round(n).toLocaleString('th-TH');
 const n1=(n,d=1)=>n==null||isNaN(n)?'–':n.toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -2131,7 +2185,7 @@ function compute(){
     else{checks.push({ok:false,t:'ยอดรวมไข่ดีไม่ตรงกับผลบวกทุกขนาด',d:`บวกได้ ${fmtCT(rowSum)} แต่ในใบเขียน ${$('e_sum_t').value}`});bad.add('e_sum_t');}
   }
   const goodTrays=written!=null&&!isNaN(written)?written:(any?rowSum:null);
-  const goodEggs=goodTrays==null?null:goodTrays*30;
+  const goodEggs=goodTrays==null?null:goodTrays*EPTr();
   // feed
   const fi=num('f_in'),fp=num('f_prev'),ft=num('f_total'),fu=num('f_used'),fl=num('f_left');
   if(fi!=null&&fp!=null&&ft!=null){if(fi+fp===ft)checks.push({ok:true,t:'อาหาร: รับเข้า + เก่าเหลือ = รวม',d:n0(ft)+' กก.'});else{checks.push({ok:false,t:'อาหาร: รับเข้า + เก่าเหลือ ไม่เท่ากับ รวม',d:`คำนวณได้ ${n0(fi+fp)} แต่เขียน ${n0(ft)}`});bad.add('f_total');}}
@@ -2152,7 +2206,7 @@ function compute(){
   const c={goodEggs,goodTrays,pct,hh,housed,live:housed&&birds?birds/housed*100:null,birds,
     feedPer:usedFeed!=null&&birds?usedFeed*1000/birds:null,
     waterPer:usedWater!=null&&birds?usedWater*1000/birds:null,
-    avgCrate:wavg,avgEgg:wavg!=null?wavg/(tpc()*30)*1000:null,nWeights:ws.length,
+    avgCrate:wavg,avgEgg:wavg!=null?(wavg-((window.FARM_CFG||{}).trayKg||0))/(tpc()*EPTr())*1000:null,nWeights:ws.length,
     dead:num('h_dead'),bad:(num('d_cracked')||0)+(num('d_discard')||0)+(num('d_soft')||0)+(num('d_pecked')||0),
     issues:checks.filter(x=>!x.ok&&!x.na).length,checked:checks.length};
   return {c,checks,bad};
@@ -2172,7 +2226,7 @@ function renderCalc(){
 }
 $('slipForm').addEventListener('input',e=>{if(e.target.classList)e.target.classList.remove('ai','unsure');if(e.target.id==='house'||e.target.id==='date')checkExisting();renderCalc();});
 $('slipForm').addEventListener('change',e=>{if(e.target.id==='house'||e.target.id==='date'){if(!editing)$('housed').value='';fillHoused();checkExisting();}});
-$('tpc').addEventListener('input',()=>{try{localStorage.setItem('coop-tpc',$('tpc').value);}catch(e){}renderCalc();});
+$('tpc').addEventListener('input',()=>{$('tpc').dataset.touched='1';renderCalc();});
 
 /* ---------- capabilities ---------- */
 const [db,user,sample,assets]=await Promise.all(['db','user','sample','assets'].map(n=>(window.claude&&window.claude.use?window.claude.use(n):Promise.resolve(null)).catch(()=>null)));
@@ -2383,7 +2437,7 @@ const days=(a,b)=>Math.round((Date.parse(b)-Date.parse(a))/864e5);
 const n0=n=>n==null||isNaN(n)?'–':Math.round(n).toLocaleString('th-TH');
 const n1=(n,d=1)=>n==null||isNaN(n)?'–':Number(n).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d});
 const baht=n=>n==null||isNaN(n)?'–':Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2});
-let TPC=10;
+let TPC;
 function parseCT(s,tp){s=String(s==null?'':s).replace(/,/g,'').trim();if(!s)return null;const m=s.match(/^(\d*)(?:\.(\d+))?$/);if(!m)return NaN;return (+(m[1]||0))*(tp||TPC)+(+(m[2]||0));}
 const ct=t=>{if(t==null||isNaN(t))return '–';const neg=t<0;t=Math.round(Math.abs(t));const c=Math.floor(t/TPC),r=t-c*TPC;return (neg?'−':'')+(r?`${c}.${r}`:`${c}`);};
 const use=n=>(window.claude&&window.claude.use?window.claude.use(n):Promise.resolve(null)).catch(()=>null);
@@ -2398,6 +2452,12 @@ document.querySelectorAll('.tray').forEach(t=>{const n=+t.dataset.eggs;let h='';
 
 /* ---------- who is viewing ---------- */
 let [db,user]=await Promise.all([use('db'),use('user')]);
+/* farm settings (หลังบ้าน → ตั้งค่าฟาร์ม): egg packing, rest/move/depop weeks, alert thresholds */
+let CFG={},EPT,TRAY_KG,EGGS_PER_CRATE,REST_DAYS,MOVE_WEEK,DEPOP_WEEK,AL={};
+function applyCfg(){CFG=window.FARM_CFG||CFG;EPT=CFG.eggsPerTray;TPC=CFG.traysPerCrate;TRAY_KG=CFG.trayKg;EGGS_PER_CRATE=EPT*TPC;REST_DAYS=CFG.restDays;MOVE_WEEK=CFG.moveWeek;DEPOP_WEEK=CFG.depopWeek;AL=CFG.alerts||{};}
+applyCfg();
+document.addEventListener('farmcfg',()=>{applyCfg();try{refresh();}catch(e){}});
+const FN=()=>(window.__PF&&window.__PF.farm)||'ฟาร์ม';
 let uid=null,isAdmin=false,myName='';
 try{uid=user?await user.id():null;}catch(e){}
 try{isAdmin=user?((await user.canEdit())||(await user.can('data.write'))!==false):false;}catch(e){}
@@ -2428,7 +2488,7 @@ let lDoc=null,lTx=[],lOuts=[],lOpenLot=null;
 const subs={};
 
 /* ---------- farm FIFO ---------- */
-function goodEggsOf(r){if(r.calc&&r.calc.goodEggs!=null)return r.calc.goodEggs;const t=parseCT(r.f&&r.f.e_sum_t,r.tpc||10);return t>0?t*30:0;}
+function goodEggsOf(r){if(r.calc&&r.calc.goodEggs!=null)return r.calc.goodEggs;const t=parseCT(r.f&&r.f.e_sum_t,r.tpc||TPC);return t>0?t*EPT:0;}
 function compute(){
   lots={};SIZES.forEach(([k])=>lots[k]=[]);
   const add=(size,date,t,src)=>{if(!(t>0)||!lots[size])return;let L=lots[size].find(l=>l.date===date&&l.src===src);if(!L){L={date,in:0,left:0,src};lots[size].push(L);}L.in+=t;L.left+=t;};
@@ -2497,7 +2557,7 @@ function stockRows(st,oldestKey){
   if(!rows.length)return '<div class="empty">ยังไม่มีไข่</div>';
   return rows.map(([k,l])=>{const s=st[k];const n=Math.max(1,Math.round(s.t/(TPC*10)));const shown=Math.min(n,30);
     return `<div class="srow"><h4>${l}</h4><div class="minis">${MINI.repeat(shown)}${n>30?`<span class="legend3">+${n-30}</span>`:''}</div>
-      <div class="num2"><b>${n0(s.t*30)} ฟอง</b><span>${ct(s.t)} ลัง.แผง${s[oldestKey]?` ผลิต ${shortD(s[oldestKey])}`:''}</span></div></div>`;}).join('');
+      <div class="num2"><b>${n0(s.t*EPT)} ฟอง</b><span>${ct(s.t)} ลัง.แผง${s[oldestKey]?` ผลิต ${shortD(s[oldestKey])}`:''}</span></div></div>`;}).join('');
 }
 // tasks marked done today (per viewer)
 const doneKey=()=>'coop-done-'+today();
@@ -2575,7 +2635,7 @@ function renderOverview(){
   const sc=buyers.slice().sort((a,b)=>bal[b.id].owe-bal[a.id].owe).map(b=>{const s=(tx[b.id]||[]).filter(t=>t.type==='sale'&&t.date===T);
     const tr=s.reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0);const amt=s.reduce((a,t)=>a+(t.total||0),0);const o=bal[b.id].owe;
     return `<div class="scard"><div class="scard-h">${ico('truck')}<h3>${esc(cleanName(b.name))}</h3></div>
-      ${tr?`<div class="pair"><div class="bignum"><span>รับไข่ไปวันนี้</span><b>${n0(tr*30)}<small>ฟอง</small></b></div><div class="bignum"><span>ค่าไข่วันนี้</span><b>${baht(amt)}<small>บาท</small></b></div></div>`:'<div class="bignum"><span>วันนี้</span><b style="font-size:22px">ยังไม่ได้รับไข่</b></div>'}
+      ${tr?`<div class="pair"><div class="bignum"><span>รับไข่ไปวันนี้</span><b>${n0(tr*EPT)}<small>ฟอง</small></b></div><div class="bignum"><span>ค่าไข่วันนี้</span><b>${baht(amt)}<small>บาท</small></b></div></div>`:'<div class="bignum"><span>วันนี้</span><b style="font-size:22px">ยังไม่ได้รับไข่</b></div>'}
       <div class="bignum ${o>0.5?'owe':'okc'}"><span>${o>0.5?'ค้างจ่ายฟาร์มทั้งหมด':'ไม่มียอดค้าง'}</span><b>${o>0.5?baht(o)+'<small>บาท</small>':'จ่ายครบแล้ว'}</b></div>
       ${o>0.5?`<button class="btn big" type="button" data-go="farmpay" data-arg="${esc(b.id)}">${ico('money')}บันทึกรับเงิน</button>`:`<button class="btn big" type="button" data-go="farmsell" data-arg="${esc(b.id)}">${ico('truck')}ขายไข่ให้ล้งนี้</button>`}</div>`;});
   $('foSales').innerHTML=sc.length?sc.join(''):`<div class="scard"><div class="bignum"><b style="font-size:22px">ยังไม่มีล้ง</b></div><button class="btn big" type="button" data-go="farmsell">เพิ่มล้ง</button></div>`;
@@ -2601,7 +2661,7 @@ function renderLOverview(L,C){
   if(old.length)tasks.push({s:'warn',icon:'clock',title:`ขายไข่${old.join(' ')}ล็อตเก่าก่อน`,why:'ไข่ในมือผลิตมาเกิน 7 วันแล้ว',go:'lsell',btn:'บันทึกขายออก',btnIcon:'box'});
   const outT=L.outs.filter(o=>o.type==='sale'&&o.date===T).length;
   const stT=SIZES.reduce((a,[k])=>a+C.st[k].t,0);
-  if(!outT&&stT>0)tasks.push({s:'warn',icon:'box',title:'บันทึกการขายออกของวันนี้',why:`มีไข่ในมือ ${n0(stT*30)} ฟอง ยังไม่มีรายการขายออกวันนี้`,go:'lsell',btn:'บันทึกขายออก',btnIcon:'box'});
+  if(!outT&&stT>0)tasks.push({s:'warn',icon:'box',title:'บันทึกการขายออกของวันนี้',why:`มีไข่ในมือ ${n0(stT*EPT)} ฟอง ยังไม่มีรายการขายออกวันนี้`,go:'lsell',btn:'บันทึกขายออก',btnIcon:'box'});
   Object.entries(C.cust).map(([n,c])=>({n,o:c.sold-c.paid})).filter(x=>x.o>5000).sort((a,b)=>b.o-a.o).slice(0,2)
     .forEach(x=>{if(!isDone('c-'+x.n))tasks.push({s:'warn',id:'c-'+x.n,icon:'money',title:`ทวงเงิน ${x.n}`,why:`ลูกค้าค้างจ่าย ${baht(x.o)} บาท`,go:'lpay',arg:x.n,btn:'บันทึกรับชำระ',btnIcon:'money'});});
   if(C.owe>0.5)tasks.push({s:'warn',icon:'money',title:`จ่ายเงินค่าไข่ให้ปรียาฟาร์ม`,why:`ค้างจ่ายฟาร์ม ${baht(C.owe)} บาท`,go:'lrecv',btn:'ดูรายการที่ค้าง',btnIcon:'truck'});
@@ -2609,10 +2669,10 @@ function renderLOverview(L,C){
   $('loTodo').innerHTML=tasks.length?tasks.map(taskHTML).join(''):taskHTML({s:'ok',icon:'check',title:'วันนี้เรียบร้อยดี',why:'ขายออกแล้ว และไม่มียอดค้างที่ต้องตาม'});
   const recvT=L.tx.filter(t=>t.type==='sale'&&t.date===T).reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0);
   const amtOut=L.outs.filter(o=>o.type==='sale'&&o.date===T).reduce((a,o)=>a+(o.total||0),0);
-  $('loMoney').innerHTML=`<div class="scard"><div class="scard-h">${ico('truck')}<h3>รับจากฟาร์มวันนี้</h3></div><div class="bignum"><b>${n0(recvT*30)}<small>ฟอง</small></b></div>
+  $('loMoney').innerHTML=`<div class="scard"><div class="scard-h">${ico('truck')}<h3>รับจากฟาร์มวันนี้</h3></div><div class="bignum"><b>${n0(recvT*EPT)}<small>ฟอง</small></b></div>
       <div class="bignum ${C.owe>0.5?'owe':'okc'}"><span>ค้างจ่ายปรียาฟาร์ม</span><b>${C.owe>0.5?baht(C.owe)+'<small>บาท</small>':'จ่ายครบแล้ว'}</b></div></div>
     <div class="scard"><div class="scard-h">${ico('box')}<h3>ขายออกวันนี้</h3></div><div class="bignum"><b>${baht(amtOut)}<small>บาท</small></b></div>
-      <div class="pair"><div class="bignum"><span>ไข่ในมือตอนนี้</span><b>${n0(stT*30)}<small>ฟอง</small></b></div><div class="bignum ${bk.bT>0?'owe':''}"><span>ไข่แตกวันนี้</span><b>${n0(bk.bT)}<small>ฟอง</small></b></div></div></div>`;
+      <div class="pair"><div class="bignum"><span>ไข่ในมือตอนนี้</span><b>${n0(stT*EPT)}<small>ฟอง</small></b></div><div class="bignum ${bk.bT>0?'owe':''}"><span>ไข่แตกวันนี้</span><b>${n0(bk.bT)}<small>ฟอง</small></b></div></div></div>`;
   $('loStock').innerHTML=stockRows(C.st,'oldest');
   $('loSellBtn').innerHTML=ico('box')+'บันทึกขายออก';
   const ps=(pubStock&&pubStock.sizes)||{};const pr=(prices&&prices.p)||{};
@@ -2626,9 +2686,9 @@ function renderLOverview(L,C){
 document.querySelector('#vLOverview details.more').addEventListener('toggle',e=>{if(e.target.open&&portal==='lhong')renderLCharts(lData());});
 function renderLCharts(L){
   const D=dayRange(14),Ls=D.map(shortD),pal=PAL();
-  const inn=D.map(d=>L.tx.filter(t=>t.type==='sale'&&t.date===d).reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0)*30);
-  const outd=D.map(d=>L.outs.filter(o=>o.type==='sale'&&o.date===d).reduce((a,o)=>a+(o.items||[]).reduce((x,i)=>x+i.trays,0),0)*30);
-  const stEnd=D.map(d=>{let a=0;L.tx.forEach(t=>{if(t.type==='sale'&&t.date<=d)(t.items||[]).forEach(i=>a+=i.trays);});L.outs.forEach(o=>{if(o.date<=d){if(o.type==='sale')(o.items||[]).forEach(i=>a-=i.trays);else if(o.type==='adj')a-=o.trays;}});return Math.max(0,a*30);});
+  const inn=D.map(d=>L.tx.filter(t=>t.type==='sale'&&t.date===d).reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0)*EPT);
+  const outd=D.map(d=>L.outs.filter(o=>o.type==='sale'&&o.date===d).reduce((a,o)=>a+(o.items||[]).reduce((x,i)=>x+i.trays,0),0)*EPT);
+  const stEnd=D.map(d=>{let a=0;L.tx.forEach(t=>{if(t.type==='sale'&&t.date<=d)(t.items||[]).forEach(i=>a+=i.trays);});L.outs.forEach(o=>{if(o.date<=d){if(o.type==='sale')(o.items||[]).forEach(i=>a-=i.trays);else if(o.type==='adj')a-=o.trays;}});return Math.max(0,a*EPT);});
   mkChart('chLFlow',{type:'bar',data:{labels:Ls,datasets:[{type:'bar',label:'รับจากฟาร์ม',data:inn,backgroundColor:pal[0],borderRadius:3,order:2},{type:'bar',label:'ขายออก',data:outd,backgroundColor:'#e3a21a',borderRadius:3,order:2},{type:'line',label:'สต็อกสิ้นวัน',data:stEnd,borderColor:tok('--ink'),backgroundColor:tok('--ink'),borderWidth:1.5,borderDash:[4,3],pointRadius:2,order:1}]},options:opts({scales:{y:{beginAtZero:true,ticks:{callback:kfmt}}}})});
   const asc=L.tx.slice().sort((a,c)=>a.date<c.date?-1:a.date>c.date?1:((a.at||'')<(c.at||'')?-1:1));
   mkChart('chBuyer',{type:'bar',data:{labels:Ls,datasets:[{type:'bar',label:'รับไข่ (บาท)',data:D.map(d=>asc.filter(t=>t.type==='sale'&&t.date===d).reduce((a,t)=>a+(t.total||0),0)),backgroundColor:pal[0],borderRadius:3,order:2},{type:'line',label:'ค้างจ่ายฟาร์มสะสม',data:D.map(d=>asc.filter(t=>t.date<=d).reduce((a,t)=>a+(t.type==='sale'?(t.total||0):-(t.amount||0)),0)),borderColor:tok('--crit'),backgroundColor:tok('--crit'),borderWidth:2,pointRadius:2,order:1}]},options:opts({scales:{y:{beginAtZero:true,ticks:{callback:kfmt}}}})});
@@ -2642,27 +2702,27 @@ function renderSales(){
   let eggsT=0,amtT=0,payT=0;const rows=[];
   buyers.forEach(b=>{const list=tx[b.id]||[];const s=list.filter(t=>t.type==='sale'&&t.date===D);const p=list.filter(t=>t.type==='pay'&&t.date===D);
     if(!s.length&&!p.length)return;
-    const by={};let tr=0,amt=0;s.forEach(t=>(t.items||[]).forEach(it=>{by[it.size]=(by[it.size]||0)+it.trays;tr+=it.trays;amt+=it.trays*30*(it.price||0);}));
+    const by={};let tr=0,amt=0;s.forEach(t=>(t.items||[]).forEach(it=>{by[it.size]=(by[it.size]||0)+it.trays;tr+=it.trays;amt+=it.trays*EPT*(it.price||0);}));
     const pay=p.reduce((a,t)=>a+(t.amount||0),0);eggsT+=tr;amtT+=amt;payT+=pay;
-    rows.push(`<tr><td>${esc(cleanName(b.name))}</td><td style="white-space:normal">${Object.entries(by).map(([k,t])=>`${SN[k]} ${ct(t)}`).join(', ')||'–'}</td><td>${n0(tr*30)}</td><td>${baht(amt)}</td><td>${pay?baht(pay):'–'}</td><td class="${bal[b.id].owe>0?'owe':''}">${baht(bal[b.id].owe)}</td></tr>`);});
+    rows.push(`<tr><td>${esc(cleanName(b.name))}</td><td style="white-space:normal">${Object.entries(by).map(([k,t])=>`${SN[k]} ${ct(t)}`).join(', ')||'–'}</td><td>${n0(tr*EPT)}</td><td>${baht(amt)}</td><td>${pay?baht(pay):'–'}</td><td class="${bal[b.id].owe>0?'owe':''}">${baht(bal[b.id].owe)}</td></tr>`);});
   const oweT=Object.values(bal).reduce((a,x)=>a+Math.max(0,x.owe),0);
   $('repMeta').textContent=`${thDate(D)} หน่วย ลัง.แผง (1 ลัง = ${TPC} แผง)`;
   $('repTbl').innerHTML=rows.length?`<thead><tr><th>ผู้ซื้อ</th><th>รายการ</th><th>ฟอง</th><th>เป็นเงิน (บาท)</th><th>จ่ายวันนี้</th><th>ค้างจ่ายสะสม</th></tr></thead><tbody>${rows.join('')}
-    <tr><td><b>รวม</b></td><td></td><td><b>${n0(eggsT*30)}</b></td><td><b>${baht(amtT)}</b></td><td><b>${baht(payT)}</b></td><td class="owe"><b>${baht(oweT)}</b></td></tr></tbody>`
+    <tr><td><b>รวม</b></td><td></td><td><b>${n0(eggsT*EPT)}</b></td><td><b>${baht(amtT)}</b></td><td><b>${baht(payT)}</b></td><td class="owe"><b>${baht(oweT)}</b></td></tr></tbody>`
     :`<tbody><tr><td class="empty" style="white-space:normal">ยังไม่ได้ขายให้ล้งในวันที่ ${thDate(D)} บันทึกได้ที่แท็บ "ขายไข่" ด้านขวา</td></tr></tbody>`;
   const stT=SIZES.reduce((a,[k])=>a+stock[k].t,0);const old=SIZES.map(([k])=>stock[k].oldest).filter(Boolean).sort()[0];const oldAge=old?days(old,today()):null;
   $('salesKpi').innerHTML=[
-    ['ไข่ที่ขาย',n0(eggsT*30),'ฟอง',`${ct(eggsT)} ลัง.แผง`,''],
+    ['ไข่ที่ขาย',n0(eggsT*EPT),'ฟอง',`${ct(eggsT)} ลัง.แผง`,''],
     ['ยอดขาย',baht(amtT),'บาท',`${rows.length} ล้ง`,''],
     ['รับเงินแล้ว',baht(payT),'บาท','ของวันที่เลือก',''],
     ['ผู้ซื้อค้างจ่ายฟาร์ม',baht(oweT),'บาท',`${Object.values(bal).filter(x=>x.owe>0).length} ราย`,oweT>0?'warn':''],
-    ['สต็อกที่ฟาร์ม',n0(stT*30),'ฟอง',old?`ล็อตเก่าสุด ${thDate(old)} (${oldAge} วัน)`:'ยังไม่มีสต็อก',oldAge>14?'crit':oldAge>7?'warn':'']
+    ['สต็อกที่ฟาร์ม',n0(stT*EPT),'ฟอง',old?`ล็อตเก่าสุด ${thDate(old)} (${oldAge} วัน)`:'ยังไม่มีสต็อก',oldAge>14?'crit':oldAge>7?'warn':'']
   ].map(k=>`<div class="kpi ${k[4]}"><span>${k[0]}</span><b>${k[1]}<small>${k[2]}</small></b><em>${k[3]}</em></div>`).join('');
   $('shortNote').hidden=!shorts.length;
   if(shorts.length)$('shortNote').innerHTML='ขายเกินสต็อก: '+shorts.slice(0,4).map(s=>`${esc(cleanName(s.who))} ${thDate(s.date)} ${SN[s.size]} ขาด ${ct(s.missing)}`).join(', ')+' ตรวจว่าบันทึกประจำวันครบหรือยัง หรือเพิ่มยอดยกมาที่แท็บ "ปรับสต็อก"';
   $('stockTbl').innerHTML='<thead><tr><th>ขนาด</th><th>คงเหลือ (ลัง.แผง)</th><th>ฟอง</th><th>ล็อตเก่าสุด (ตัดก่อน)</th><th>ล็อตค้าง</th><th></th></tr></thead><tbody>'+
-    SIZES.map(([k,l])=>{const s=stock[k];let h=`<tr><td>${l}</td><td>${ct(s.t)}</td><td>${n0(s.t*30)}</td><td>${s.oldest?thDate(s.oldest)+' '+ageTag(s.oldest):'–'}</td><td>${s.n}</td><td>${s.n?`<button class="linkbtn" data-lot="${k}">${openLot===k?'ซ่อน':'ดูล็อต'}</button>`:''}</td></tr>`;
-      if(openLot===k)h+=lots[k].filter(L=>L.left>0).map(L=>`<tr class="lotrow"><td>${L.src==='adj'?'ยกมา':'ผลิต'}</td><td>${ct(L.left)}</td><td>${n0(L.left*30)}</td><td>${thDate(L.date)} ${ageTag(L.date)}</td><td>รับเข้า ${ct(L.in)}</td><td></td></tr>`).join('');
+    SIZES.map(([k,l])=>{const s=stock[k];let h=`<tr><td>${l}</td><td>${ct(s.t)}</td><td>${n0(s.t*EPT)}</td><td>${s.oldest?thDate(s.oldest)+' '+ageTag(s.oldest):'–'}</td><td>${s.n}</td><td>${s.n?`<button class="linkbtn" data-lot="${k}">${openLot===k?'ซ่อน':'ดูล็อต'}</button>`:''}</td></tr>`;
+      if(openLot===k)h+=lots[k].filter(L=>L.left>0).map(L=>`<tr class="lotrow"><td>${L.src==='adj'?'ยกมา':'ผลิต'}</td><td>${ct(L.left)}</td><td>${n0(L.left*EPT)}</td><td>${thDate(L.date)} ${ageTag(L.date)}</td><td>รับเข้า ${ct(L.in)}</td><td></td></tr>`).join('');
       return h;}).join('')+'</tbody>';
   $('ledMeta').textContent=buyers.length?`${buyers.length} ราย`:'';
   $('ledTbl').innerHTML=buyers.length?'<thead><tr><th>ผู้ซื้อ</th><th>ซื้อรวม</th><th>จ่ายแล้ว</th><th>ค้างจ่าย</th><th>รับไข่ล่าสุด</th><th>บัญชี</th><th></th></tr></thead><tbody>'+
@@ -2674,10 +2734,10 @@ function renderSales(){
 function renderSalesCharts(){
   const D=farmRange(),L=D.map(shortD),pal=PAL();
   const prod=D.map(d=>records.filter(r=>r.date===d).reduce((a,r)=>a+goodEggsOf(r),0));
-  const sold=D.map(d=>{let t=0;buyers.forEach(b=>(tx[b.id]||[]).forEach(x=>{if(x.type==='sale'&&x.date===d)(x.items||[]).forEach(i=>t+=i.trays);}));return t*30;});
+  const sold=D.map(d=>{let t=0;buyers.forEach(b=>(tx[b.id]||[]).forEach(x=>{if(x.type==='sale'&&x.date===d)(x.items||[]).forEach(i=>t+=i.trays);}));return t*EPT;});
   const stockEnd=D.map(d=>{let inn=0,out=0;records.forEach(r=>{if(r.date<=d)inn+=goodEggsOf(r);});
-    adjusts.forEach(a=>{if(a.date<=d){if(a.trays>0)inn+=a.trays*30;else out+=-a.trays*30;}});
-    buyers.forEach(b=>(tx[b.id]||[]).forEach(x=>{if(x.type==='sale'&&x.date<=d)(x.items||[]).forEach(i=>out+=i.trays*30);}));return Math.max(0,inn-out);});
+    adjusts.forEach(a=>{if(a.date<=d){if(a.trays>0)inn+=a.trays*EPT;else out+=-a.trays*EPT;}});
+    buyers.forEach(b=>(tx[b.id]||[]).forEach(x=>{if(x.type==='sale'&&x.date<=d)(x.items||[]).forEach(i=>out+=i.trays*EPT);}));return Math.max(0,inn-out);});
   mkChart('chFlow',{type:'bar',data:{labels:L,datasets:[
       {type:'bar',label:'ผลิต (ฟอง)',data:prod,backgroundColor:pal[0],borderRadius:3,order:2},
       {type:'bar',label:'ขายให้ล้ง (ฟอง)',data:sold,backgroundColor:pal[1],borderRadius:3,order:2},
@@ -2718,7 +2778,7 @@ function saleCalc(){
   let tot=0,ok=true;const D=$('sDate').value||today();
   SIZES.forEach(([k])=>{const q=parseCT($('sq_'+k).value),p=parseFloat($('sp_'+k).value);
     const bad=Number.isNaN(q)||(q>0&&q>availAt(k,D));$('sq_'+k).classList.toggle('bad',!!bad);$('sp_'+k).classList.toggle('bad',q>0&&!(p>0));
-    if(q>0&&p>0){const a=q*30*p;tot+=a;$('sa_'+k).textContent=baht(a);}else $('sa_'+k).textContent='–';
+    if(q>0&&p>0){const a=q*EPT*p;tot+=a;$('sa_'+k).textContent=baht(a);}else $('sa_'+k).textContent='–';
     if(bad||(q>0&&!(p>0)))ok=false;});
   $('sTotal').textContent=baht(tot)+' บาท';return {tot,ok};
 }
@@ -2817,7 +2877,7 @@ function demoOuts(list){
   list.filter(t=>t.type==='sale').sort((a,b)=>a.date<b.date?-1:1).forEach((t,ti)=>{
     const d=addDays(t.date,1);if(d>today())return;
     custs.forEach((c,ci)=>{const share=[.5,.3,.15][ci];const items=(t.items||[]).map(i=>({size:i.size,trays:Math.floor(i.trays*share*(0.85+rnd()*.1)),price:Math.round(((pr[i.size]||i.price||3.5)+0.45)*100)/100})).filter(i=>i.trays>0);
-      if(!items.length)return;const total=items.reduce((a,i)=>a+i.trays*30*i.price,0);
+      if(!items.length)return;const total=items.reduce((a,i)=>a+i.trays*EPT*i.price,0);
       out.push({id:`demo-${ti}-${ci}`,type:'sale',date:d,at:d+'T0'+(8+ci)+':00:00Z',customer:c,items,total:Math.round(total),paid:ci===0?Math.round(total):Math.round(total*.7/100)*100,demo:true});});
     const reasons=['แตกตอนรับจากฟาร์ม','แตกระหว่างขนส่ง','แตกในโกดัง'];
     if((t.items||[]).length)out.push({id:`demo-b-${ti}`,type:'adj',date:t.date,at:t.date+'T07:30:00Z',size:t.items[0].size,eggs:20+Math.round(rnd()*60),reason:reasons[ti%3],demo:true});
@@ -2830,7 +2890,7 @@ function lCompute(L){
     const parts=(t.lots&&t.lots[it.size]&&t.lots[it.size].length)?t.lots[it.size]:[[t.date,it.trays]];
     parts.forEach(([pd,tr])=>{let x=lt[it.size].find(l=>l.prod===pd&&l.recv===t.date);if(!x){x={key:`${it.size}|${pd}|${t.date}`,prod:pd,recv:t.date,in:0,left:0};lt[it.size].push(x);}x.in+=tr;x.left+=tr;});}));
   SIZES.forEach(([k])=>lt[k].sort((a,b)=>a.prod<b.prod?-1:a.prod>b.prod?1:(a.recv<b.recv?-1:1)));
-  const ev=[];L.outs.forEach(o=>{if(o.type==='sale')(o.items||[]).forEach(i=>ev.push({date:o.date,at:o.at||'',size:i.size,trays:i.trays}));else if(o.type==='adj')ev.push({date:o.date,at:o.at||'',size:o.size,trays:o.eggs!=null?o.eggs/30:o.trays,lot:o.lot});});
+  const ev=[];L.outs.forEach(o=>{if(o.type==='sale')(o.items||[]).forEach(i=>ev.push({date:o.date,at:o.at||'',size:i.size,trays:i.trays}));else if(o.type==='adj')ev.push({date:o.date,at:o.at||'',size:o.size,trays:o.eggs!=null?o.eggs/EPT:o.trays,lot:o.lot});});
   ev.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.at<b.at?-1:1));
   let short=0;ev.forEach(e=>{let need=e.trays;const pool=(lt[e.size]||[]);const order=e.lot?pool.filter(x=>x.key===e.lot).concat(pool.filter(x=>x.key!==e.lot)):pool;
     for(const x of order){if(need<=1e-9)break;if(x.recv>e.date||x.left<=1e-9)continue;const t=Math.min(x.left,need);x.left-=t;need-=t;}short+=Math.max(0,need);});
@@ -2842,8 +2902,8 @@ function lCompute(L){
 }
 function lStockTable(C,full){
   return '<thead><tr><th>ขนาด</th><th>คงเหลือ (ลัง.แผง)</th><th>ฟอง</th><th>ผลิตเก่าสุด (ขายก่อน)</th>'+(full?'<th>ล็อต</th><th></th>':'')+'</tr></thead><tbody>'+
-    SIZES.filter(([k])=>full||C.st[k].t>0).map(([k,l])=>{const s=C.st[k];let h=`<tr><td>${l}</td><td>${ct(s.t)}</td><td>${n0(s.t*30)}</td><td>${s.oldest?thDate(s.oldest)+' '+ageTag(s.oldest):'–'}</td>${full?`<td>${s.n}</td><td>${s.n?`<button class="linkbtn" data-llot="${k}">${lOpenLot===k?'ซ่อน':'ดูล็อต'}</button>`:''}</td>`:''}</tr>`;
-      if(full&&lOpenLot===k)h+=C.lt[k].filter(x=>x.left>0).map(x=>`<tr class="lotrow"><td>ผลิต ${thDate(x.prod)}</td><td>${ct(x.left)}</td><td>${n0(x.left*30)}</td><td>รับ ${thDate(x.recv)} ${ageTag(x.prod)}</td><td>รับมา ${ct(x.in)}</td><td></td></tr>`).join('');
+    SIZES.filter(([k])=>full||C.st[k].t>0).map(([k,l])=>{const s=C.st[k];let h=`<tr><td>${l}</td><td>${ct(s.t)}</td><td>${n0(s.t*EPT)}</td><td>${s.oldest?thDate(s.oldest)+' '+ageTag(s.oldest):'–'}</td>${full?`<td>${s.n}</td><td>${s.n?`<button class="linkbtn" data-llot="${k}">${lOpenLot===k?'ซ่อน':'ดูล็อต'}</button>`:''}</td>`:''}</tr>`;
+      if(full&&lOpenLot===k)h+=C.lt[k].filter(x=>x.left>0).map(x=>`<tr class="lotrow"><td>ผลิต ${thDate(x.prod)}</td><td>${ct(x.left)}</td><td>${n0(x.left*EPT)}</td><td>รับ ${thDate(x.recv)} ${ageTag(x.prod)}</td><td>รับมา ${ct(x.in)}</td><td></td></tr>`).join('');
       return h;}).join('')+'</tbody>';
 }
 function renderLhong(){
@@ -2854,7 +2914,7 @@ function renderLhong(){
   // received from farm
   if(!$('vLReceive').hidden){
     const T7=addDays(T,-6);const r7=L.tx.filter(t=>t.type==='sale'&&t.date>=T7).reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0);
-    $('lrKpi').innerHTML=[['ค้างจ่ายฟาร์ม',baht(C.owe),'บาท',C.owe>0?'warn':''],['รับไข่ 7 วันล่าสุด',n0(r7*30),'ฟอง',''],['ซื้อทั้งหมด',baht(C.sold),'บาท',''],['จ่ายแล้วทั้งหมด',baht(C.paid),'บาท','']]
+    $('lrKpi').innerHTML=[['ค้างจ่ายฟาร์ม',baht(C.owe),'บาท',C.owe>0?'warn':''],['รับไข่ 7 วันล่าสุด',n0(r7*EPT),'ฟอง',''],['ซื้อทั้งหมด',baht(C.sold),'บาท',''],['จ่ายแล้วทั้งหมด',baht(C.paid),'บาท','']]
       .map(k=>`<div class="kpi ${k[3]}"><span>${k[0]}</span><b>${k[1]}<small>${k[2]}</small></b></div>`).join('');
     const asc=L.tx.slice().sort((a,c)=>a.date<c.date?-1:a.date>c.date?1:((a.at||'')<(c.at||'')?-1:1));let run=0;const rows=[];
     asc.forEach(t=>{run+=t.type==='sale'?(t.total||0):-(t.amount||0);const tp=t.tpc||TPC;const c=x=>{const cc=Math.floor(x/tp),r=x-cc*tp;return r?`${cc}.${r}`:`${cc}`;};
@@ -2871,7 +2931,7 @@ function renderLhong(){
     if(locked)$('lsLock').textContent=isPreview()?'โหมดดูตัวอย่าง: ตัวเลขขายออกในหน้านี้เป็นข้อมูลจำลอง เพราะข้อมูลขายออกจริงเป็นข้อมูลส่วนตัวของล้ง ฟาร์มเปิดดูไม่ได้ ฟอร์มด้านขวาจึงปิดไว้':'ต้องลงชื่อเข้าใช้จึงจะบันทึกได้';
     ['lsSave'].forEach(id=>$(id).disabled=locked);document.querySelectorAll('#lfPay button[type=submit],#lfAdj button[type=submit]').forEach(b=>b.disabled=locked);
     const stT=SIZES.reduce((a,[k])=>a+C.st[k].t,0);
-    $('lsStockMeta').textContent=`รวม ${n0(stT*30)} ฟอง`+(C.short?` ขายเกินสต็อก ${ct(C.short)} ลัง.แผง`:'');
+    $('lsStockMeta').textContent=`รวม ${n0(stT*EPT)} ฟอง`+(C.short?` ขายเกินสต็อก ${ct(C.short)} ลัง.แผง`:'');
     $('lsStock').innerHTML=lStockTable(C,true);renderWarehouse(C);renderBroken(L);showLaLot();
     const outs=L.outs.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:((a.at||'')<(b.at||'')?1:-1)).slice(0,25);
     $('lsOut').innerHTML=outs.length?'<thead><tr><th>วันที่</th><th>ลูกค้า</th><th>รายการ</th><th>เป็นเงิน</th><th>ได้รับ</th></tr></thead><tbody>'+
@@ -2901,7 +2961,7 @@ function lLinesAvail(C){const D=$('lsDate').value||today();
 function lSaleCalc(){let tot=0,ok=true;
   SIZES.forEach(([k])=>{const q=parseCT($('lq_'+k).value),p=parseFloat($('lp_'+k).value);const bad=Number.isNaN(q)||(q>0&&q>(lAvail[k]||0));
     $('lq_'+k).classList.toggle('bad',!!bad);$('lp_'+k).classList.toggle('bad',q>0&&!(p>0));
-    if(q>0&&p>0){const a=q*30*p;tot+=a;$('la_'+k).textContent=baht(a);}else $('la_'+k).textContent='–';if(bad||(q>0&&!(p>0)))ok=false;});
+    if(q>0&&p>0){const a=q*EPT*p;tot+=a;$('la_'+k).textContent=baht(a);}else $('la_'+k).textContent='–';if(bad||(q>0&&!(p>0)))ok=false;});
   $('lsTotal').textContent=baht(tot)+' บาท';return {tot,ok};}
 $('lfSale').addEventListener('input',e=>{if(e.target.id==='lsDate')renderLhong();else lSaleCalc();});
 function lTab(t){document.querySelectorAll('#lTabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));$('lfSale').hidden=t!=='sale';$('lfPay').hidden=t!=='pay';$('lfAdj').hidden=t!=='adj';}
@@ -2970,15 +3030,14 @@ function pulletWeighHTML(){const out=[];PULLETS.forEach(n=>{const W=weighsOf(n);
   <div class="xgrid">${tile('t-hd','น้ำหนักเฉลี่ย',n0(st.m),'กรัม',`<em>ชั่ง ${st.n} ตัว</em>`)}${tile('t-std','มาตรฐานสายพันธุ์',sd?n0(sd.mid):'–','กรัม',sd?`<em class="${Math.abs(vsStd)<=5?'up':Math.abs(vsStd)<=10?'mid':'down'}">${vsStd>=0?'หนักกว่า':'เบากว่า'} ${n1(Math.abs(vsStd))}%</em>`:'<em>ยังไม่ได้ระบุสายพันธุ์</em>')}
    ${tile(st.uni>=80?'t-hd':'t-hh','ยูนิฟอร์มิตี้',n1(st.uni),'%',`<em class="${st.uni>=85?'up':st.uni>=80?'mid':'down'}">เป้าหมาย 80% ขึ้นไป</em>`)}${tile('','ตัวเบา / ตัวหนัก',n1(st.low)+' / '+n1(st.high),'%','<em>ต่ำกว่า / สูงกว่าค่าเฉลี่ยเกิน 10%</em>')}
    ${tile('','CV',n1(st.cv),'%',`<em>${st.cv<=8?'กระจายน้อย ดี':st.cv<=10?'พอใช้':'กระจายมาก'}</em>`)}${tile('','เบาสุด – หนักสุด',n0(st.min)+' – '+n0(st.max),'กรัม',sd?`<em>ช่วงมาตรฐาน ${n0(sd.lo)}–${n0(sd.hi)}</em>`:'')}</div>
-  <div class="xw"><div class="xw-h">การกระจายน้ำหนัก (ระฆัง)</div>${bwCurveSVG(st.m?w.weights.map(Number).filter(x=>x>0):[],st,sd)}
+  <div class="xw"><div class="xw-h">การกระจายน้ำหนัก (ระฆัง)</div><p class="xo-scroll-hint">เลื่อนซ้าย–ขวาเพื่อดูทั้งกราฟ</p><div class="xo-scroll">${bwCurveSVG(st.m?w.weights.map(Number).filter(x=>x>0):[],st,sd)}</div>
    <div class="xleg"><span><i class="k b-mid"></i>อยู่ในช่วง ±10% ของค่าเฉลี่ย (ยูนิฟอร์ม)</span><span><i class="k b-low"></i>ตัวเบา</span><span><i class="k b-high"></i>ตัวหนัก</span><span><i class="k s-band"></i>ช่วงมาตรฐานสายพันธุ์</span></div></div>
   ${tierRows?`<div class="xtabs"><div class="xtw"><table class="xtab"><caption>แยกตามชั้นกรง</caption><thead><tr><th>ชั้น</th><th>ตัว</th><th>เฉลี่ย (ก.)</th><th>ยูนิฟอร์ม</th><th>CV</th></tr></thead><tbody>${tierRows}</tbody></table></div></div>`:''}`);});
   return out.join('');}
 /* ---------- executive bento: every label and number in one large size; one fact per box ---------- */
-const TRAY_KG=2.5,EGGS_PER_CRATE=300;
 function eggWeightOf(r){const w=(r.weights||[]).filter(x=>x>0);if(w.length)return {g:(w.reduce((a,b)=>a+b,0)/w.length-TRAY_KG)*1000/EGGS_PER_CRATE,crate:w.reduce((a,b)=>a+b,0)/w.length,n:w.length};
   const c=r.calc||{};return c.avgEgg&&c.avgEgg<68&&!(r.weights||[]).length?{g:c.avgEgg,crate:null,n:0}:null;}
-function renderExecBento(D,cur,pv){if(window.PFX)return window.PFX.render(D,cur,pv,{records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,liveStd,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days});return renderExecBentoOld(D,cur,pv);}
+function renderExecBento(D,cur,pv){if(window.PFX)return window.PFX.render(D,cur,pv,{records,health,stock,SIZES,hdoc,stdFor,stdAt,houseAgeOn,liveStd,LAYERS,PULLETS,n0,n1,shortD,esc,eggWeightOf,pulletWeighHTML,goodEggsOf,bwStats,weighsOf,days,cfg:CFG});return renderExecBentoOld(D,cur,pv);}
 function renderExecBentoOld(D,cur,pv){const el=$('execBento');if(!el)return;
   const rs=records.filter(r=>r.date===D);const lay=rs.filter(r=>LAYERS.includes(r.house));
   const num=v=>{const x=parseFloat(String(v==null?'':v).replace(/,/g,''));return isFinite(x)?x:0;};
@@ -3010,11 +3069,11 @@ function renderExecBentoOld(D,cur,pv){const el=$('execBento');if(!el)return;
     tile('','อายุไก่เฉลี่ย',aw?n1(ab/aw):'–','สัปดาห์'),
   ];
   const rowOf=h=>{const H=hdoc(h);const r=rs.find(x=>x.house===h);
-    if(!r){const why=H.depop?'กำลังปลดไก่':H.status==='rest'?'พักเล้า':(H.birds||0)>0?'ยังไม่ส่งใบวันนี้':(h>=8?'รอข้อมูลไก่เล็ก':'ยังไม่มีไก่');return {h,none:why};}
+    if(!r){const why=H.depop?'กำลังปลดไก่':H.status==='rest'?'พักเล้า':(H.birds||0)>0?'ยังไม่ส่งใบวันนี้':(PULLETS.includes(h)?'รอข้อมูลไก่เล็ก':'ยังไม่มีไก่');return {h,none:why};}
     const c=r.calc||{};const sd=stdFor(h,D);const e=eggWeightOf(r);const ag=houseAgeOn(h,D);
     return {h,age:ag!=null?n1(ag/7):(r.f&&r.f.age)||'–',birds:c.birds,eggs:c.goodEggs,hd:c.pct,std:sd?sd.hd:null,dead:num(r.f&&r.f.h_dead),feed:c.feedPer,ew:e&&e.g,crate:e&&e.crate,n:e&&e.n};};
   const rows=ALLH.map(rowOf);
-  const lay7=rows.filter(x=>x.h<=7);const dc=(a,b)=>a!=null&&b!=null?`<span class="${a-b>=-2?'up':a-b>=-5?'mid':'down'}">${a-b>=0?'+':'−'}${n1(Math.abs(a-b))}</span>`:'–';
+  const lay7=rows.filter(x=>LAYERS.includes(x.h));const dc=(a,b)=>a!=null&&b!=null?`<span class="${a-b>=-2?'up':a-b>=-5?'mid':'down'}">${a-b>=0?'+':'−'}${n1(Math.abs(a-b))}</span>`:'–';
   const mkTab=(cap,heads,list,cells)=>`<div class="xtw"><table class="xtab"><caption>${cap}</caption><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.map(x=>x.none?`<tr class="none"><td>${x.h}</td><td colspan="${heads.length-1}">${x.none}</td></tr>`:`<tr><td>${x.h}</td>${cells(x).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   const t1=mkTab('Hen-day เทียบมาตรฐาน',['เล้า','Hen-day','มาตรฐาน','ต่าง'],lay7,x=>[x.hd!=null?n1(x.hd)+'%':'–',x.std!=null?n1(x.std)+'%':'–',dc(x.hd,x.std)]);
   const t2=mkTab('ไข่ดีและไก่',['เล้า','ไข่ดี (ฟอง)','ไก่ (ตัว)','ตาย'],rows,x=>[x.eggs?n0(x.eggs):'–',x.birds?n0(x.birds):'–',n0(x.dead)]);
@@ -3037,7 +3096,7 @@ function renderHenBox(){
   try{renderExecBento(D,cur,pv);}catch(e){console.error(e);}
   const actL=LAYERS.filter(h=>hdoc(h).status==='active').length;
   $('hdSub').textContent=`ไข่ดี ${n0(cur.eggs)} ฟอง ไก่มีชีวิต ${n0(cur.birds)} ตัว`+(cur.housed?` ไก่ลงเล้า ${n0(cur.housed)} ตัว${cur.hFull?'':' (เฉพาะเล้า '+cur.hH.join(', ')+')'}`:'')+(cur.n<actL?` (มีใบบันทึก ${cur.n} จาก ${actL} เล้าไก่ไข่)`:'');
-  $('hdPer').innerHTML='<div class="hp-h">ไก่ไข่ เล้า 1–7</div>'+LAYERS.map(h=>henRowHTML(h,D)).join('')+pulletRowsHTML();
+  $('hdPer').innerHTML='<div class="hp-h">ไก่ไข่ เล้า '+rangeTxt(LAYERS)+'</div>'+LAYERS.map(h=>henRowHTML(h,D)).join('')+pulletRowsHTML();
   // month options
   const months=[...new Set(dates.map(d=>d.slice(0,7)).concat([T.slice(0,7)]))].sort().reverse();
   const sel=$('hdMonth');const cv=sel.value;
@@ -3124,7 +3183,7 @@ $('hForm').addEventListener('click',e=>{const kb=e.target.closest('#qd_kind butt
   if(hMode==='med')medUntil();});
 $('hDate').value=today();
 $('hDate').addEventListener('change',()=>{if(hMode==='egg')prefillEgg();if(hMode==='med')medUntil();});
-function recalc(r){const f=r.f||{};const tp=r.tpc||10;const t=parseCT(f.e_sum_t,tp);const good=t>0?t*30:0;
+function recalc(r){const f=r.f||{};const tp=r.tpc||10;const t=parseCT(f.e_sum_t,tp);const good=t>0?t*EPT:0;
   const birds=parseFloat(f.birds)||null,housed=parseFloat(f.housed)||null;
   const old=r.calc||{};
   const fu=parseFloat(f.f_used),wu=parseFloat(f.w_used);
@@ -3219,7 +3278,7 @@ function renderWarehouse(C){
   $('wh').innerHTML=h;
   $('wh').style.gridTemplateRows=`repeat(${WH_ROWS.length},auto)`;
   const sel=whSel&&byKey[whSel];$('whSel').hidden=!sel;
-  if(sel)$('whSel').innerHTML=`<div class="info"><b>${sel.label} ผลิต ${thDate(sel.prod)}</b><span>อยู่ช่อง ${P.pos[sel.key]} เหลือ ${ct(sel.left)} ลัง.แผง (${n0(sel.left*30)} ฟอง) รับจากฟาร์ม ${thDate(sel.recv)} แตะช่องอื่นเพื่อย้าย</span></div>
+  if(sel)$('whSel').innerHTML=`<div class="info"><b>${sel.label} ผลิต ${thDate(sel.prod)}</b><span>อยู่ช่อง ${P.pos[sel.key]} เหลือ ${ct(sel.left)} ลัง.แผง (${n0(sel.left*EPT)} ฟอง) รับจากฟาร์ม ${thDate(sel.recv)} แตะช่องอื่นเพื่อย้าย</span></div>
     <button class="btn" type="button" id="whBroken">${ico('crack')}บันทึกไข่แตกล็อตนี้</button><button class="btn ghost" type="button" id="whCancel">ยกเลิก</button>`;
   $('whLegend').innerHTML='<span><i style="background:#24804a"></i>ผลิตไม่เกิน 7 วัน</span><span><i style="background:#d08a0a"></i>8–14 วัน</span><span><i style="background:#c2362b"></i>เกิน 14 วัน</span>'+
     SIZES.filter(([k])=>P.live.some(x=>x.size===k)).map(([k,l])=>`<span><i class="sz-${k}"></i>${l}</span>`).join('')+(P.live.length>SLOTS.length?`<span style="color:var(--crit)">มีล็อตเกินช่องโกดัง ${P.live.length-SLOTS.length} ล็อต</span>`:'');
@@ -3266,11 +3325,11 @@ $('laSize').addEventListener('change',()=>{laLot=null;showLaLot();});
 function renderBroken(L){
   const b=L.outs.filter(o=>o.type==='adj').sort((a,c)=>(a.at||a.date)<(c.at||c.date)?1:-1);
   const T=today();const t7=addDays(T,-6);
-  const bT=b.filter(o=>o.date===T).reduce((a,o)=>a+(o.eggs!=null?o.eggs:o.trays*30),0);
-  const b7=b.filter(o=>o.date>=t7).reduce((a,o)=>a+(o.eggs!=null?o.eggs:o.trays*30),0);
-  const r7=L.tx.filter(t=>t.type==='sale'&&t.date>=t7).reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0)*30;
+  const bT=b.filter(o=>o.date===T).reduce((a,o)=>a+(o.eggs!=null?o.eggs:o.trays*EPT),0);
+  const b7=b.filter(o=>o.date>=t7).reduce((a,o)=>a+(o.eggs!=null?o.eggs:o.trays*EPT),0);
+  const r7=L.tx.filter(t=>t.type==='sale'&&t.date>=t7).reduce((a,t)=>a+(t.items||[]).reduce((x,i)=>x+i.trays,0),0)*EPT;
   $('lsBrokenMeta').textContent=`วันนี้ ${n0(bT)} ฟอง 7 วัน ${n0(b7)} ฟอง${r7?` (${n1(b7/r7*100,2)}% ของที่รับมา)`:''}`;
-  $('lsBroken').innerHTML=b.length?'<thead><tr><th>วันที่</th><th>ขนาด</th><th>ไข่แตก (ฟอง)</th><th>สาเหตุ</th></tr></thead><tbody>'+b.slice(0,15).map(o=>`<tr><td>${thDate(o.date)}</td><td>${SN[o.size]||'–'}</td><td>${n0(o.eggs!=null?o.eggs:o.trays*30)}</td><td style="white-space:normal">${esc(o.reason||o.note||'–')}</td></tr>`).join('')+'</tbody>'
+  $('lsBroken').innerHTML=b.length?'<thead><tr><th>วันที่</th><th>ขนาด</th><th>ไข่แตก (ฟอง)</th><th>สาเหตุ</th></tr></thead><tbody>'+b.slice(0,15).map(o=>`<tr><td>${thDate(o.date)}</td><td>${SN[o.size]||'–'}</td><td>${n0(o.eggs!=null?o.eggs:o.trays*EPT)}</td><td style="white-space:normal">${esc(o.reason||o.note||'–')}</td></tr>`).join('')+'</tbody>'
     :'<tbody><tr><td class="empty">ยังไม่มีไข่แตก</td></tr></tbody>';
   return {bT,b7,r7};
 }
@@ -3281,19 +3340,27 @@ IC.barn='<path d="M3 10l9-6 9 6v10H3z"/><path d="M9 20v-6h6v6M3 10h18"/>';
 IC.chick='<circle cx="12" cy="13" r="6"/><circle cx="14.5" cy="11" r=".8"/><path d="M18 12.5l2.5 1-2.5 1M10 5c0-1 1-2 2-2s2 1 2 2"/>';
 IC.photo='<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-5-5-8 8"/>';
 IC.move='<path d="M4 12h14M13 6l6 6-6 6"/>';
-const LAYERS=[1,2,3,4,5,6,7],PULLETS=[8,9,10],ALLH=LAYERS.concat(PULLETS);
-const REST_DAYS=45,MOVE_WEEK=16,DEPOP_WEEK=85;
+/* house lists come from the houses saved in the database (type layer / pullet), never fixed numbers */
+const LAYERS=[],PULLETS=[],ALLH=[];
+const rangeTxt=a=>{if(!a.length)return '–';const out=[];let st=a[0],pv=a[0];for(const n of a.slice(1).concat([null])){if(n===pv+1){pv=n;continue;}out.push(st===pv?`${st}`:pv===st+1?`${st}, ${pv}`:`${st}–${pv}`);st=pv=n;}return out.join(', ');};
+function syncHouseLists(){const H=Object.values(houses).filter(h=>+h.no>0&&h.status!=='removed');const nos=H.map(h=>+h.no).sort((a,b)=>a-b);
+  const pul=nos.filter(n=>houses['h'+n].type==='pullet');LAYERS.splice(0,LAYERS.length,...nos.filter(n=>!pul.includes(n)));PULLETS.splice(0,PULLETS.length,...pul);ALLH.splice(0,ALLH.length,...LAYERS,...PULLETS);
+  const btns=(el,attr,list,first)=>{const e=$(el);if(!e)return;const cur=(e.querySelector('[aria-pressed="true"]')||{}).dataset;const cv=cur?cur[attr==='data-sc'?'sc':'v']:null;
+    e.innerHTML=(first||'')+list.map(n=>`<button type="button" ${attr}="${n}" aria-pressed="false">เล้า ${n}</button>`).join('');const b=e.querySelector(`[${attr}="${cv}"]`)||e.querySelector('button');if(b)b.setAttribute('aria-pressed','true');};
+  btns('hdScope','data-sc',LAYERS,'<button type="button" data-sc="farm" aria-pressed="false">ทั้งฟาร์ม</button>');btns('hHouse','data-v',ALLH);
+  const sel=$('house');if(sel){const v=sel.value;sel.innerHTML=ALLH.map(n=>`<option value="${n}">เล้า ${n}${PULLETS.includes(n)?' (ไก่เล็ก)':''}</option>`).join('');if(ALLH.includes(+v))sel.value=v;}
+  document.querySelectorAll('.rng-lay').forEach(e=>e.textContent=rangeTxt(LAYERS));document.querySelectorAll('.rng-pul').forEach(e=>e.textContent=rangeTxt(PULLETS));document.querySelectorAll('.rng-all').forEach(e=>e.textContent=rangeTxt(ALLH));}
 const REST_STEPS=[['clean','ล้างทำความสะอาดเล้า'],['cage','ซ่อมกรง'],['building','ซ่อมโรงเรือน'],['disinfect','พ่นยาฆ่าเชื้อ']];
 const VAC_PROG=[[1,'มาเร็ก (Marek)'],[7,'ND+IB (หยอดตา)'],[14,'กัมโบโร (IBD) ครั้งที่ 1'],[21,'ND+IB ครั้งที่ 2'],[28,'กัมโบโร (IBD) ครั้งที่ 2'],[42,'ฝีดาษไก่ (FP)'],[56,'ND+IB ครั้งที่ 3'],[70,'หวัดหน้าบวม (Coryza) ครั้งที่ 1'],[84,'อหิวาต์ไก่ (FC)'],[98,'หวัดหน้าบวม (Coryza) ครั้งที่ 2'],[105,'กล่องเสียงอักเสบ (ILT)'],[112,'ND+IB+EDS ก่อนไข่']];
 let houses={},repairs=[],assetsCap=null;
 use('assets').then(a=>{assetsCap=a;});
-const hdoc=n=>houses['h'+n]||{no:n,type:n>=8?'pullet':'layer',status:'ready'};
+const hdoc=n=>houses['h'+n]||{no:n,type:PULLETS.includes(n)?'pullet':'layer',status:'ready'};
 const ageDays=h=>h.hatch?days(h.hatch,today()):null;
 const ageTxt=d=>d==null?'–':`${Math.floor(d/7)} สัปดาห์ ${d%7} วัน`;
 const birdsOf=n=>{const h=hdoc(n);if(h.status!=='active')return 0;const r=records.filter(x=>x.house===n).sort((a,b)=>a.date<b.date?-1:1).pop();return r&&r.calc&&r.calc.birds&&days(r.date,today())<=7?r.calc.birds:(h.birds||0);};
 const STATUS={active:['เลี้ยงไก่อยู่','ok'],rest:['พักเล้า','warn'],ready:['พร้อมรับไก่','info']};
 function restInfo(h){const st=h.restStart||today();const left=days(today(),addDays(st,REST_DAYS));const ck=h.checklist||{};const done=REST_STEPS.filter(([k])=>ck[k]).length;return {left,done,all:done===REST_STEPS.length};}
-async function saveHouse(n,patch){const cur=Object.assign({no:n,type:n>=8?'pullet':'layer',status:'ready'},houses['h'+n]||{},patch,{updatedAt:new Date().toISOString(),by:uid,byName:myName});houses['h'+n]=cur;await db.doc('houses/h'+n).set(cur);}
+async function saveHouse(n,patch){const cur=Object.assign({no:n,type:PULLETS.includes(n)?'pullet':'layer',status:'ready'},houses['h'+n]||{},patch,{updatedAt:new Date().toISOString(),by:uid,byName:myName});houses['h'+n]=cur;await db.doc('houses/h'+n).set(cur);}
 
 /* ---------- house tasks (used on overview) ---------- */
 function houseTasks(){const t=[];
@@ -3507,7 +3574,7 @@ function renderFarmToday(){
   $('foTodayH').textContent=D===today()?'วันนี้ทั้งฟาร์ม':`ทั้งฟาร์ม วันที่ ${thDate(D)}`;
   const tile=(ic,lb,v,u,sub,cl='')=>`<div class="tt ${cl}"><div class="tt-ic">${ico(ic)}</div><span>${lb}</span><b>${v}<small>${u}</small></b><em>${sub}</em></div>`;
   $('foToday').innerHTML=
-    tile('egg','ไข่ดี',n0(good),'ฟอง',`${ct(good/30)} ลัง.แผง`)+
+    tile('egg','ไข่ดี',n0(good),'ฟอง',`${ct(good/EPT)} ลัง.แผง`)+
     tile('crack','ไข่แตก',n0(cracked),'ฟอง',good+cracked?`${n1(cracked/(good+cracked)*100,2)}% ของไข่ทั้งหมด`:'',cracked/(good+cracked||1)>0.015?'warn':'')+
     tile('heart','ไก่ตาย',n0(sum('dead')),'ตัว',prob?`ป่วย/พิการ/ถูกจิก ${n0(prob)} ตัว`:'ไม่มีไก่ป่วยที่บันทึก')+
     tile('bowl','อาหารที่ใช้',n0(feed),'กก.',birds?`เฉลี่ย ${n1(feed*1000/birds,0)} กรัม/ตัว`:'')+
@@ -3559,7 +3626,7 @@ const COST_CAT=[['chick','ซื้อไก่','chick'],['feed','ค่าอ�
 const CAT_COL={chick:'#e3a21a',feed:'#1e6a4a',water:'#3f86b5',chlor:'#2fa39a',med:'#c0506f',vac:'#6a5ab8',repair:'#b8641e',other:'#7d8a83'};
 document.querySelectorAll('#caBtns .bb-ic').forEach(el=>{el.outerHTML=ico(el.textContent.trim());});
 function priceAt(kind,date){const L=mprices.filter(p=>p.kind===kind).sort((a,b)=>a.date<b.date?-1:1);if(!L.length)return null;let v=L[0].value;L.forEach(p=>{if(p.date<=date)v=p.value;});return v;}
-function eggPriceAt(date){let eggs=0,amt=0;buyers.forEach(b=>(tx[b.id]||[]).forEach(t=>{if(t.type==='sale'&&t.date<=date&&t.date>=addDays(date,-6))(t.items||[]).forEach(i=>{eggs+=i.trays*30;amt+=i.trays*30*(i.price||0);});}));
+function eggPriceAt(date){let eggs=0,amt=0;buyers.forEach(b=>(tx[b.id]||[]).forEach(t=>{if(t.type==='sale'&&t.date<=date&&t.date>=addDays(date,-6))(t.items||[]).forEach(i=>{eggs+=i.trays*EPT;amt+=i.trays*EPT*(i.price||0);});}));
   if(eggs)return amt/eggs;const m=priceAt('egg',date);if(m)return m;return prices.p&&prices.p.big||null;}
 function flockOf(n){const h=hdoc(n);if(!h.hatch)return null;return {start:h.hatch,from:h.from||null,placed:h.placed||h.hatch};}
 function inFlock(n,F,house,date){if(!F||!date||date<F.start)return false;if(house===n)return true;if(F.from&&house===F.from&&date<F.placed)return true;return false;}
@@ -3888,7 +3955,7 @@ const whoHTML=()=>`<div class="whoami">${ico('user')}<span>บันทึกใ
 
 /* ---------- control room sync (same numbers as the rest of the app) ---------- */
 function ctlInfo(){const o={};ALLH.forEach(n=>{const h=hdoc(n);const rs=records.filter(r=>r.house===n).sort((a,b)=>a.date<b.date?-1:1);const last=rs[rs.length-1];const s=last?recStats(last):null;const ss=siloState(n);const a=ageDays(h);
-  o[n]={ageD:a,active:h.status==='active',status:h.status,type:h.type||(n>=8?'pullet':'layer'),tiers:tiersOf(n),birds:h.status==='active'?birdsOf(n):0,ageWk:a==null?0:Math.floor(a/7),eggs:s?s.good:null,dead:s?s.dead:null,water:s&&s.water!=null?s.water:null,siloKg:ss?Math.round(ss.est):null,siloDays:ss?ss.daysLeft:null};});return o;}
+  o[n]={ageD:a,active:h.status==='active',status:h.status,type:h.type||(PULLETS.includes(n)?'pullet':'layer'),tiers:tiersOf(n),birds:h.status==='active'?birdsOf(n):0,ageWk:a==null?0:Math.floor(a/7),eggs:s?s.good:null,dead:s?s.dead:null,water:s&&s.water!=null?s.water:null,siloKg:ss?Math.round(ss.est):null,siloDays:ss?ss.daysLeft:null};});return o;}
 
 /* ---------- stock ---------- */
 let stockItems=[],stockMoves=[];
@@ -4173,7 +4240,7 @@ const DUNG_UNITS=['กระสอบ','ตัน','คันรถ','ลบ.ม
 const ym=d=>(d||'').slice(0,7);
 const monthLabel=m=>{const [y,mo]=m.split('-').map(Number);return new Date(y,mo-1,1).toLocaleDateString('th-TH',{month:'short',year:'2-digit'});};
 const addMonth=(m,k)=>{const [y,mo]=m.split('-').map(Number);const d=new Date(y,mo-1+k,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');};
-function eggSales(){const L=[];buyers.forEach(b=>(tx[b.id]||[]).forEach(t=>{if(t.type==='sale')L.push({kind:'egg',id:t.id,bid:b.id,date:t.date,at:t.at,who:cleanName(b.name),total:t.total||0,eggs:(t.items||[]).reduce((a,i)=>a+(i.trays||0),0)*30,photos:t.photos,byName:t.byName,note:t.note});}));return L;}
+function eggSales(){const L=[];buyers.forEach(b=>(tx[b.id]||[]).forEach(t=>{if(t.type==='sale')L.push({kind:'egg',id:t.id,bid:b.id,date:t.date,at:t.at,who:cleanName(b.name),total:t.total||0,eggs:(t.items||[]).reduce((a,i)=>a+(i.trays||0),0)*EPT,photos:t.photos,byName:t.byName,note:t.note});}));return L;}
 const henPaid=x=>x.paid==null?(x.total||0):x.paid;
 function allSales(){return [...eggSales(),...henSales.map(x=>({kind:'hen',id:x.id,date:x.date,at:x.at,who:x.buyer||'ไม่ระบุผู้ซื้อ',total:x.total||0,birds:x.birds||0,kg:x.kg||null,house:x.house,paid:henPaid(x),photos:x.photos,byName:x.byName,note:x.note})),
   ...dungSales.map(x=>({kind:'dung',id:x.id,date:x.date,at:x.at,who:x.buyer||'ไม่ระบุผู้ซื้อ',total:x.total||0,qty:x.qty||0,unit:x.unit||'กระสอบ',paid:x.paid==null?x.total:x.paid,photos:x.photos,byName:x.byName,note:x.note}))];}
@@ -4188,7 +4255,7 @@ function renderSell(){if($('vFSell').hidden)return;
   $('slMonth').innerHTML=months.map(m=>`<button type="button" data-v="${m}" aria-pressed="${m===slMonth}">${monthLabel(m)}</button>`).join('');
   const inM=(m,k)=>S.filter(s=>s.kind===k&&ym(s.date)===m);const sum=a=>a.reduce((x,s)=>x+s.total,0);const prevM=addMonth(slMonth,-1);
   const tot={egg:sum(inM(slMonth,'egg')),hen:sum(inM(slMonth,'hen')),dung:sum(inM(slMonth,'dung'))};const all=tot.egg+tot.hen+tot.dung;
-  const qtyTxt=k=>{const a=inM(slMonth,k);if(k==='egg'){const e=a.reduce((x,s)=>x+s.eggs,0);return `${n0(e)} ฟอง (${n0(e/30)} แผง)`;}if(k==='hen'){return `${n0(a.reduce((x,s)=>x+s.birds,0))} ตัว`;}const u={};a.forEach(s=>{u[s.unit]=(u[s.unit]||0)+s.qty;});return Object.entries(u).map(([k,v])=>`${n1(v,v%1?1:0)} ${k}`).join(' + ')||'ยังไม่มี';};
+  const qtyTxt=k=>{const a=inM(slMonth,k);if(k==='egg'){const e=a.reduce((x,s)=>x+s.eggs,0);return `${n0(e)} ฟอง (${n0(e/EPT)} แผง)`;}if(k==='hen'){return `${n0(a.reduce((x,s)=>x+s.birds,0))} ตัว`;}const u={};a.forEach(s=>{u[s.unit]=(u[s.unit]||0)+s.qty;});return Object.entries(u).map(([k,v])=>`${n1(v,v%1?1:0)} ${k}`).join(' + ')||'ยังไม่มี';};
   $('slStalls').innerHTML=`<div class="sl-total"><span>ขายได้ทั้งหมด ${monthLabel(slMonth)}</span><b>${baht(Math.round(all))}<small>บาท</small></b><div class="sharebar">${['egg','hen','dung'].map(k=>all?`<i style="width:${tot[k]/all*100}%;background:${KIND[k][2]}" title="${KIND[k][0]} ${baht(Math.round(tot[k]))} บาท"></i>`:'').join('')}</div><div class="share-leg">${['egg','hen','dung'].map(k=>`<span><i style="background:${KIND[k][2]}"></i>${KIND[k][0]} ${all?n0(tot[k]/all*100):0}%</span>`).join('')}</div></div>`+
     ['egg','hen','dung'].map(k=>{const p=sum(inM(prevM,k));const d=p?(tot[k]-p)/p*100:null;
       return `<div class="stall st-${k}">${stallSVG(k)}<div class="stall-t"><span>${KIND[k][0]}</span><b>${baht(Math.round(tot[k]))}<small>บาท</small></b><em>${qtyTxt(k)}</em>${d!=null?`<small class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${n0(Math.abs(d))}% จาก${monthLabel(prevM)}</small>`:`<small class="muted">${monthLabel(prevM)} ยังไม่มีการขาย</small>`}</div>
@@ -4439,7 +4506,7 @@ function henStdTiles(D,cur){let tb=0,th=0,wb=0,hb=0,ab=0,aw=0,th2=0,hb2=0;record
   put('hdStd',wb?tb/wb:null,cur.hd);put('hhStd',hb?th/hb:null,cur.hh);
   let nt=$('hhNote');if(!nt){nt=document.createElement('span');nt.id='hhNote';nt.className='hstd';$('hhStd').after(nt);}
   nt.innerHTML=cur.hh!=null&&!cur.hFull?`คิดจากเล้า ${cur.hH.join(', ')} เท่านั้น (${cur.hH.length} จาก ${cur.n} เล้า) เพราะเล้าอื่นยังไม่มีจำนวนไก่ลงเล้าต้นรุ่น`:'';}
-function pulletRowsHTML(){return '<div class="hp-h">ไก่เล็ก เล้า 8–10</div>'+PULLETS.map(n=>{const H=hdoc(n);if(H.status!=='active')return `<div class="hp hp-none"><b>เล้า ${n}</b><span class="muted">ยังไม่มีไก่เล็ก</span></div>`;
+function pulletRowsHTML(){return '<div class="hp-h">ไก่เล็ก เล้า '+rangeTxt(PULLETS)+'</div>'+PULLETS.map(n=>{const H=hdoc(n);if(H.status!=='active')return `<div class="hp hp-none"><b>เล้า ${n}</b><span class="muted">ยังไม่มีไก่เล็ก</span></div>`;
   const a=ageDays(H);const W=weighsOf(n);const lw=W[W.length-1];const bc=lw?bwCmp(n,lw):null;const r=records.filter(x=>x.house===n).sort((x,y)=>x.date<y.date?1:-1)[0];const birds=(r&&r.calc&&r.calc.birds)||H.birds;
   const live=H.birdsIn&&birds?birds/H.birdsIn*100:null;
   return `<div class="hp"><b>เล้า ${n}</b><span>อายุ <strong>${n1(a/7)} สป.</strong> ไก่ <strong>${n0(birds)}</strong> ตัว${live!=null?` <em>รอด ${n1(live)}%</em>`:''}</span><span>น้ำหนัก <strong>${lw?n0(lw.avg)+' ก.':'ยังไม่ได้ชั่ง'}</strong> <em>มาตรฐาน ${bc?n0(bc.lo)+'–'+n0(bc.hi)+' ก.':'–'}</em> ${bc?`<span class="badge ${Math.abs(bc.pct)<=5?'ok':Math.abs(bc.pct)<=10?'warn':'crit'}">${bc.pct>=0?'+':''}${n1(bc.pct)}%</span>`:''}</span><span>ตาย 7 วัน <strong>${n0(deadN(n,7))}</strong> ตัว</span></div>`;}).join('');}
@@ -4504,12 +4571,12 @@ function houseCardW(n){const h=hdoc(n);const a=ageDays(h);const T=today();const 
   return `<div class="wcard"><div class="wc-h"><h3>เล้า ${n}</h3><span class="badge">${h.type==='pullet'?'ไก่เล็ก':'ไก่ไข่'}${a!=null?' · '+Math.floor(a/7)+' สป.':''}</span></div>
     ${med?`<div class="stop">${ico('alert')}<div><b>ห้ามขายไข่ถึง ${thDate(med.until)}</b><span>ให้ยา ${esc(med.name)} แยกไข่เล้านี้ไว้</span></div></div>`:''}
     <div class="wfacts"><div><span>ไก่</span><b>${n0(birdsOf(n))}</b><small>ตัว</small></div>
-    ${h.type==='pullet'?'':`<div><span>ไข่วันนี้</span><b>${s?ct(s.good/30):'–'}</b><small>${s?'ลัง.แผง · '+n1(s.hd)+'%':'ยังไม่จด'}</small></div>`}
+    ${h.type==='pullet'?'':`<div><span>ไข่วันนี้</span><b>${s?ct(s.good/EPT):'–'}</b><small>${s?'ลัง.แผง · '+n1(s.hd)+'%':'ยังไม่จด'}</small></div>`}
     <div><span>ตายวันนี้</span><b>${s?n0(s.dead):'–'}</b><small>ตัว</small></div><div><span>ป่วย 7 วัน</span><b>${n0(sick)}</b><small>ตัว</small></div>
     <div><span>อาหาร</span><b>${ls&&ls.feedPer?n0(ls.feedPer):'–'}</b><small>กรัม/ตัว</small></div><div><span>น้ำ</span><b>${ls&&ls.waterPer?n0(ls.waterPer):'–'}</b><small>มล./ตัว</small></div>
     <div><span>อุณหภูมิเป้า</span><b>${tempTarget(a)}</b><small>°C</small></div><div><span>เปิดไฟ</span><b>${lightHours(a)}</b><small>ชม./วัน</small></div></div></div>`;}
 function eggTarget(n){const rs=records.filter(r=>r.house===n).sort((a,b)=>a.date<b.date?1:-1).slice(0,7).map(recStats).filter(x=>x&&x.hd);const hd=rs.length?rs.reduce((a,x)=>a+x.hd,0)/rs.length:((stdFor(n,today())||{}).hd||0);
-  return Math.round(birdsOf(n)*hd/100/30);}
+  return Math.round(birdsOf(n)*hd/100/EPT);}
 
 /* ---------- worker screen ---------- */
 function renderWork(){if($('vWork').hidden)return;const T=today();const hs=myHouses();let tasks=[],extra='';
@@ -4558,11 +4625,11 @@ const PLATES=['70-1234 (ตัวอย่าง)','70-5678 (ตัวอย่�
 function delivList(){const T=today();const out=[];
   buyers.forEach((b,bi)=>{const sales=(tx[b.id]||[]).filter(t=>t.type==='sale'&&t.date>=addDays(T,-13));
     sales.forEach(t=>{const id=`${b.id}_${t.id}`;const o=delivs[id]||{};
-      out.push({id,date:t.date,to:cleanName(b.name),toId:b.id,kind:'egg',kindL:'ส่งไข่',retail:b.kind==='retail',qty:eggQty(t.items)*30,qtyTxt:`${itemsTxt(t.items)} (${n0(eggQty(t.items)*30)} ฟอง)`,
+      out.push({id,date:t.date,to:cleanName(b.name),toId:b.id,kind:'egg',kindL:'ส่งไข่',retail:b.kind==='retail',qty:eggQty(t.items)*EPT,qtyTxt:`${itemsTxt(t.items)} (${n0(eggQty(t.items)*EPT)} ฟอง)`,
         time:o.time||['06:30','07:30','09:00','10:30','13:00'][bi%5],truck:o.truck||PLATES[bi%3],driver:o.driver||DRIVERS[bi%3],loaders:o.loaders||['น้องมด (ตัวอย่าง)'],status:o.status||(t.date<T?'done':'plan'),total:t.total});});
     const last=sales.sort((a,c)=>a.date<c.date?1:-1)[0];
     if(last){const d=addDays(T,1);const id=`${b.id}_plan_${d}`;const o=delivs[id]||{};
-      out.push({id,date:d,to:cleanName(b.name),toId:b.id,kind:'egg',kindL:'ส่งไข่ (แผน)',retail:b.kind==='retail',qty:eggQty(last.items)*30,qtyTxt:`ประมาณ ${n0(eggQty(last.items)*30)} ฟอง เท่ารอบล่าสุด`,
+      out.push({id,date:d,to:cleanName(b.name),toId:b.id,kind:'egg',kindL:'ส่งไข่ (แผน)',retail:b.kind==='retail',qty:eggQty(last.items)*EPT,qtyTxt:`ประมาณ ${n0(eggQty(last.items)*EPT)} ฟอง เท่ารอบล่าสุด`,
         time:o.time||['06:30','07:30','09:00','10:30','13:00'][bi%5],truck:o.truck||PLATES[bi%3],driver:o.driver||DRIVERS[bi%3],loaders:o.loaders||['น้องมด (ตัวอย่าง)'],status:o.status||'plan',plan:true});}});
   LAYERS.forEach(n=>{const D=depopPlan(n);if(!D||D.date>addDays(T,30)||D.date<T)return;const id=`hen_${n}_${D.date}`;const o=delivs[id]||{};
     out.push({id,date:D.date,to:'พ่อค้าไก่ปลด',kind:'hen',kindL:'ขนไก่แก่',qty:birdsOf(n),qtyTxt:`เล้า ${n} ประมาณ ${n0(birdsOf(n))} ตัว`,time:o.time||'05:00',truck:o.truck||'รถผู้ซื้อ',driver:o.driver||'–',loaders:o.loaders||['น้องมด (ตัวอย่าง)','พี่ต้น (ตัวอย่าง)'],status:o.status||'plan'});});
@@ -4591,11 +4658,11 @@ $('vFDeliv').addEventListener('click',async e=>{const t=e.target.closest('#dvTab
 let fcSel=null;
 function buyerSum(b){const L=tx[b.id]||[];const T=today();const sales=L.filter(t=>t.type==='sale'),pays=L.filter(t=>t.type==='pay');
   const sold=sales.reduce((a,t)=>a+(t.total||0),0),paid=pays.reduce((a,t)=>a+(t.amount||0),0);const m30=sales.filter(t=>t.date>=addDays(T,-29));
-  return {sales,pays,sold,paid,owe:sold-paid,eggs30:m30.reduce((a,t)=>a+eggQty(t.items)*30,0),baht30:m30.reduce((a,t)=>a+(t.total||0),0),last:sales.map(t=>t.date).sort().pop()};}
+  return {sales,pays,sold,paid,owe:sold-paid,eggs30:m30.reduce((a,t)=>a+eggQty(t.items)*EPT,0),baht30:m30.reduce((a,t)=>a+(t.total||0),0),last:sales.map(t=>t.date).sort().pop()};}
 function custDetailHTML(b,money){const S=buyerSum(b);const D=delivList().filter(x=>x.toId===b.id).slice(0,6);
   const rows=[...S.sales.map(t=>({d:t.date,a:t.at,k:'s',t})),...S.pays.map(t=>({d:t.date,a:t.at,k:'p',t}))].sort((x,y)=>(x.a||x.d)<(y.a||y.d)?1:-1).slice(0,20);
   return `<div class="pair"><div class="bignum ${S.owe>0.5?'owe':'okc'}"><span>ค้างจ่าย</span><b>${baht(Math.round(S.owe))}<small>บาท</small></b></div><div class="bignum"><span>ซื้อ 30 วัน</span><b>${n0(S.eggs30)}<small>ฟอง</small></b><em>${baht(Math.round(S.baht30))} บาท</em></div></div>
-   <h3>ประวัติซื้อและการจ่าย</h3><div class="tbl-scroll"><table class="tbl"><thead><tr><th>วันที่</th><th>รายการ</th><th>ฟอง</th><th>เป็นเงิน</th><th>จ่าย</th></tr></thead><tbody>${rows.map(r=>r.k==='s'?`<tr><td>${thDate(r.d)}</td><td style="white-space:normal">${itemsTxt(r.t.items)}</td><td>${n0(eggQty(r.t.items)*30)}</td><td>${baht(r.t.total)}</td><td class="muted">ยังไม่จ่าย</td></tr>`:`<tr><td>${thDate(r.d)}</td><td>รับชำระ${r.t.method?' ('+esc(r.t.method)+')':''}</td><td class="muted">ไม่มีของ</td><td class="muted">ไม่มีขาย</td><td>${baht(r.t.amount)}</td></tr>`).join('')||'<tr><td class="empty" colspan="5">ยังไม่มีรายการ</td></tr>'}</tbody></table></div>
+   <h3>ประวัติซื้อและการจ่าย</h3><div class="tbl-scroll"><table class="tbl"><thead><tr><th>วันที่</th><th>รายการ</th><th>ฟอง</th><th>เป็นเงิน</th><th>จ่าย</th></tr></thead><tbody>${rows.map(r=>r.k==='s'?`<tr><td>${thDate(r.d)}</td><td style="white-space:normal">${itemsTxt(r.t.items)}</td><td>${n0(eggQty(r.t.items)*EPT)}</td><td>${baht(r.t.total)}</td><td class="muted">ยังไม่จ่าย</td></tr>`:`<tr><td>${thDate(r.d)}</td><td>รับชำระ${r.t.method?' ('+esc(r.t.method)+')':''}</td><td class="muted">ไม่มีของ</td><td class="muted">ไม่มีขาย</td><td>${baht(r.t.amount)}</td></tr>`).join('')||'<tr><td class="empty" colspan="5">ยังไม่มีรายการ</td></tr>'}</tbody></table></div>
    <h3>รอบส่งล่าสุดและถัดไป</h3><div class="dvs">${D.map(x=>delivCard(x,false)).join('')||'<div class="empty">ไม่มีรอบส่ง</div>'}</div>`;}
 function renderFCust(){const v=$('vFCustomers');if(v.hidden)return;if(!fcSel||!buyers.some(b=>b.id===fcSel))fcSel=(buyers[0]||{}).id;
   const list=buyers.map(b=>Object.assign({b},buyerSum(b))).sort((a,c)=>c.owe-a.owe);
@@ -4618,7 +4685,7 @@ function renderCust(){const v=$('vCust');if(v.hidden)return;const b=buyers.find(
 /* ---------- ล้ง: customers & deliveries ---------- */
 let lcSel=null;
 function lCustRows(){const L=lData();const cs={};(L.outs||[]).forEach(o=>{if(!o.customer)return;const c=cs[o.customer]||(cs[o.customer]={n:o.customer,sold:0,paid:0,eggs:0,last:'',rows:[]});
-  if(o.type==='sale'){c.sold+=o.total||0;c.paid+=o.paid||0;c.eggs+=eggQty(o.items)*30;if(o.date>c.last)c.last=o.date;}if(o.type==='pay')c.paid+=o.amount||0;c.rows.push(o);});return Object.values(cs).sort((a,b)=>(b.sold-b.paid)-(a.sold-a.paid));}
+  if(o.type==='sale'){c.sold+=o.total||0;c.paid+=o.paid||0;c.eggs+=eggQty(o.items)*EPT;if(o.date>c.last)c.last=o.date;}if(o.type==='pay')c.paid+=o.amount||0;c.rows.push(o);});return Object.values(cs).sort((a,b)=>(b.sold-b.paid)-(a.sold-a.paid));}
 function renderLCust(){const v=$('vLCust');if(v.hidden)return;const cs=lCustRows();if(!lcSel||!cs.some(c=>c.n===lcSel))lcSel=(cs[0]||{}).n;const sel=cs.find(c=>c.n===lcSel);
   v.innerHTML=`<div class="hello"><h2>ลูกค้าของล้ง</h2><p>ร้านที่ล้งขายไข่ต่อ ยอดซื้อ ยอดค้าง และประวัติ${isPreview()?' (ฟาร์มเห็นเป็นข้อมูลตัวอย่าง เพราะข้อมูลลูกค้าของล้งเป็นข้อมูลส่วนตัว)':''}</p></div>
    <div class="fc-grid"><div class="panel"><div class="panel-h"><h2>รายชื่อลูกค้า</h2><div class="meta">${cs.length} ราย</div></div><div class="fc-list">${cs.map(c=>`<button type="button" class="fc-item" data-lc="${esc(c.n)}" aria-pressed="${c.n===lcSel}"><span><b>${esc(c.n)}</b><small>ซื้อล่าสุด ${c.last?thDate(c.last):'–'} · ${n0(c.eggs)} ฟอง</small></span><em class="${c.sold-c.paid>0.5?'owe':''}">${c.sold-c.paid>0.5?'ค้าง '+baht(Math.round(c.sold-c.paid)):'ไม่มีค้าง'}</em></button>`).join('')||'<div class="empty">ยังไม่มีลูกค้า บันทึกการขายออกที่หน้าโกดัง</div>'}</div></div>
@@ -4629,8 +4696,8 @@ function renderLDeliv(){const v=$('vLDeliv');if(v.hidden)return;const L=lData();
   const inn=(L.tx||[]).filter(t=>t.type==='sale'&&t.date>=addDays(T,-6)).sort((a,b)=>a.date<b.date?1:-1);
   const out=(L.outs||[]).filter(o=>o.type==='sale'&&o.date>=addDays(T,-6)).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(a.at<b.at?-1:1));
   v.innerHTML=`<div class="hello"><h2>จัดส่ง</h2><p>ไข่ที่รับเข้าจากฟาร์ม และรอบส่งไข่ให้ลูกค้าของล้ง 7 วันล่าสุด</p></div>
-   <div class="panel"><div class="panel-h"><h2>รับเข้าจากฟาร์ม</h2></div><div class="dvs">${inn.map(t=>`<div class="dv"><div class="dv-h"><b>รับไข่จากปรียาฟาร์ม</b><span class="badge ok">รับแล้ว</span></div><small>${thDate(t.date)} · ${itemsTxt(t.items)} (${n0(eggQty(t.items)*30)} ฟอง)</small></div>`).join('')||'<div class="empty">7 วันนี้ยังไม่มีรอบรับ</div>'}</div></div>
-   <div class="panel"><div class="panel-h"><h2>ส่งให้ลูกค้า</h2>${isPreview()?'<div class="meta">ข้อมูลตัวอย่าง</div>':''}</div><div class="dvs">${out.map(o=>`<div class="dv"><div class="dv-h"><b>${esc(o.customer||'ลูกค้า')}</b><span class="badge ${o.date<T?'ok':'warn'}">${o.date<T?'ส่งถึงแล้ว':'รอส่ง'}</span></div><small>${thDate(o.date)} · ${itemsTxt(o.items)} (${n0(eggQty(o.items)*30)} ฟอง)</small><small>เป็นเงิน ${baht(o.total)} บาท</small></div>`).join('')||'<div class="empty">7 วันนี้ยังไม่มีรอบส่ง</div>'}</div></div>`;}
+   <div class="panel"><div class="panel-h"><h2>รับเข้าจากฟาร์ม</h2></div><div class="dvs">${inn.map(t=>`<div class="dv"><div class="dv-h"><b>รับไข่จากปรียาฟาร์ม</b><span class="badge ok">รับแล้ว</span></div><small>${thDate(t.date)} · ${itemsTxt(t.items)} (${n0(eggQty(t.items)*EPT)} ฟอง)</small></div>`).join('')||'<div class="empty">7 วันนี้ยังไม่มีรอบรับ</div>'}</div></div>
+   <div class="panel"><div class="panel-h"><h2>ส่งให้ลูกค้า</h2>${isPreview()?'<div class="meta">ข้อมูลตัวอย่าง</div>':''}</div><div class="dvs">${out.map(o=>`<div class="dv"><div class="dv-h"><b>${esc(o.customer||'ลูกค้า')}</b><span class="badge ${o.date<T?'ok':'warn'}">${o.date<T?'ส่งถึงแล้ว':'รอส่ง'}</span></div><small>${thDate(o.date)} · ${itemsTxt(o.items)} (${n0(eggQty(o.items)*EPT)} ฟอง)</small><small>เป็นเงิน ${baht(o.total)} บาท</small></div>`).join('')||'<div class="empty">7 วันนี้ยังไม่มีรอบส่ง</div>'}</div></div>`;}
 function renderV17(){if(!portal)return;['vWork','vCust','vFDeliv','vFCustomers','vLCust','vLDeliv'].forEach(id=>{if(!$(id).hidden)({vWork:renderWork,vCust:renderCust,vFDeliv:renderFDeliv,vFCustomers:renderFCust,vLCust:renderLCust,vLDeliv:renderLDeliv})[id]();});
   if(portal==='work')setIdentity('work');}
 /* ================= gate & routing ================= */
@@ -4724,7 +4791,7 @@ if(db){
     db.collection('dungsales').onSnapshot(s=>{dungSales=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
     db.collection('deliv').onSnapshot(s=>{delivs={};s.docs.forEach(d=>{delivs[d.id]=d.data();});refresh();},()=>{});
     db.collection('hensales').onSnapshot(s=>{henSales=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
-    db.collection('houses').onSnapshot(s=>{houses={};s.docs.forEach(d=>{houses[d.id]=d.data();});refresh();},()=>{});
+    db.collection('houses').onSnapshot(s=>{houses={};s.docs.forEach(d=>{houses[d.id]=d.data();});syncHouseLists();refresh();},()=>{});
     db.collection('repairs').onSnapshot(s=>{repairs=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
     db.collection('health').onSnapshot(s=>{health=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
     db.collection('adjust').orderBy('date','asc').onSnapshot(s=>{adjusts=s.docs.map(d=>Object.assign({id:d.id},d.data()));refresh();},()=>{});
